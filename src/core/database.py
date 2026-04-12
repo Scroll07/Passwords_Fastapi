@@ -19,6 +19,12 @@ async def init_db():
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
         async_engine.echo = True
+        
+async def get_db():
+    async with async_session() as db:
+        yield db
+        
+        await db.close()
 
 
 
