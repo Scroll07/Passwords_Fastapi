@@ -11,8 +11,8 @@ class Users(Base):
     
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
-    telegram_id: Mapped[int] = mapped_column(unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(nullable=False)
+    telegram_id: Mapped[int] = mapped_column(unique=True, nullable=True)
 
     backups: Mapped[list["Backups"]] = relationship(back_populates="user")
 

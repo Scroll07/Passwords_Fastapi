@@ -10,11 +10,11 @@ RUN uv sync --frozen --no-dev --no-cache
 
 COPY . .
 
-RUN chmod +x ./start.sh
+RUN chmod +x ./scripts/start_api.sh
+RUN chmod +x ./scripts/start_bot.sh
 
 EXPOSE 8000
 
-CMD ["./start.sh"]
 
 
 
