@@ -28,22 +28,23 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      SECRET_TOKEN_KEY: ${SECRET_TOKEN_KEY}
     depends_on:
       db:
         condition: service_healthy
 
 
-  bot:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ./scripts/start_bot.sh
-    environment:
-      BOT_TOKEN: ${BOT_TOKEN}
-    network_mode: host
-    depends_on:
-      db:
-        condition: service_healthy
+  # bot:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   command: ./scripts/start_bot.sh
+  #   environment:
+  #     BOT_TOKEN: ${BOT_TOKEN}
+  #   network_mode: host
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
 
 volumes:

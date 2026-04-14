@@ -26,6 +26,7 @@ class Settings:
     DB_NAME: str = os.getenv("DB_NAME")
     DB_USER: str = os.getenv("DB_USER")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD")
+    SECRET_TOKEN_KEY: str = os.getenv("SECRET_TOKEN_KEY")
     
     BOT_TOKEN: str = os.getenv("BOT_TOKEN")
     

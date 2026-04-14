@@ -10,3 +10,6 @@ class CreateUserInDb(BaseModel):
     username: str
     password_hash: str
     telegram_id: int
+    
+    
+    

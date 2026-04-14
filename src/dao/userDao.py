@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.model import Users
 
 
-from src.core.schemas import RegisterRequestData
+from schemas.base import RegisterRequestData
 
 class UserDao:
     def __init__(self, session: AsyncSession) -> None:

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from src.dependincies import get_db
-from src.core.schemas import RegisterRequestData
+from schemas.base import RegisterRequestData
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
 
