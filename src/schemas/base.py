@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from enum import StrEnum
 
+
+
 class RegisterRequestData(BaseModel):
     username: str
     password: str

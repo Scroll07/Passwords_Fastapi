@@ -17,8 +17,14 @@
     
 #settings = Settings() # type: ignore
 
-
+from pathlib import Path
 import os
+
+BASE_DIR = Path.absolute(__file__).parent.parent.parent
+BACKUPS = BASE_DIR / 'BACKUPS_DATA'
+
+
+
 
 class Settings:
     DB_HOST: str = os.getenv("DB_HOST")

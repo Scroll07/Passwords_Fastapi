@@ -5,6 +5,8 @@ from sqlalchemy import select
 from schemas.base import RegisterRequestData, GetUserFields
 
 
+from schemas.base import RegisterRequestData
+
 class UserDao:
     def __init__(self, session: AsyncSession) -> None:
         self.session: AsyncSession

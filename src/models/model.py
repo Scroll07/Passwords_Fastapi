@@ -22,7 +22,7 @@ class Backups(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    path: Mapped[int] = mapped_column(nullable=False)
+    path: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
     user: Mapped["Users"] = relationship(back_populates="backups")

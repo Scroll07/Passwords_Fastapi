@@ -15,14 +15,18 @@ async def register_post(
     
     db = Depends(get_db),
 ):
-    password_hash = hash_password(user_data.password)
-    user_data.password = password_hash
+    try:
     
-    dao = UserDao(db)
-    new_user = await dao.create_user(user_data)
+        password_hash = hash_password(user_data.password)
+        user_data.password = password_hash
+        
+        dao = UserDao(db)
+        new_user = await dao.create_user(user_data)
 
-    return {"ok": True, "message": "New user was sucessfully created"}
+        return {"ok": True, "message": "New user was sucessfully created"}
 
+    except Exception as e:
+        raise HTTPException(500, "Internal server error")
 
 @users.post("/login")
 async def login_post(
