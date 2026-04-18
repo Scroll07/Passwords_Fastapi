@@ -20,7 +20,7 @@
 from pathlib import Path
 import os
 
-BASE_DIR = Path.absolute(__file__).parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 BACKUPS = BASE_DIR / 'BACKUPS_DATA'
 
 

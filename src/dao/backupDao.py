@@ -12,7 +12,7 @@ class BackupDao:
         self.session = session
 
     @asynccontextmanager
-    async def create_backup(self, user_id: int, filename: str) -> AsyncGenerator[Backups]:
+    async def create_backup(self, user_id: int, filename: str) -> AsyncGenerator[Backups, None]:
         new_backup = Backups(
             user_id=user_id,
             # path=path,

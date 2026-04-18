@@ -22,6 +22,10 @@ services:
       context: .
       dockerfile: Dockerfile
     command: ./scripts/start_api.sh
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./alembic:/app/alembic
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}

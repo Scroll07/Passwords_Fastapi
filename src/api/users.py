@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.dependincies import get_db
-from schemas.base import RegisterRequestData, LoginRequest, GetUserFields
+from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
 from src.services.secrets import jwt_service
+from src.core.logger import get_logger
+
+
+
+logger = get_logger(__name__)
 
 users = APIRouter()
 
@@ -26,6 +31,7 @@ async def register_post(
         return {"ok": True, "message": "New user was sucessfully created"}
 
     except Exception as e:
+        logger.exception(e)
         raise HTTPException(500, "Internal server error")
 
 @users.post("/login")
@@ -52,6 +58,8 @@ async def login_post(
             "message": "Success login"
         }
     except HTTPException as e:
+        logger.warning(e)
         raise e
     except Exception as e:
+        logger.exception(e)
         raise HTTPException(500, "Internal server error")
