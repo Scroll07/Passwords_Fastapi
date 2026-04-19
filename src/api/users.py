@@ -26,10 +26,21 @@ async def register_post(
         user_data.password = password_hash
         
         dao = UserDao(db)
+        
+        exist_username = await dao.get_user_by_field(GetUserFields.USERNAME, user_data.username)
+        exist_telegram_id = await dao.get_user_by_field(GetUserFields.TELEGRAM_ID, user_data.telegram_id)
+        if exist_username:
+            raise HTTPException(409, detail="User with this username alredy exists")
+        if exist_telegram_id:
+            raise HTTPException(409, detail="User with this telegram id alredy exists")
+        
         new_user = await dao.create_user(user_data)
 
         return {"ok": True, "message": "New user was sucessfully created"}
 
+    except HTTPException as e:
+        logger.warning(e)
+        raise e
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")

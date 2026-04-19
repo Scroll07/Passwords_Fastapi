@@ -1,6 +1,4 @@
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-import shutil
-
 
 from src.dependincies import get_db, verify_user
 from src.dao.backupDao import BackupDao
