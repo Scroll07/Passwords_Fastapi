@@ -16,7 +16,7 @@ async def verify_user(credentials: HTTPAuthorizationCredentials = Depends(securi
         token = credentials.credentials
         user_id = jwt_service.verify_token(token)
         return user_id
-    except Exception as e:
+    except Exception:
         raise HTTPException(401, "Invalid token")
 
 
