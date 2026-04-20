@@ -2,13 +2,14 @@ from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, func
 
+
 class Base(DeclarativeBase):
     pass
 
 
 class Users(Base):
-    __tablename__="users"
-    
+    __tablename__ = "users"
+
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(nullable=False)
@@ -18,7 +19,7 @@ class Users(Base):
 
 
 class Backups(Base):
-    __tablename__="backups"
+    __tablename__ = "backups"
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
@@ -28,5 +29,5 @@ class Backups(Base):
     user: Mapped["Users"] = relationship(back_populates="backups")
 
 
-#class UserSettings(Base):
+# class UserSettings(Base):
 #    __tablename__="settings"

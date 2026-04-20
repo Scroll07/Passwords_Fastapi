@@ -11,16 +11,10 @@ from src.api.users import users as users_router
 async def lifespan(app: FastAPI):
 
     yield
-    
+
     await async_engine.dispose()
 
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(pass_router, tags=["PASSWORDS"])
 app.include_router(users_router, tags=["USERS"])
-
-
-
-
-
-

@@ -1,4 +1,3 @@
-from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from contextlib import asynccontextmanager
@@ -12,18 +11,20 @@ class BackupDao:
         self.session = session
 
     @asynccontextmanager
-    async def create_backup(self, user_id: int, filename: str) -> AsyncGenerator[Backups, None]:
+    async def create_backup(
+        self, user_id: int, filename: str
+    ) -> AsyncGenerator[Backups, None]:
         new_backup = Backups(
             user_id=user_id,
             # path=path,
         )
         self.session.add(new_backup)
-        
+
         await self.session.flush()
         await self.session.refresh(new_backup)
 
         backup_dir = BACKUPS / str(user_id) / str(new_backup.id)
-        backup_dir.mkdir(exist_ok = True, parents=True)
+        backup_dir.mkdir(exist_ok=True, parents=True)
         path = backup_dir / filename
 
         new_backup.path = str(path)
@@ -36,7 +37,6 @@ class BackupDao:
         except Exception as e:
             await self.session.rollback()
             raise e
-
 
     async def get_user_backups(self, user_id: int) -> Sequence[Backups]:
         query = select(Backups).where(Backups.user_id == user_id)
