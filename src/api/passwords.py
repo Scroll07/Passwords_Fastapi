@@ -34,3 +34,11 @@ async def upload_post(
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")
+
+
+# @passwords.post("/backups/download")
+# async def download_post(
+#    db = Depends(get_db),
+#    user_id = Depends(verify_user)
+# ):
+#    pass
