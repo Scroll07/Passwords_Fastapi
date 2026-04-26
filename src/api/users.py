@@ -27,13 +27,15 @@ async def register_post(
         exist_username = await dao.get_user_by_field(
             GetUserFields.USERNAME, user_data.username
         )
-        exist_telegram_id = await dao.get_user_by_field(
-            GetUserFields.TELEGRAM_ID, user_data.telegram_id
-        )
         if exist_username:
             raise HTTPException(409, detail="User with this username alredy exists")
-        if exist_telegram_id:
-            raise HTTPException(409, detail="User with this telegram id alredy exists")
+
+        if user_data.telegram_id is not None:
+            exist_telegram_id = await dao.get_user_by_field(
+            GetUserFields.TELEGRAM_ID, user_data.telegram_id
+        )
+            if exist_telegram_id:
+                raise HTTPException(409, detail="User with this telegram id alredy exists")
 
         await dao.create_user(user_data)
 

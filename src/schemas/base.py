@@ -5,7 +5,7 @@ from enum import StrEnum
 class RegisterRequestData(BaseModel):
     username: str
     password: str
-    telegram_id: int
+    telegram_id: int | None = None
 
 
 class CreateUserInDb(BaseModel):
