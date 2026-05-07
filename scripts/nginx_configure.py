@@ -30,5 +30,5 @@ def main() -> None:
     except Exception as e:
         raise e    
     
-if __file__ == "__main__":
+if __name__ == "__main__":
     main()
