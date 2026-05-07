@@ -39,7 +39,7 @@ class BackupDao:
             raise e
 
     async def get_user_backups(self, user_id: int) -> Sequence[Backups]:
-        query = select(Backups).where(Backups.user_id == user_id)
+        query = select(Backups).where(Backups.user_id == user_id).limit(10)
         result = await self.session.execute(query)
         backups = result.scalars().all()
         return backups

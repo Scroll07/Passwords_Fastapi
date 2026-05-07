@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 from enum import StrEnum
 
@@ -29,3 +31,7 @@ class GetUserFields(StrEnum):
     ID = "id"
     USERNAME = "username"
     TELEGRAM_ID = "telegram_id"
+    
+class BackupData(BaseModel):
+    id: int
+    created_at: datetime
