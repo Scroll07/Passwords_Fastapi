@@ -38,3 +38,7 @@ class BackupData(BaseModel):
 
 class DownloadRequest(BaseModel):
     backup_id: int
+    
+class DeleteRequest(BaseModel):
+    backup_id: int
+    

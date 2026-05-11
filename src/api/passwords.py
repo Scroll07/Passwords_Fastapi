@@ -8,7 +8,7 @@ from src.schemas.base import BackupData, DownloadRequest
 from src.dependincies import get_db, verify_user
 from src.dao.backupDao import BackupDao
 from src.core.logger import get_logger
-from src.services.backup_service import get_user_backup_path
+from src.services.backup_service import delete_backup_by_path
 
 logger = get_logger(__name__)
 
@@ -41,7 +41,7 @@ async def upload_post(
         raise HTTPException(500, "Internal server error")
 
 
-@passwords.post("/backups")
+@passwords.get("/backups")
 async def get_user_backups(
     db = Depends(get_db),
     user_id = Depends(verify_user),
@@ -70,7 +70,7 @@ async def download_post(
 ):
     try:
         dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(backup_id=data.backup_id)
+        backup = await dao.get_backup_by_id(backup_id=data.backup_id, user_id=user_id)
         if backup is None:
             raise HTTPException(404, "Backup was not found")
             
@@ -91,3 +91,21 @@ async def download_post(
     except Exception as e:
         logger.exception(f"Error in Download handler: {e}")
         raise HTTPException(500, detail="Internal server error")
+    
+
+@passwords.delete("/backups/{backup_id}")
+async def delete_backup(
+   backup_id: int, 
+   db = Depends(get_db),
+   user_id = Depends(verify_user),
+):
+    dao = BackupDao(session=db)
+    deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=user_id)
+    if deleted_backup is None:
+        raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
+    
+    #delete file local
+    delete_backup_by_path(backup_path=Path(deleted_backup.path))
+    
+    return {"ok": True, "message": "Your backup was successully deleted"}
+    
