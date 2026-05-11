@@ -43,3 +43,9 @@ class BackupDao:
         result = await self.session.execute(query)
         backups = result.scalars().all()
         return backups
+
+    async def get_backup_by_id(self, backup_id: int) -> Backups | None:
+        query = select(Backups).where(Backups.id == backup_id)
+        result = await self.session.execute(query)
+        backup = result.scalar_one_or_none()
+        return backup

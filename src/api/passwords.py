@@ -1,9 +1,10 @@
 from datetime import datetime
+from pathlib import Path
 
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
 
-from schemas.base import BackupData
+from src.schemas.base import BackupData, DownloadRequest
 from src.dependincies import get_db, verify_user
 from src.dao.backupDao import BackupDao
 from src.core.logger import get_logger
@@ -55,31 +56,38 @@ async def get_user_backups(
             )
             for b in backups
         ]
-        return {"ok": True, "backups": backups_data}
+        return {"ok": True, "message": f"Backups of {user_id}", "backups": backups_data}
     except Exception as e:
+        logger.exception(f"Error in Backups handler: {e}")
         raise HTTPException(500, detail="Interal server error")
     
 
 @passwords.post("/backups/download")
 async def download_post(
-   backup_id: int, 
+   data: DownloadRequest, 
    db = Depends(get_db),
    user_id = Depends(verify_user),
 ):
     try:
-        backup_file = get_user_backup_path(user_id=user_id, backup_id=backup_id)
-        if not backup_file.exists():
+        dao = BackupDao(session=db)
+        backup = await dao.get_backup_by_id(backup_id=data.backup_id)
+        if backup is None:
             raise HTTPException(404, "Backup was not found")
+            
+        if not Path(backup.path).exists():
+            raise HTTPException(500, "We cant find ur backup")
         
         now = datetime.now()
-        date = datetime.strftime(now, format="%d-%m-%%Y_%H-%M-%S")
+        date = datetime.strftime(now, format="%d-%m-%Y_%H-%M-%S")
         
         return FileResponse(
-        path=backup_file,
+        path=backup.path,
         filename=f'backup_{date}.json',
         media_type="application/json"
         )
     except HTTPException as e:
+        logger.exception(f"Error in Download handler: {e}")
         raise e
     except Exception as e:
+        logger.exception(f"Error in Download handler: {e}")
         raise HTTPException(500, detail="Internal server error")

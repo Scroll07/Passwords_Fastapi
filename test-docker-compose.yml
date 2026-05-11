@@ -28,6 +28,7 @@ services:
       - .test.env
     volumes:
       - ./alembic:/app/alembic
+      - ./BACKUPS_DATA:/app/BACKUPS_DATA
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}

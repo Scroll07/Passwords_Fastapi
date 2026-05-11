@@ -35,3 +35,6 @@ class GetUserFields(StrEnum):
 class BackupData(BaseModel):
     id: int
     created_at: datetime
+
+class DownloadRequest(BaseModel):
+    backup_id: int
