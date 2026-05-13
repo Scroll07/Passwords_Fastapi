@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from contextlib import asynccontextmanager
 from typing import Sequence, AsyncGenerator
+from src.schemas.base import UploadRequest
 from src.models.model import Backups
 from src.core.settings import BACKUPS
 
@@ -12,11 +13,12 @@ class BackupDao:
 
     @asynccontextmanager
     async def create_backup(
-        self, user_id: int, filename: str
+        self, user_id: int, filename: str, rows: int, name: str
     ) -> AsyncGenerator[Backups, None]:
         new_backup = Backups(
             user_id=user_id,
-            # path=path,
+            rows=rows,
+            name_to_show=name
         )
         self.session.add(new_backup)
 

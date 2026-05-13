@@ -1,10 +1,10 @@
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Body
+from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
 
-from src.schemas.base import BackupData, DownloadRequest
+from src.schemas.base import BackupData, DownloadRequest, UploadRequest
 from src.dependincies import get_db, verify_user
 from src.dao.backupDao import BackupDao
 from src.core.logger import get_logger
@@ -17,6 +17,8 @@ passwords = APIRouter()
 
 @passwords.post("/backups/upload")
 async def upload_post(
+    name: str = Form(...),
+    rows: int = Form(...),
     file: UploadFile = File(...),
     db=Depends(get_db),
     user_id=Depends(verify_user),
@@ -26,7 +28,7 @@ async def upload_post(
         if file.filename is None:
             raise HTTPException(401, detail="Filename is None")
 
-        new_backup = dao.create_backup(user_id, file.filename)
+        new_backup = dao.create_backup(user_id=user_id, filename=file.filename, name=name, rows=rows)
         async with new_backup as backup:
             content = await file.read()
             with open(backup.path, "wb") as f:
@@ -52,7 +54,9 @@ async def get_user_backups(
         backups_data = [
             BackupData(
                 id=b.id,
-                created_at=b.created_at
+                created_at=b.created_at,
+                name=b.name_to_show,
+                rows=b.rows
             )
             for b in backups
         ]

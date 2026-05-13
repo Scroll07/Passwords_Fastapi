@@ -4,10 +4,27 @@ from pydantic import BaseModel
 from enum import StrEnum
 
 
+##########################
+#       REQUESTS
+##########################
+
+
 class RegisterRequestData(BaseModel):
     username: str
     password: str
     telegram_id: int | None = None
+
+class DownloadRequest(BaseModel):
+    backup_id: int
+    
+class DeleteRequest(BaseModel):
+    backup_id: int
+
+class UploadRequest(BaseModel):
+    name: str
+    rows_count: int
+
+
 
 
 class CreateUserInDb(BaseModel):
@@ -34,11 +51,8 @@ class GetUserFields(StrEnum):
     
 class BackupData(BaseModel):
     id: int
+    name: str
+    rows: int
     created_at: datetime
 
-class DownloadRequest(BaseModel):
-    backup_id: int
-    
-class DeleteRequest(BaseModel):
-    backup_id: int
     
