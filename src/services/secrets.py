@@ -5,7 +5,7 @@ import jwt
 from datetime import timedelta, datetime, timezone
 
 from src.core.settings import settings as s
-from src.schemas.jwt import Token
+from src.schemas.jwt import Token, TokenType
 
 
 def hash_password(password: str) -> str:
@@ -20,8 +20,8 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 ALGORITM = "HS256"
-TOKEN_EXPIRES_IN = 30
-
+TOKEN_EXPIRES_IN_ACCESS = 30
+TOKEN_EXPIRES_IN_REFRESH = 7
 
 class JWT:
     def __init__(self, algoritm: str, secret_key: str) -> None:
@@ -29,7 +29,7 @@ class JWT:
         self.secret_key = secret_key
 
     def create_access_token(
-        self, user_id: int, expires_in_min: int = TOKEN_EXPIRES_IN
+        self, user_id: int, expires_in_min: int = TOKEN_EXPIRES_IN_ACCESS
     ) -> Token:
         expires = datetime.now(timezone.utc) + timedelta(minutes=expires_in_min)
 
@@ -39,9 +39,24 @@ class JWT:
             "exp": expires,
         }
         encoded = jwt.encode(encode_to, self.secret_key, self.algoritm)
-        return Token(access_token=encoded, token_type="bearer")
+        return Token(token=encoded, token_type=TokenType.BEARER)
+    
+    def create_refresh_token(
+        self, user_id: int, expires_in_days: int = TOKEN_EXPIRES_IN_REFRESH
+        ) -> Token:
+        expires = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
+        
+        encode_to = {
+            user_id: user_id,
+            "type": "refresh",
+            "exp": expires
+        }        
+        encoded = jwt.encode(encode_to, self.secret_key, self.algoritm) 
+        return Token(token=encoded, token_type=TokenType.REFRESH)
+        
+        
 
-    def verify_token(self, token: str) -> int | bool:
+    def verify_token(self, token: str) -> int:
         try:
             decoded = jwt.decode(token, self.secret_key, [self.algoritm])
         except Exception as e:
@@ -59,7 +74,12 @@ class JWT:
             return int(user_id)
 
         elif type == "refresh":
-            return True
+            user_id = decoded.get("user_id")
+            if user_id is None:
+                raise ValueError("Отстутсвует user_id")
+            
+            return int(user_id)
+            
 
         else:
             raise ValueError("Wrong type")

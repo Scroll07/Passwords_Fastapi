@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from src.dependincies import get_db
+from src.dependincies import get_db, verify_refresh_token
 from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
@@ -63,12 +63,13 @@ async def login_post(
         if not verify_password(user_data.password, user.password_hash):
             raise HTTPException(401, "Wrong user data")
 
-        token = jwt_service.create_access_token(user_id=user.id)
-
+        access_token = jwt_service.create_access_token(user_id=user.id)
+        refresh_token = jwt_service.create_refresh_token(user_id=user.id)
+        
         return {
             "ok": True,
-            "access_token": token.access_token,
-            "token_type": token.token_type,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
             "message": "Success login",
         }
     except HTTPException as e:
@@ -77,3 +78,23 @@ async def login_post(
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")
+    
+    
+@users.get("/refresh")
+async def refresh_get(
+    user_id = Depends(verify_refresh_token)
+):
+    try:
+        access_token = jwt_service.create_access_token(user_id=user_id)
+        refresh_token = jwt_service.create_refresh_token(user_id=user_id)
+            
+        return {
+                "ok": True,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "message": "Tokens were successfully refreshed",
+            }
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")
+        

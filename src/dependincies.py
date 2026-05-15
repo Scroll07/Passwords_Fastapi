@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.core.database import async_session
@@ -24,5 +24,24 @@ async def verify_user(
         token = credentials.credentials
         user_id = jwt_service.verify_token(token)
         return user_id
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         raise HTTPException(401, "Invalid token")
+    
+
+async def verify_refresh_token(
+    request: Request,
+) -> int:
+    try:
+        refresh = request.headers.get("Refresh")
+        if refresh is None:
+            raise HTTPException(401, detail="No Refresh token")
+        user_id = jwt_service.verify_token(token=refresh)
+        return user_id
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(401, "Invalid token")
+    

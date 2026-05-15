@@ -1,6 +1,12 @@
+from enum import StrEnum
+
 from pydantic import BaseModel
 
 
+class TokenType(StrEnum):
+    BEARER = "bearer"
+    REFRESH = "refresh"
+
 class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    token: str
+    token_type: TokenType
