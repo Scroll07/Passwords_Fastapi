@@ -5,7 +5,7 @@ import jwt
 from datetime import timedelta, datetime, timezone
 
 from src.core.settings import settings as s
-from src.schemas.jwt import Token, TokenType
+from src.schemas.jwt import EncodedToken, TokenType, DecodedToken, TokenData
 
 
 def hash_password(password: str) -> str:
@@ -30,29 +30,30 @@ class JWT:
 
     def create_access_token(
         self, user_id: int, expires_in_min: int = TOKEN_EXPIRES_IN_ACCESS
-    ) -> Token:
+    ) -> EncodedToken:
         expires = datetime.now(timezone.utc) + timedelta(minutes=expires_in_min)
+        
+        token_data = TokenData(
+                user_id=user_id,
+                type=TokenType.BEARER,
+                exp=expires
+            )
 
-        encode_to = {
-            "user_id": user_id,
-            "type": "access",
-            "exp": expires,
-        }
-        encoded = jwt.encode(encode_to, self.secret_key, self.algoritm)
-        return Token(token=encoded, token_type=TokenType.BEARER)
+        encoded = jwt.encode(token_data.model_dump(), self.secret_key, self.algoritm)
+        return EncodedToken(token=encoded, token_type=TokenType.BEARER)
     
     def create_refresh_token(
         self, user_id: int, expires_in_days: int = TOKEN_EXPIRES_IN_REFRESH
-        ) -> Token:
+        ) -> EncodedToken:
         expires = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
         
-        encode_to = {
-            user_id: user_id,
-            "type": "refresh",
-            "exp": expires
-        }        
-        encoded = jwt.encode(encode_to, self.secret_key, self.algoritm) 
-        return Token(token=encoded, token_type=TokenType.REFRESH)
+        token_data = TokenData(
+                user_id=user_id,
+                type=TokenType.REFRESH,
+                exp=expires
+            )       
+        encoded = jwt.encode(token_data.model_dump(), self.secret_key, self.algoritm) 
+        return EncodedToken(token=encoded, token_type=TokenType.REFRESH)
         
         
 
