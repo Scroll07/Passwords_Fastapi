@@ -67,14 +67,14 @@ class JWT:
         if type is None:
             raise ValueError("No type")
 
-        if type == "access":
+        if type == TokenType.BEARER:
             user_id = decoded.get("user_id")
             if user_id is None:
                 raise ValueError("Отстутсвует user_id")
 
             return int(user_id)
 
-        elif type == "refresh":
+        elif type == TokenType.REFRESH:
             user_id = decoded.get("user_id")
             if user_id is None:
                 raise ValueError("Отстутсвует user_id")

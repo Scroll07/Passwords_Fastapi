@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from src.schemas.api_responses import LoginResponse
 from src.dependincies import get_db, verify_refresh_token
 from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
@@ -63,12 +64,19 @@ async def login_post(
         if not verify_password(user_data.password, user.password_hash):
             raise HTTPException(401, "Wrong user data")
 
-        access_token = jwt_service.create_access_token(user_id=user.id)
+        bearer_token = jwt_service.create_access_token(user_id=user.id)
         refresh_token = jwt_service.create_refresh_token(user_id=user.id)
+        
+        # response = LoginResponse(
+        #     ok=True,
+        #     detail="Success login",
+        #     bearer_token=bearer_token,
+        #     refresh_token=refresh_token
+        # )
         
         return {
             "ok": True,
-            "access_token": access_token,
+            "bearer_token": bearer_token,
             "refresh_token": refresh_token,
             "message": "Success login",
         }
@@ -85,12 +93,12 @@ async def refresh_get(
     user_id = Depends(verify_refresh_token)
 ):
     try:
-        access_token = jwt_service.create_access_token(user_id=user_id)
+        bearer_token = jwt_service.create_access_token(user_id=user_id)
         refresh_token = jwt_service.create_refresh_token(user_id=user_id)
             
         return {
                 "ok": True,
-                "access_token": access_token,
+                "bearer_token": bearer_token,
                 "refresh_token": refresh_token,
                 "message": "Tokens were successfully refreshed",
             }
