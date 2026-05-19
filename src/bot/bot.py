@@ -1,9 +1,10 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 
-from src.core.settings import settings as s
+from src.dependincies import get_settings
 
-bot = Bot(token=s.BOT_TOKEN)
+settings = get_settings()
+bot = Bot(token=settings.BOT_TOKEN)
 dp = Dispatcher()
 
 

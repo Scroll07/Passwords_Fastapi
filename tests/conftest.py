@@ -5,7 +5,7 @@ from httpx import AsyncClient, ASGITransport
 
 from src.models.model import Base
 from src.main import app
-from src.dependincies import get_db, verify_user
+from src.dependincies import get_db, verify_user, verify_refresh_token
 
 
 TEST_ENGINE_URL = "sqlite+aiosqlite:///:memory:"
@@ -47,7 +47,7 @@ async def client(override_db):
 
 
 @pytest.fixture
-def jwt_user_id():
+def jwt_bearer_mock():
     def mock_verify_user():
         return 123
 
@@ -56,3 +56,15 @@ def jwt_user_id():
     yield
 
     app.dependency_overrides.clear()
+
+@pytest.fixture
+def jwt_refresh_mock():
+    def mock_verify_user():
+        return 123
+
+    app.dependency_overrides[verify_refresh_token] = mock_verify_user
+
+    yield
+
+    app.dependency_overrides.clear()
+

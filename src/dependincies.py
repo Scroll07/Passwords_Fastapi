@@ -1,14 +1,22 @@
 from fastapi import HTTPException, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from src.core.settings import get_settings
 from src.core.database import async_session
-from src.services.secrets import jwt_service
+from src.services.secrets import JWT, ALGORITM
 from src.core.logger import get_logger
+
 
 logger = get_logger(__name__)
 
 security = HTTPBearer()
 
+
+
+
+def get_jwt_service() -> JWT:
+    settings = get_settings()
+    return JWT(algoritm=ALGORITM, secret_key=settings.SECRET_TOKEN_KEY)
 
 async def get_db():
     async with async_session() as db:
@@ -21,6 +29,7 @@ async def verify_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> int:
     try:
+        jwt_service = get_jwt_service()
         token = credentials.credentials
         user_id = jwt_service.verify_token(token)
         return user_id
@@ -36,6 +45,7 @@ async def verify_refresh_token(
         refresh = request.headers.get("Refresh")
         if refresh is None:
             raise HTTPException(401, detail="No Refresh token")
+        jwt_service = get_jwt_service()
         user_id = jwt_service.verify_token(token=refresh)
         return user_id
     except HTTPException as e:

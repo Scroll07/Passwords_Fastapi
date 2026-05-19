@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.schemas.api_responses import LoginResponse
-from src.dependincies import get_db, verify_refresh_token
+from src.dependincies import get_db, verify_refresh_token, get_jwt_service
 from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
-from src.services.secrets import jwt_service
 from src.core.logger import get_logger
 
 
@@ -64,6 +63,7 @@ async def login_post(
         if not verify_password(user_data.password, user.password_hash):
             raise HTTPException(401, "Wrong user data")
 
+        jwt_service = get_jwt_service()
         bearer_token = jwt_service.create_access_token(user_id=user.id)
         refresh_token = jwt_service.create_refresh_token(user_id=user.id)
         
@@ -93,6 +93,7 @@ async def refresh_get(
     user_id = Depends(verify_refresh_token)
 ):
     try:
+        jwt_service = get_jwt_service()
         bearer_token = jwt_service.create_access_token(user_id=user_id)
         refresh_token = jwt_service.create_refresh_token(user_id=user_id)
             

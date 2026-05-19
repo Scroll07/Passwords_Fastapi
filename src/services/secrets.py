@@ -4,7 +4,7 @@ import jwt
 # from jwt.exceptions import
 from datetime import timedelta, datetime, timezone
 
-from src.core.settings import settings as s
+from src.dependincies import get_settings
 from src.schemas.jwt import EncodedToken, TokenType, DecodedToken, TokenData
 
 
@@ -86,4 +86,3 @@ class JWT:
             raise ValueError("Wrong type")
 
 
-jwt_service = JWT(ALGORITM, s.SECRET_TOKEN_KEY)
