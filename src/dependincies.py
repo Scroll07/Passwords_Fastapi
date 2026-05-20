@@ -1,5 +1,9 @@
+from typing import AsyncIterator
+
 from fastapi import HTTPException, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncSession
+
 
 from src.core.settings import get_settings
 from src.core.database import async_session
@@ -18,11 +22,10 @@ def get_jwt_service() -> JWT:
     settings = get_settings()
     return JWT(algoritm=ALGORITM, secret_key=settings.SECRET_TOKEN_KEY)
 
-async def get_db():
+async def get_db() -> AsyncIterator[AsyncSession]:
     async with async_session() as db:
         yield db
 
-        await db.close()
 
 
 async def verify_user(

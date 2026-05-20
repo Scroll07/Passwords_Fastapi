@@ -1,3 +1,5 @@
+from typing import AsyncIterator
+
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 from src.models.model import Base
@@ -24,8 +26,8 @@ async def init_db():
         async_engine.echo = True
 
 
-async def get_db():
+async def get_db() -> AsyncIterator[AsyncSession]:
     async with async_session() as db:
         yield db
 
-        await db.close()
+        # await db.close() # async with по умолчанию само закрывает db то что эту строку можно убрать
