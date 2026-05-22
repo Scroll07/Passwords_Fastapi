@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from enum import StrEnum
 
 
@@ -8,11 +8,41 @@ from enum import StrEnum
 #       REQUESTS
 ##########################
 
+class LoginRequest(BaseModel):
+    username: str = Field(min_length=4, max_length=20)
+    password: str = Field(min_length=4, max_length=20)
+    
+    @classmethod
+    @field_validator("username")
+    def validate_username(cls, value: str) -> str:
+        if " " in value:
+            raise ValueError("Username should be without spaces")
+        return value
 
-class RegisterRequestData(BaseModel):
-    username: str
-    password: str
+    @classmethod
+    @field_validator("password")
+    def validate_password(cls, value: str) -> str:
+        if " " in value:
+            raise ValueError("Password should be without spaces")
+        return value
+
+class RegisterRequestData(LoginRequest):
+    # username: str = Field(min_length=4, max_length=20)
+    # password: str = Field(min_length=4, max_length=20)
     telegram_id: int | None = None
+
+    @classmethod
+    @field_validator("telegram_id")
+    def validate_telegram_id(cls, value: int | None) -> int | None:
+        if value is None:
+            return value
+        if not (5 < len(str(value)) < 14):
+            raise ValueError("This Telegram id can not exist")
+        return value
+
+#=============================
+#=============================
+#=============================
 
 class DownloadRequest(BaseModel):
     backup_id: int
@@ -21,7 +51,7 @@ class DeleteRequest(BaseModel):
     backup_id: int
 
 class UploadRequest(BaseModel):
-    name: str
+    name: str = Field(max_length=24)
     rows_count: int
 
 
@@ -31,11 +61,6 @@ class CreateUserInDb(BaseModel):
     username: str
     password_hash: str
     telegram_id: int
-
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
 
 
 class UserData(BaseModel):
