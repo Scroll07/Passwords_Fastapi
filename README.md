@@ -21,12 +21,16 @@ It provides user authentication, JWT access/refresh tokens, and backup vault man
 - pytest
 
 ## Project Structure
-- src/api — роуты
-- src/services — бизнес-логика
+- alembic — Настройка Alembic
+- nginx — Настройка Nginx
+- scripts - Скрипты для entrypoint и не только
+- src/api — Роуты
+- src/services — Бизнес-логика
 - src/models — ORM модели
 - src/schemas — Pydantic схемы
-- src/core — конфиг, безопасность, БД
-- tests — тесты
+- src/core — Конфиг, безопасность, БД
+- src/bot - Заготовка под бота в тг
+- tests — Тесты
 
 ## Environment Variables
 ```#API & DB
