@@ -29,7 +29,7 @@ class Settings:
     DB_PORT: str = os.getenv("DB_PORT", default="5432")
     DB_NAME: str = os.getenv("DB_NAME", default="test_db")
     DB_USER: str = os.getenv("DB_USER", default="test_user")
-    DB_PASSWORD: str = os.getenv("DB_PASSWORD", default="test_password")
+    DB_PASSWORD: str = os.getenv("DB_PASSWORD", default="test_pass")
     SECRET_TOKEN_KEY: str = os.getenv("SECRET_TOKEN_KEY", default="DyFQ5iJYbc_vDISsJWAW_tPoU9OJibzKhqorSFAiIdQ")
 
     BOT_TOKEN: str = os.getenv("BOT_TOKEN", default="test_token")

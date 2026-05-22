@@ -79,7 +79,7 @@ async def download_post(
             raise HTTPException(404, "Backup was not found")
             
         if not Path(backup.path).exists():
-            raise HTTPException(500, "We cant find ur backup")
+            raise HTTPException(500, "We cant find your backup")
         
         now = datetime.now()
         date = datetime.strftime(now, format="%d-%m-%Y_%H-%M-%S")
