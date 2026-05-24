@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-exception_response(app)
+# exception_response(app) 
 
 app.include_router(pass_router, tags=["PASSWORDS"])
 app.include_router(users_router, tags=["USERS"])

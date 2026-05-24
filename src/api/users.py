@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from src.schemas.api_responses import LoginResponse
+from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
 from src.dependincies import get_db, verify_refresh_token, get_jwt_service
 from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
@@ -39,7 +39,11 @@ async def register_post(
 
         await dao.create_user(user_data)
 
-        return {"ok": True, "message": "New user was sucessfully created"}
+        response = MessageResponse(
+            ok=True,
+            detail="New user was sucessfully created"
+        )
+        return response
 
     except HTTPException as e:
         logger.warning(e)
@@ -67,19 +71,15 @@ async def login_post(
         bearer_token = jwt_service.create_access_token(user_id=user.id)
         refresh_token = jwt_service.create_refresh_token(user_id=user.id)
         
-        # response = LoginResponse(
-        #     ok=True,
-        #     detail="Success login",
-        #     bearer_token=bearer_token,
-        #     refresh_token=refresh_token
-        # )
+        response = LoginResponse(
+            ok=True,
+            detail="Success login",
+            bearer_token=bearer_token,
+            refresh_token=refresh_token
+        )
         
-        return {
-            "ok": True,
-            "bearer_token": bearer_token,
-            "refresh_token": refresh_token,
-            "message": "Success login",
-        }
+        return response
+    
     except HTTPException as e:
         logger.warning(e)
         raise e
@@ -96,13 +96,15 @@ async def refresh_get(
         jwt_service = get_jwt_service()
         bearer_token = jwt_service.create_access_token(user_id=user_id)
         refresh_token = jwt_service.create_refresh_token(user_id=user_id)
-            
-        return {
-                "ok": True,
-                "bearer_token": bearer_token,
-                "refresh_token": refresh_token,
-                "message": "Tokens were successfully refreshed",
-            }
+        
+        response = RefreshResponse(
+            ok=True,
+            detail="Tokens were successfully refreshed",
+            bearer_token=bearer_token,
+            refresh_token=refresh_token
+        )
+        return response
+    
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")

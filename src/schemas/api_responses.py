@@ -3,15 +3,11 @@ from enum import StrEnum
 from pydantic import BaseModel
 
 from src.schemas.jwt import EncodedToken
+from src.schemas.base import BackupData
 
 
 
 
-class BackupData(BaseModel):
-    id: int
-    name: str
-    rows: int
-    created_at: datetime
     
 class TypeResponses(StrEnum):
     MESSAGE = "message"
@@ -26,7 +22,7 @@ class TypeResponses(StrEnum):
 # ===================================
 class MessageResponse(BaseModel):
     ok: bool
-    message: str
+    detail: str
     type: TypeResponses = TypeResponses.MESSAGE
 
 class LoginResponse(MessageResponse):
@@ -41,6 +37,4 @@ class BackupsResponse(MessageResponse):
     backups: list[BackupData]
     type: TypeResponses = TypeResponses.BACKUPS
     
-# class DownloadResponse(BaseModel):
-#     vault_data: EncryptedUserVault
-#     type: TypeResponses = TypeResponses.DOWNLOAD
+

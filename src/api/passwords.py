@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
 
+from schemas.api_responses import BackupsResponse, MessageResponse
 from src.schemas.base import BackupData, DownloadRequest, UploadRequest
 from src.dependincies import get_db, verify_user
 from src.dao.backupDao import BackupDao
@@ -34,7 +35,12 @@ async def upload_post(
             with open(backup.path, "wb") as f:
                 f.write(content)
 
-            return {"ok": True, "message": "Your backup was successfully uploaded"}
+            response = MessageResponse(
+                ok=True,
+                detail="Your backup was successfully uploaded"
+            )
+            return response
+
     except HTTPException as e:
         logger.warning(e)
         raise e
@@ -60,7 +66,13 @@ async def get_user_backups(
             )
             for b in backups
         ]
-        return {"ok": True, "message": f"Backups of {user_id}", "backups": backups_data}
+        response = BackupsResponse(
+            ok=True,
+            detail=f"Backups of {user_id}",
+            backups=backups_data
+        )
+        
+        return response
     except Exception as e:
         logger.exception(f"Error in Backups handler: {e}")
         raise HTTPException(500, detail="Interal server error")
@@ -111,5 +123,8 @@ async def delete_backup(
     #delete file local
     delete_backup_by_path(backup_path=Path(deleted_backup.path))
     
-    return {"ok": True, "message": "Your backup was successully deleted"}
+    return MessageResponse(
+        ok=True,
+        detail="Your backup was successully deleted"
+    )
     
