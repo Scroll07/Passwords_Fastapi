@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, AsyncIterator
+from typing import AsyncIterator
 
 import pytest
 import pytest_asyncio

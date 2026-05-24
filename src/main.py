@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from src.core.database import async_engine
 
-from src.exceptions.handlers import exception_response
 
 from src.api.passwords import passwords as pass_router
 from src.api.users import users as users_router

@@ -1,11 +1,11 @@
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException, Body
+from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException
 from fastapi.responses import FileResponse
 
 from schemas.api_responses import BackupsResponse, MessageResponse
-from src.schemas.base import BackupData, DownloadRequest, UploadRequest
+from src.schemas.base import BackupData, DownloadRequest
 from src.dependincies import get_db, verify_user
 from src.dao.backupDao import BackupDao
 from src.core.logger import get_logger

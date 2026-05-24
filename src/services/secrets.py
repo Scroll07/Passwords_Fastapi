@@ -4,8 +4,7 @@ import jwt
 # from jwt.exceptions import
 from datetime import timedelta, datetime, timezone
 
-from src.dependincies import get_settings
-from src.schemas.jwt import EncodedToken, TokenType, DecodedToken, TokenData
+from src.schemas.jwt import EncodedToken, TokenType, TokenData
 
 
 def hash_password(password: str) -> str:

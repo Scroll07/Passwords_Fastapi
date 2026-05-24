@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from contextlib import asynccontextmanager
 from typing import Sequence, AsyncGenerator
-from src.schemas.base import UploadRequest
 from src.models.model import Backups
 from src.core.settings import BACKUPS
 

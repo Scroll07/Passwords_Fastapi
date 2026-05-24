@@ -1,6 +1,5 @@
 import asyncio
 from pathlib import Path
-from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 from httpx import AsyncClient
 import pytest
