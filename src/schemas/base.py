@@ -12,14 +12,12 @@ class LoginRequest(BaseModel):
     username: str = Field(min_length=4, max_length=20)
     password: str = Field(min_length=4, max_length=20)
     
-    @classmethod
     @field_validator("username")
     def validate_username(cls, value: str) -> str:
         if " " in value:
             raise ValueError("Username should be without spaces")
         return value
 
-    @classmethod
     @field_validator("password")
     def validate_password(cls, value: str) -> str:
         if " " in value:
@@ -31,7 +29,6 @@ class RegisterRequestData(LoginRequest):
     # password: str = Field(min_length=4, max_length=20)
     telegram_id: int | None = None
 
-    @classmethod
     @field_validator("telegram_id")
     def validate_telegram_id(cls, value: int | None) -> int | None:
         if value is None:

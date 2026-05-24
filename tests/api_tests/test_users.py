@@ -74,7 +74,7 @@ async def test_login_wrong_creds(client: AsyncClient):
 
     login_data = LoginRequest(
         username=username,
-        password="wrong password"
+        password="wrong_password"
     )
     
     response = await client.post(url="/login", json=login_data.model_dump())
@@ -104,10 +104,10 @@ async def test_refresh_wrong_token(client: AsyncClient):
     
     assert response.status_code == 401
     
-    # headers = {"Refresh": "wrong.token.actually"}
-    # response = await client.get(url="/refresh", headers=headers) # Response with wrong refresh token
+    headers = {"Refresh": "wrong.token.actually"}
+    response = await client.get(url="/refresh", headers=headers) # Response with wrong refresh token
     
-    # assert response.status_code == 401
+    assert response.status_code == 401
     
 @pytest.mark.asyncio
 async def test_protected_router_without_token(client: AsyncClient):
@@ -115,8 +115,46 @@ async def test_protected_router_without_token(client: AsyncClient):
     
     assert response.status_code == 401
     
-    # headers = {"Access": "Bearer wrong.token.actually"}
-    # response = await client.get(url="/refresh", headers=headers) # Response with wrong refresh token
+    headers = {"Access": "Bearer wrong.token.actually"}
+    response = await client.get(url="/refresh", headers=headers) # Response with wrong refresh token
     
-    # assert response.status_code == 401
+    assert response.status_code == 401
     
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "id, username, password, telegram_id, expected_code",
+    [
+        ("Short Username", "Max", "password", "1910592094", 422),
+        ("Long username", "MaxMaxMaxMaxMaxMaxMaxMax", "password", "1910592094", 422),
+        ("Username with space", "Max and Mia", "password", "1910592094", 422),
+        ("Ok Username", "Maxim", "password", "1910592094", 201),
+        ("Short passwrod", "Maxim", "pas", "1910592094", 422),
+        ("Long passwrod", "Maxim", "passwordpasswordpassword", "1910592094", 422),
+        ("Password with space", "Maxim", "password and pas", "1910592094", 422),
+        ("Ok passwrod", "Maxim", "pass", "1910592094", 201),
+        ("Short telegram id", "Maxim", "pass", "1000", 422),
+        ("Long telegram id", "Maxim", "pass", "19105920940192383829238", 422),
+        ("Ok telegram id", "Maxim", "pass", "1910592094", 201),
+        
+    ]
+)
+async def test_register_and_login_validation(
+    id: str,
+    username: str,
+    password: str,
+    telegram_id: int,
+    expected_code: int,
+    client: AsyncClient
+):
+    data = {
+        "username": username,
+        "password": password,
+        "telegram_id": telegram_id
+    }
+    response = await client.post(
+        url="/register",
+        json=data
+    )
+    
+    print(response.json())
+    assert response.status_code == expected_code
