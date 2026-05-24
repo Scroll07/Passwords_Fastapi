@@ -137,7 +137,7 @@ async def test_download_no_backup_file_on_server(client: AsyncClient, jwt_bearer
     data = response.json()
     
     assert response.status_code == 500
-    assert data.get("message") == "We cant find your backup"
+    assert data.get("detail") == "We cant find your backup"
     
     
 @pytest.mark.asyncio
