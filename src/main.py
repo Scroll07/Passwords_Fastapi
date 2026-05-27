@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from src.core.database import async_engine
 
 
 from src.api.passwords import passwords as pass_router
 from src.api.users import users as users_router
+from src.api.static_pages import pages
+
+
 
 
 @asynccontextmanager
@@ -18,7 +23,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.mount(path="/static", app=StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+
 # exception_response(app) 
 
 app.include_router(pass_router, tags=["PASSWORDS"])
 app.include_router(users_router, tags=["USERS"])
+app.include_router(pages, tags=["PAGES"])
