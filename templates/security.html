@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Home Password Manger{% endblock %}
+
+{% block content %}
+
+<main>
+    <section class="page-intro security-intro">
+        <div class="container">
+            <p>Security</p>
+            <h1>How Pas CLI handles security</h1>
+            <p>
+                Pas CLI is designed with a local-first security model.
+                The vault never leaves your machine unless you explicitly upload it.
+                The master password never reaches the server.
+                The backend only operates with authenticated requests.
+            </p>
+            <p>
+                This page documents the specific security properties of the CLI and backend
+                so you understand exactly what is and is not protected.
+            </p>
+        </div>
+    </section>
+
+    <section class="security-details">
+        <div class="container">
+            <article class="security-item">
+                <h2>Master password</h2>
+                <p>
+                    Your vault is protected by a master password that you set on first use.
+                    This password is used to derive an encryption key locally —
+                    it is never transmitted to the backend or stored anywhere on disk.
+                    Without the master password, the vault contents cannot be read.
+                </p>
+            </article>
+
+            <article class="security-item">
+                <h2>JWT authentication</h2>
+                <p>
+                    The backend uses JSON Web Tokens for all protected routes.
+                    After logging in with <code>pas api login</code>,
+                    you receive a short-lived access token and a longer-lived refresh token.
+                    The access token is required for all backup operations.
+                    Tokens are stored in your local session config.
+                </p>
+            </article>
+
+            <article class="security-item">
+                <h2>Session control</h2>
+                <p>
+                    You can invalidate your current session at any time by running
+                    <code>pas reset-session</code>.
+                    This clears the stored tokens from your local config.
+                    To use the API again, you will need to log in.
+                    This is useful if you suspect your machine has been accessed
+                    or if you are switching environments.
+                </p>
+            </article>
+
+            <article class="security-item">
+                <h2>Protected backup actions</h2>
+                <p>
+                    All backup endpoints on the backend require a valid JWT access token.
+                    Unauthenticated requests are rejected.
+                    The backend does not expose any endpoint that reads or writes vault data
+                    without authentication.
+                </p>
+            </article>
+
+            <article class="security-item">
+                <h2>Vault backup lifecycle</h2>
+                <p>
+                    Backups are uploaded and downloaded explicitly by the user using
+                    <code>pas api upload</code> and <code>pas api download</code>.
+                    There is no automatic sync.
+                    You control when your vault is pushed to the API and when it is pulled down.
+                    You can also delete backups at any time using <code>pas api delete</code>.
+                </p>
+            </article>
+
+            <article class="security-item">
+                <h2>Clipboard safety</h2>
+                <p>
+                    When you copy a password using <code>pas copy</code>,
+                    the credential is placed in your system clipboard for the duration of the active session.
+                    Pas CLI does not automatically clear the clipboard,
+                    so treat copied passwords the same way you would treat any sensitive data in the clipboard.
+                </p>
+            </article>
+        </div>
+    </section>
+
+    <section class="page-note security-note">
+        <div class="container">
+            <p>
+                Found a security issue? Open an issue on GitHub or contact the maintainer directly.
+                The project is open source — you can audit the code yourself.
+            </p>
+            <a href="#">View source on GitHub →</a>
+        </div>
+    </section>
+</main>
+
+
+{% endblock %}
+
+

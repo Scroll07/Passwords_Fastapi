@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - Pas CLI{% endblock %}
+
+{% block content %}
+<main>
+    <section class="page-intro faq-intro">
+        <div class="container">
+            <p>FAQ</p>
+            <h1>Frequently asked questions</h1>
+            <p>
+                Answers to common questions about how Pas CLI works,
+                where data is stored, and what happens in edge cases.
+            </p>
+        </div>
+    </section>
+
+    <section class="faq-section">
+        <div class="container">
+            <details class="faq-item">
+                <summary>Is the vault stored locally or on a server?</summary>
+                <p>
+                    Your vault is stored locally by default. It only reaches the backend
+                    if you explicitly upload a backup using the API commands.
+                </p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Do I need an API account to use Pas CLI?</summary>
+                <p>
+                    No. All core local vault features work without an API account.
+                    An account is only needed for backup upload, download, and sync-related actions.
+                </p>
+            </details>
+
+            <details class="faq-item">
+                <summary>What does pas api upload actually do?</summary>
+                <p>
+                    It uploads your vault backup to the backend so you can restore it later
+                    on another machine or keep an off-device backup copy.
+                </p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Can I restore my vault on another PC?</summary>
+                <p>
+                    Yes. After installing Pas CLI and logging into the API account,
+                    you can download your uploaded backup and restore access to your vault.
+                </p>
+            </details>
+
+            <details class="faq-item">
+                <summary>What is the difference between pas export and pas api upload?</summary>
+                <p>
+                    <code>pas export</code> saves a backup locally as a JSON file,
+                    while <code>pas api upload</code> sends a backup to the backend
+                    for remote storage and later restore.
+                </p>
+            </details>
+
+            <details class="faq-item">
+                <summary>What happens if I forget my master password?</summary>
+                <p>
+                    Without the master password, the local vault cannot be decrypted.
+                    That password is not stored or recoverable through the backend.
+                </p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Is Pas CLI open source?</summary>
+                <p>
+                    Yes. The project is open source, so you can inspect the code,
+                    audit the implementation, and run the backend yourself.
+                </p>
+            </details>
+        </div>
+    </section>
+
+    <section class="page-note faq-note">
+        <div class="container">
+            <p>
+                Have a question that's not covered here?
+                Open an issue on GitHub.
+            </p>
+            <a href="#">Open an issue →</a>
+        </div>
+    </section>
+</main>
+{% endblock %}

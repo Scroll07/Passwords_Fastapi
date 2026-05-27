@@ -8,7 +8,70 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
+    <header class="site-header">
+        <div class="header container">
+            <a href="/" class="logo">Pas CLI</a>
+    
+            <nav class="main-nav">
+                <a href="/product">Product</a>
+                <a href="/how_it_works">How It Works</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/security">Security</a>
+                <a href="/app_docs">Docs</a>
+                <a href="/faq">FAQ</a>
+            </nav>
+
+            <div class="header-actions">
+                <a href="/login">Login</a>
+                <a href="/register" class="btn btn-primiry">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
     {% block content %}{% endblock %}
+
+    <footer>
+        <div class="container footer-top">
+        <div class="footer-brand">
+            <a href="/" class="logo">Pas CLI</a>
+            <p>A secure, API-first CLI password manager for developers.</p>
+        </div>
+
+        <div class="footer-column">
+            <h4>Product</h4>
+            <a href="#">Features</a>
+            <a href="#">How It Works</a>
+            <a href="#">Pricing</a>
+            <a href="#">Security</a>
+        </div>
+
+        <div class="footer-column">
+            <h4>Resources</h4>
+            <a href="#">Documentation</a>
+            <a href="#">FAQ</a>
+            <a href="#">API Reference</a>
+            <a href="#">Status</a>
+        </div>
+
+        <div class="footer-column">
+            <h4>Company</h4>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+        </div>
+    </div>
+
+    <div class="container footer-bottom">
+        <p>© 2026 Pas CLI. All rights reserved.</p>
+
+        <div class="footer-legal">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Cookie Policy</a>
+        </div>
+    </footer>
+
 
     <script src="{{ url_for('static', path='/js/script.js') }}"></script>
 </body>

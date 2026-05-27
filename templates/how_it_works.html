@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Home Password Manger{% endblock %}
+
+{% block content %}
+
+<main>
+    <section class="page-intro">
+        <div class="container">
+            <p>How It Works</p>
+            <h1>From install to restore in six steps</h1>
+            <p>
+                Pas CLI is designed to be straightforward.
+                You can be up and running with a local vault in under two minutes,
+                and optionally add API backup sync when you need it.
+            </p>
+        </div>
+    </section>
+
+    <section class="steps-section">
+        <div class="container">
+            <article class="step">
+                <p>01</p>
+                <h2>Clone and install</h2>
+                <p>
+                    Clone the repository and run the setup script.
+                    This installs the CLI and sets up your initial configuration.
+                </p>
+                <pre><code>git clone https://github.com/Scroll07/password_manager.git
+cd password_manager
+./realise.sh</code></pre>
+            </article>
+
+            <article class="step">
+                <p>02</p>
+                <h2>Register with the API</h2>
+                <p>
+                    Optional but recommended for backup sync.
+                    Register an account on your self-hosted backend instance.
+                    This generates your JWT credentials.
+                </p>
+                <pre><code>pas api register</code></pre>
+            </article>
+
+            <article class="step">
+                <p>03</p>
+                <h2>Add your first entry</h2>
+                <p>
+                    Add a password entry to your local vault.
+                    Use <code>--gen</code> to auto-generate a strong password,
+                    or <code>-p</code> to set one manually.
+                </p>
+                <pre><code>pas add github -u myuser --gen
+
+# or
+
+pas add github -u myuser -p mypassword --note "personal account"</code></pre>
+            </article>
+
+            <article class="step">
+                <p>04</p>
+                <h2>Search, copy, and manage entries</h2>
+                <p>
+                    Use the CLI to look up credentials, copy passwords to clipboard,
+                    edit entries, or delete ones you no longer need.
+                </p>
+                <pre><code>pas find gmail.com
+pas copy github
+pas edit 1 -p newpass
+pas del github</code></pre>
+            </article>
+
+            <article class="step">
+                <p>05</p>
+                <h2>Export locally or back up to the API</h2>
+                <p>
+                    Export your vault to a local JSON file for manual backups,
+                    or upload a snapshot to the API for cloud-accessible restore.
+                </p>
+                <pre><code>pas export backup.json
+pas api upload</code></pre>
+            </article>
+
+            <article class="step">
+                <p>06</p>
+                <h2>Restore on another machine</h2>
+                <p>
+                    On a new machine, clone the repo, install Pas CLI,
+                    log in to the API, and download your vault backup.
+                    Your credentials are available immediately.
+                </p>
+                <pre><code>pas api login
+pas api download</code></pre>
+            </article>
+        </div>
+    </section>
+
+    <section class="page-note">
+        <div class="container">
+            <p>
+                Need the full command reference?
+                The docs page has complete tables for all CLI and API commands,
+                plus backend endpoint documentation.
+            </p>
+            <a href="#">View on GitHub</a>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+

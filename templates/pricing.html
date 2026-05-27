@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Home Password Manger{% endblock %}
+
+{% block content %}
+
+    <section class="page-intro pricing-intro">
+        <div class="container">
+            <p>Pricing</p>
+            <h1>Simple, honest pricing</h1>
+            <p>
+                Local and Sync are both available today. Local stays free,
+                while Sync is a paid plan for backup and restore across machines.
+                Team features are currently in development.
+            </p>
+        </div>
+    </section>
+
+    <section class="pricing-table-section">
+        <div class="container">
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Local</th>
+                        <th>Sync</th>
+                        <th>Team</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Encrypted local vault</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>All CLI commands</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Password generation</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>JSON export / import</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>API backup sync</td>
+                        <td>—</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Multi-machine restore</td>
+                        <td>—</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Shared vault</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>✓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="pricing-plans">
+        <div class="container">
+            <article class="plan-card">
+                <h2>Local</h2>
+                <p>Full CLI functionality, local vault only. No account required.</p>
+            </article>
+
+            <article class="plan-card">
+                <h2>Sync</h2>
+                <p>Local features plus API account for cross-machine backup sync.</p>
+            </article>
+
+            <article class="plan-card">
+                <h2>Team</h2>
+                <p>Planned for teams who need shared vault management and access control.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="page-note pricing-note">
+        <div class="container">
+            <p>
+                Pas CLI is open source. You can self-host the backend with no usage limits
+                or licensing fees. See the repository for Docker setup instructions.
+            </p>
+            <a href="#">View on GitHub →</a>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Home Password Manger{% endblock %}
+
+{% block content %}
+<main>
+    <section class="hero">
+        <div class="container">
+            <p>v1.0 — open source</p>
+            <h1>Password management for the command line.</h1>
+            <p>
+                Pas CLI is a local-first password manager for developers.
+                Store credentials in an encrypted vault on your machine,
+                with optional API sync for cross-machine backup.
+            </p>
+
+            <div class="hero-actions">
+                <a href="#">Get started</a>
+                <a href="#">Read about the product</a>
+            </div>
+
+            <div class="hero-code">
+                <pre><code>$ git clone https://github.com/...
+$ cd password_manager && ./realise.sh
+
+$ pas add github -u myuser --gen
+✓ Entry added. Password generated (32 chars).
+
+$ pas copy github
+✓ Password copied to clipboard.
+
+$ pas api upload
+✓ Vault backed up to API.</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-product">
+        <div class="container">
+            <h2>What Pas CLI does</h2>
+            <p>
+                Pas CLI is split into two parts. The CLI client handles all local vault
+                operations — adding, searching, copying, and editing credentials —
+                entirely on your machine.
+            </p>
+            <p>
+                The FastAPI backend is optional and adds registration, login,
+                and encrypted vault backup sync so you can restore your vault on another machine.
+            </p>
+            <p>
+                The vault is encrypted and protected by a master password that never leaves your device.
+            </p>
+        </div>
+    </section>
+
+    <section class="commands">
+        <div class="container">
+            <h2>Common commands</h2>
+
+            <table>
+                <tbody>
+                    <tr>
+                        <td><code>pas add github -u user --gen</code></td>
+                        <td>Add an entry and auto-generate a password</td>
+                    </tr>
+                    <tr>
+                        <td><code>pas copy github</code></td>
+                        <td>Copy a password to clipboard</td>
+                    </tr>
+                    <tr>
+                        <td><code>pas find gmail.com</code></td>
+                        <td>Search entries by pattern</td>
+                    </tr>
+                    <tr>
+                        <td><code>pas export backup.json</code></td>
+                        <td>Export vault to a local JSON file</td>
+                    </tr>
+                    <tr>
+                        <td><code>pas api upload</code></td>
+                        <td>Back up vault to the API</td>
+                    </tr>
+                    <tr>
+                        <td><code>pas api download</code></td>
+                        <td>Restore vault from the API on a new machine</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <a href="#">View full command reference</a>
+        </div>
+    </section>
+
+    <section class="developer-note">
+        <div class="container">
+            <h2>Built by a developer, for developers</h2>
+            <p>
+                This is a real project built by a student developer.
+                It is open source, documented, and actively maintained.
+                If you prefer the terminal over GUI apps, Pas CLI is for you.
+            </p>
+
+            <div class="hero-actions">
+                <a href="#">View on GitHub</a>
+                <a href="#">See how it works</a>
+            </div>
+        </div>
+    </section>
+</main>
+    
+    
+
+{% endblock %}
+
+

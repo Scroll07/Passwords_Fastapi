@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from src.main import templates
+from src.core.templates import templates
 from src.core.logger import get_logger
 
 logger = get_logger(name="Static pages")
@@ -43,6 +43,13 @@ async def pricing(request: Request):
         request=request,
         name="pricing.html"
     )
+    
+@pages.get(path="/security", response_class=HTMLResponse)
+async def security(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="security.html"
+    )
 
 @pages.get(path="/faq", response_class=HTMLResponse)
 async def faq(request: Request):
@@ -51,7 +58,7 @@ async def faq(request: Request):
         name="faq.html"
     )
 
-@pages.get(path="/docs", response_class=HTMLResponse)
+@pages.get(path="/app_docs", response_class=HTMLResponse)
 async def docs(request: Request):
     return templates.TemplateResponse(
         request=request,
