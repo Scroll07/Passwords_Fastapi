@@ -23,4 +23,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_SECRET_KEY }}
           script: |
-            /home/vlad/projects/Passwords_Fastapi/scripts/deploy.sh
+            cd /home/vlad/projects/Passwords_Fastapi
+            chmod +x ./scripts/deploy.sh
+            ./scripts/deploy.sh
