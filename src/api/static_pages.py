@@ -58,7 +58,7 @@ async def faq(request: Request):
         name="faq.html"
     )
 
-@pages.get(path="/app_docs", response_class=HTMLResponse)
+@pages.get(path="/web/docs", response_class=HTMLResponse)
 async def docs(request: Request):
     return templates.TemplateResponse(
         request=request,

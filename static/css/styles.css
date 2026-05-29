@@ -115,11 +115,11 @@ pre {
 .security-details,
 .docs-section,
 .faq-section {
-    padding: 0 0 48px;
+    padding: 0 0 38px;
 }
 
 .page-note {
-    padding: 40px 0 120px;
+    padding: 10px 0 40px;
 }
 
 .page-note .container {
@@ -872,4 +872,25 @@ a.button:hover {
 
 .auth-links-center p {
     text-align: center;
+}
+
+
+
+
+.developer-note {
+    margin-top: 48px;
+}
+
+
+.hero-actions {
+    display: flex;
+    align-items: center;
+    column-gap: 32px;
+    margin-top: 28px;
+}
+
+.hero-actions a {
+    display: inline-block;
+    font-size: 16px;
+    line-height: 1;
 }
