@@ -20,13 +20,13 @@
                 <a href="/how_it_works">How It Works</a>
                 <a href="/pricing">Pricing</a>
                 <a href="/security">Security</a>
-                <a href="/app_docs">Docs</a>
+                <a href="/web/docs">Docs</a>
                 <a href="/faq">FAQ</a>
             </nav>
 
             <div class="header-actions">
-                <a href="#" class="login-link">Login</a>
-                <a href="#" class="signup-btn">Sing Up</a>
+                <a href="/login" class="login-link">Login</a>
+                <a href="/register" class="signup-btn">Sing Up</a>
             </div>
         </div>
     </header>
@@ -70,7 +70,7 @@
 
                 <div class="footer-column">
                     <h3>Resources</h3>
-                    <a href="/docs">Documentation</a>
+                    <a href="/web/docs">Documentation</a>
                     <a href="/faq">FAQ</a>
                     <a href="#">API Reference</a>
                     <a href="#">Status</a>
@@ -98,6 +98,7 @@
     </footer>
 
 
+    {% block extra_script %}{% endblock %}
     <script src="{{ url_for('static', path='/js/script.js') }}"></script>
 </body>
 </html>
