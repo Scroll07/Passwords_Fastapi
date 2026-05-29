@@ -84,7 +84,7 @@ async def create_test_user(client: AsyncClient, jwt_bearer_mock) -> None:
         username="test_user", password="pass", telegram_id=1910592094
     )
     await client.post(
-        url="/register",
+        url="/api/register",
         json=data.model_dump()
     )
 

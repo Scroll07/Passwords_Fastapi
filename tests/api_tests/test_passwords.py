@@ -14,7 +14,7 @@ from src.dao.backupDao import BackupDao
 async def test_upload_without_file(client: AsyncClient, jwt_bearer_mock):
     data = {"name": "backup_name", "rows": 4}
     response = await client.post(
-        url="/backups/upload",
+        url="/api/backups/upload",
         # files=[], #No files
         data=data
     )
@@ -35,7 +35,7 @@ async def test_upload(client: AsyncClient, jwt_bearer_mock, create_test_user, db
     with open(file_path, "rb") as f:
         data = {"name": "backup_name", "rows": 4}
         response = await client.post(
-            url="backups/upload",
+            url="/api/backups/upload",
             files={"file": (file_path.name, f)},
             data=data
         )
@@ -53,7 +53,7 @@ async def test_upload(client: AsyncClient, jwt_bearer_mock, create_test_user, db
 @pytest.mark.asyncio
 async def test_backups_without_backups(client: AsyncClient, jwt_bearer_mock: int, create_test_user):
     response = await client.get(
-        url="/backups"
+        url="/api/backups"
     )
     data = response.json()
 
@@ -73,7 +73,7 @@ async def test_backups(client: AsyncClient, jwt_bearer_mock: int, create_test_us
     requests_to_create = 3
     with open(file_path, "rb") as f:
         tasks = [client.post(
-            url="/backups/upload",
+            url="/api/backups/upload",
             files={"file": (file_path.name, f)},
             data={"name": "backup_name", "rows": 4}
         )
@@ -84,7 +84,7 @@ async def test_backups(client: AsyncClient, jwt_bearer_mock: int, create_test_us
         
     # /backups request
     response = await client.get(
-        url="/backups"
+        url="/api/backups"
     )
     data = response.json()
     
@@ -96,7 +96,7 @@ async def test_backups(client: AsyncClient, jwt_bearer_mock: int, create_test_us
 @pytest.mark.asyncio
 async def test_download_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: int, create_test_user):
     response = await client.post(
-        url="/backups/download",
+        url="/api/backups/download",
         json={"backup_id": 1000}
     )
 
@@ -114,7 +114,7 @@ async def test_download_no_backup_file_on_server(client: AsyncClient, jwt_bearer
     requests_to_create = 1
     with open(file_path, "rb") as f:
         tasks = [client.post(
-            url="/backups/upload",
+            url="/api/backups/upload",
             files={"file": (file_path.name, f)},
             data={"name": "backup_name", "rows": 4}
         )
@@ -131,7 +131,7 @@ async def test_download_no_backup_file_on_server(client: AsyncClient, jwt_bearer
         Path(b.path).unlink()
     
     response = await client.post(
-        url="/backups/download",
+        url="/api/backups/download",
         json={"backup_id": 1}
     )
     data = response.json()
@@ -153,7 +153,7 @@ async def test_download(client: AsyncClient, jwt_bearer_mock: int, create_test_u
     requests_to_create = 1
     with open(file_path, "rb") as f:
         tasks = [client.post(
-            url="/backups/upload",
+            url="/api/backups/upload",
             files={"file": (file_path.name, f)},
             data={"name": "backup_name", "rows": 4}
         )
@@ -163,7 +163,7 @@ async def test_download(client: AsyncClient, jwt_bearer_mock: int, create_test_u
             assert r.status_code == 200
     
     response = await client.post(
-        url="/backups/download",
+        url="/api/backups/download",
         json={"backup_id": 1}
     )
     
@@ -175,7 +175,7 @@ async def test_download(client: AsyncClient, jwt_bearer_mock: int, create_test_u
 async def test_delte_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: int, create_test_user):
     wrong_backup_id = 10
     response = await client.delete(
-        url=f"/backups/{wrong_backup_id}",
+        url=f"/api/backups/{wrong_backup_id}",
     )
     
     assert response.status_code == 404
@@ -194,7 +194,7 @@ async def test_delete(client: AsyncClient, jwt_bearer_mock: int, create_test_use
     requests_to_create = 1
     with open(file_path, "rb") as f:
         tasks = [client.post(
-            url="/backups/upload",
+            url="/api/backups/upload",
             files={"file": (file_path.name, f)},
             data={"name": "backup_name", "rows": 4}
         )
@@ -212,7 +212,7 @@ async def test_delete(client: AsyncClient, jwt_bearer_mock: int, create_test_use
     assert backup is not None
         
     response = await client.delete(
-        url=f"/backups/{backup.id}",
+        url=f"/api/backups/{backup.id}",
     )
 
     assert response.status_code == 200
