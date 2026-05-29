@@ -64,3 +64,17 @@ async def docs(request: Request):
         request=request,
         name="docs.html"
     )
+    
+@pages.get(path="/login", response_class=HTMLResponse)
+async def login(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html"
+    )
+    
+@pages.get(path="/register", response_class=HTMLResponse)
+async def register(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="register.html"
+    )

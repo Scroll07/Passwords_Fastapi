@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Pas CLI{% endblock %}
+
+{% block content %}
+<main>
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h1>Create account</h1>
+
+                <form class="auth-form" id="auth-form" method="post" action="/register">
+                    <div class="form-group">
+                        <label for="username">username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="••••••••"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">confirm password</label>
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            placeholder="••••••••"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="auth-submit">Create account</button>
+                </form>
+
+                <div class="auth-links auth-links-center">
+                    <p>Already have an account? <a href="/login">Log in</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    const form = document.getElementById("auth-form")
+
+    if (form) {
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault()
+
+            const username = document.getElementById("username").value
+            const password = document.getElementById("password").value
+            const confirm_password = document.getElementById("confirm_password").value
+
+            if (password != confirm_password) {
+                alert("Passwords should be the same")
+                return
+            }
+
+            const resposne = await fetch(
+                "/register",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "username": username,
+                        "password": password
+                    })
+                }
+            )
+            const data = await resposne.json()
+
+            if (! data.ok) {
+                if (Array.isArray(data.detail)) {
+                    alert(data.detail[0].msg)
+                }
+                else {
+                    alert(data.detail)
+                }
+                console.log(data)
+                return
+            }
+
+            document.location.href = "/login"
+        })
+    }
+    
+    
+</script>
+{% endblock %}
