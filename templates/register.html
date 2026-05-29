@@ -9,7 +9,7 @@
             <div class="auth-card">
                 <h1>Create account</h1>
 
-                <form class="auth-form" id="auth-form" method="post" action="/register">
+                <form class="auth-form" id="auth-form" method="post" action="/web/register">
                     <div class="form-group">
                         <label for="username">username</label>
                         <input
@@ -73,7 +73,7 @@
             }
 
             const resposne = await fetch(
-                "/register",
+                "/web/register",
                 {
                     method: "POST",
                     headers: {

@@ -9,7 +9,7 @@
             <div class="auth-card">
                 <h1>Login</h1>
 
-                <form class="auth-form" id="auth-form" method="post" action="/login">
+                <form class="auth-form" id="auth-form" method="post" action="/web/login">
                     <div class="form-group">
                         <label for="username">username</label>
                         <input
@@ -57,7 +57,7 @@
             const password = document.getElementById("password").value
             
             const response = await fetch(
-                "/login",
+                "/web/login",
                 {
                     method: "POST",
                     headers: {
