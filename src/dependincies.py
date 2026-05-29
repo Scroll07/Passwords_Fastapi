@@ -58,3 +58,34 @@ async def verify_refresh_token(
         logger.exception(e)
         raise HTTPException(401, "Invalid token")
     
+    
+async def verify_web_user(request: Request) -> int:
+    try:
+        bearer_token = request.cookies.get("bearer_token")
+        if bearer_token is None:
+            raise HTTPException(401, "No access token")
+        jwt_servise = get_jwt_service()
+        user_id = jwt_servise.verify_token(token=bearer_token)
+        return user_id
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(401, "Invalid token")
+    
+async def verify_web_refresh_token(request: Request) -> int:
+    try:
+        refresh_token = request.cookies.get("refresh_token")
+        if refresh_token is None:
+            raise HTTPException(401, "No access token")
+        jwt_servise = get_jwt_service()
+        user_id = jwt_servise.verify_token(token=refresh_token)
+        return user_id
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(401, "Invalid token")
+    

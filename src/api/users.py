@@ -114,7 +114,8 @@ async def refresh_get(
         logger.exception(e)
         raise HTTPException(500, "Internal server error")
     
-    
+
+from src.dependincies import verify_web_refresh_token
 #==============================
 #            WEB    
 #==============================
@@ -216,7 +217,7 @@ async def web_login_post(
     
 @users.get("/web/refresh")
 async def web_refresh_get(
-    user_id = Depends(verify_refresh_token)
+    user_id = Depends(verify_web_refresh_token)
 ):
     try:
         jwt_service = get_jwt_service()
