@@ -18,7 +18,7 @@ passwords = APIRouter()
 #==============================
 #            API    
 #==============================
-@passwords.post("/backups/upload")
+@passwords.post("/api/backups/upload")
 async def upload_post(
     name: str = Form(...),
     rows: int = Form(...),
@@ -51,7 +51,7 @@ async def upload_post(
         raise HTTPException(500, "Internal server error")
 
 
-@passwords.get("/backups")
+@passwords.get("/api/backups")
 async def get_user_backups(
     db = Depends(get_db),
     user_id = Depends(verify_user),
@@ -80,7 +80,7 @@ async def get_user_backups(
         raise HTTPException(500, detail="Interal server error")
     
 
-@passwords.post("/backups/download")
+@passwords.post("/api/backups/download")
 async def download_post(
    data: DownloadRequest, 
    db = Depends(get_db),
@@ -111,7 +111,7 @@ async def download_post(
         raise HTTPException(500, detail="Internal server error")
     
 
-@passwords.delete("/backups/{backup_id}")
+@passwords.delete("/api/backups/{backup_id}")
 async def delete_backup(
    backup_id: int, 
    db = Depends(get_db),

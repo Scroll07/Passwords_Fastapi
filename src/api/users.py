@@ -18,7 +18,7 @@ users = APIRouter()
 #==============================
 #            API   
 #==============================
-@users.post("/register", status_code=201)
+@users.post("/api/register", status_code=201)
 async def register_post(
     user_data: RegisterRequestData,
     db=Depends(get_db),
@@ -58,7 +58,7 @@ async def register_post(
         raise HTTPException(500, "Internal server error")
 
 
-@users.post("/login")
+@users.post("/api/login")
 async def login_post(
     user_data: LoginRequest,
     db=Depends(get_db),
@@ -93,7 +93,7 @@ async def login_post(
         raise HTTPException(500, "Internal server error")
     
     
-@users.get("/refresh")
+@users.get("/api/refresh")
 async def refresh_get(
     user_id = Depends(verify_refresh_token)
 ):
