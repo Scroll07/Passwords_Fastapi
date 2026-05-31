@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import StrEnum
 
 
@@ -77,4 +77,5 @@ class BackupData(BaseModel):
     rows: int
     created_at: datetime
 
+    model_config = ConfigDict(from_attributes=True)
     

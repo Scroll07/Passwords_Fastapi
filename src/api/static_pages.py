@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 
+from src.dependincies import verify_web_user, get_db
 from src.core.templates import templates
 from src.core.logger import get_logger
+from src.schemas.base import BackupData
+from src.dao.backupDao import BackupDao
 
 logger = get_logger(name="Static pages")
 
@@ -77,4 +80,26 @@ async def register(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="register.html"
+    )
+
+@pages.get(path="/dashboard", response_class=HTMLResponse)
+async def dashboard(
+    request: Request,
+    user_id = Depends(verify_web_user),
+    db = Depends(get_db)
+    
+):
+    dao = BackupDao(session=db)
+    user_backups = await dao.get_user_backups(user_id=user_id)
+    context = [BackupData(
+        id=b.id,
+        name=b.name_to_show,
+        rows=b.rows,
+        created_at=b.created_at
+        ).model_dump() for b in user_backups]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={"backups": context}
     )

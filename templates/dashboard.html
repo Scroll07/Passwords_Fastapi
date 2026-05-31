@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Pas CLI{% endblock %}
+
+{% block content %}
+<main>
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-header">
+                <div>
+                    <h1>Hello, user</h1>
+                    <p>Session active — API connected</p>
+                </div>
+
+                <a href="/login" class="dashboard-logout">Log out →</a>
+            </div>
+
+            <div class="dashboard-block">
+                <h2>Backups</h2>
+
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>name</th>
+                            <th>date</th>
+                            <th>rows</th>
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for backup in backups %}
+                        <tr>
+                            <td>
+                                <a href="#" class="backup-name">{{ backup.name }}</a>
+                            </td>
+                            <td>{{ backup.created_at }}</td>
+                            <td>{{ backup.rows }}</td>
+                            <td class="dashboard-actions">
+                                <a href="#">Rename</a>
+                                <a href="#">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="dashboard-inspect">
+                <h2>Inspect a backup</h2>
+                <p>
+                    Backups are stored encrypted. You can decrypt a backup locally
+                    by entering your vault key to view its contents.
+                </p>
+
+                <form class="inspect-form" method="post" action="#">
+                    <div class="form-group">
+                        <label for="backup_id">select backup</label>
+                        <select id="backup_id" name="backup_id" required>
+                            <option value="" disabled selected>Select a backup</option>
+                            {% for backup in backups %}
+                            <option value="{{ backup.id }}">{{ backup.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vault_key">vault key</label>
+                        <input
+                            type="password"
+                            id="vault_key"
+                            name="vault_key"
+                            placeholder="Enter your vault key"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="inspect-submit">Decrypt and view</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
