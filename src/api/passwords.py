@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException
+from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException
 from fastapi.responses import FileResponse
 
 from src.schemas.api_responses import BackupsResponse, MessageResponse
@@ -113,7 +113,7 @@ async def download_post(
 
 @passwords.delete("/api/backups/{backup_id}")
 async def delete_backup(
-   backup_id: int, 
+   backup_id: int = Body(...), 
    db = Depends(get_db),
    user_id = Depends(verify_user),
 ):
@@ -130,13 +130,29 @@ async def delete_backup(
         detail="Your backup was successully deleted"
     )
 
+@passwords.patch("/api/backups/{backup_id}")
+async def patch_backup(
+   backup_id: int = Body(...), 
+   new_name: str = Body(...),
+   db = Depends(get_db),
+   user_id = Depends(verify_user),
+):
+    dao = BackupDao(session=db)
+    pathced_backup = await dao.rename_backup_by_id(backup_id=backup_id, user_id=user_id, new_name=new_name)
+    if pathced_backup is None:
+        raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
+         
+    return MessageResponse(
+        ok=True,
+        detail="Your backup was successully deleted"
+    )
 
-
-from src.dependincies import verify_web_user
 
 #==============================
 #            WEB    
 #==============================
+from src.dependincies import verify_web_user
+
 @passwords.post("/web/backups/upload")
 async def web_upload_post(
     name: str = Form(...),
@@ -234,7 +250,7 @@ async def web_download_post(
 async def web_delete_backup(
    backup_id: int, 
    db = Depends(get_db),
-   user_id = Depends(verify_user),
+   user_id = Depends(verify_web_user),
 ):
     dao = BackupDao(session=db)
     deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=user_id)
