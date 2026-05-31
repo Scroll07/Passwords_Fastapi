@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
-from src.dependincies import get_db, verify_refresh_token, get_jwt_service
+from src.dependincies import get_db, verify_refresh_token, get_jwt_service, verify_user
 from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
@@ -115,6 +115,36 @@ async def refresh_get(
         raise HTTPException(500, "Internal server error")
     
 
+@users.patch("/api/change-password")
+async def change_password(
+    current_password: str = Body(...),
+    new_password: str = Body(...), 
+    user_id = Depends(verify_user),
+    db = Depends(get_db)
+):
+    try:
+        dao = UserDao(session=db)
+        user = await dao.get_user_by_field(field=GetUserFields.ID, value=user_id)
+        if user is None:
+            logger.exception(f"User with this user_id={user_id} does not exist")
+            raise HTTPException(404, "User with this user_id does not exist")
+        
+        if not verify_password(password=current_password, password_hash=user.password_hash):
+            raise HTTPException(401, "Wrong user data")
+        
+        new_hash = hash_password(password=new_password)
+        await dao.change_password(user=user, new_hash=new_hash)
+        
+        response = MessageResponse(
+            ok=True,
+            detail="Your password was successuflly changed",
+        )
+        return response
+    
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")
+    
 
 
 #==============================
