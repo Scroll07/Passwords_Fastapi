@@ -36,3 +36,16 @@ class UserDao:
         result = await self.session.execute(qeury)
         user = result.scalar_one_or_none()
         return user
+
+    async def rename_user(self, user_id: int, new_name: str) -> Users | None:
+        user = await self.get_user_by_field(
+            field=GetUserFields.ID,
+            value=user_id
+        )
+        if not user:
+            return None
+        user.username = new_name
+        await self.session.commit()
+        await self.session.refresh(user)
+        return user
+    

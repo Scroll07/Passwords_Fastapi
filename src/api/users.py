@@ -115,10 +115,12 @@ async def refresh_get(
         raise HTTPException(500, "Internal server error")
     
 
-from src.dependincies import verify_web_refresh_token
+
+
 #==============================
 #            WEB    
 #==============================
+from src.dependincies import verify_web_refresh_token
 
 @users.post("/web/register", status_code=201)
 async def web_register_post(

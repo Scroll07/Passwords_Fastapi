@@ -113,7 +113,7 @@ async def download_post(
 
 @passwords.delete("/api/backups/{backup_id}")
 async def delete_backup(
-   backup_id: int = Body(...), 
+   backup_id: int, 
    db = Depends(get_db),
    user_id = Depends(verify_user),
 ):
