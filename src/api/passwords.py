@@ -132,7 +132,7 @@ async def delete_backup(
 
 @passwords.patch("/api/backups/{backup_id}")
 async def patch_backup(
-   backup_id: int = Body(...), 
+   backup_id: int, 
    new_name: str = Body(...),
    db = Depends(get_db),
    user_id = Depends(verify_user),
