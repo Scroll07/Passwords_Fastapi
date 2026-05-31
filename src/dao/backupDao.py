@@ -58,5 +58,14 @@ class BackupDao:
         await self.session.delete(backup_to_delete)
         await self.session.commit()
         return backup_to_delete
+    
+    async def rename_backup_by_id(self, backup_id: int, user_id: int, new_name: str) -> Backups | None:
+        backup = await self.get_backup_by_id(backup_id=backup_id, user_id=user_id)
+        if not backup:
+            return None
+        backup.name_to_show = new_name
+        await self.session.commit()
+        await self.session.refresh(backup)
+        return backup
         
         
