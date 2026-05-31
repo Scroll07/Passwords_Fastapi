@@ -9,7 +9,7 @@ from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
 from src.core.logger import get_logger
-
+from src.services.cookies import add_bearer_cookie, add_refresh_cookie
 
 logger = get_logger(__name__)
 
@@ -186,24 +186,8 @@ async def web_login_post(
         response = JSONResponse(
             content=content
         )
-        expires = datetime.now(timezone.utc) + timedelta(hours=1)
-        response.set_cookie(
-            key="bearer_token",
-            value=bearer_token.token,
-            expires=expires,
-            secure=False,       #No https yet
-            samesite="lax",
-            httponly=True
-        )
-        expires = datetime.now(timezone.utc) + timedelta(days=7)
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token.token,
-            expires=expires,
-            secure=False,       #No https yet
-            samesite="lax",
-            httponly=True
-        )
+        add_bearer_cookie(response=response, value=bearer_token.token)
+        add_refresh_cookie(response=response, value=refresh_token.token)
         
         return response
     
@@ -231,24 +215,8 @@ async def web_refresh_get(
         response = JSONResponse(
             content=content
         )
-        expires = datetime.now(timezone.utc) + timedelta(hours=1)
-        response.set_cookie(
-            key="bearer_token",
-            value=bearer_token.token,
-            expires=expires,
-            secure=False,       #No https yet
-            samesite="lax",
-            httponly=True
-        )
-        expires = datetime.now(timezone.utc) + timedelta(days=7)
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token.token,
-            expires=expires,
-            secure=False,       #No https yet
-            samesite="lax",
-            httponly=True
-        )
+        add_bearer_cookie(response=response, value=bearer_token.token)
+        add_refresh_cookie(response=response, value=refresh_token.token)
         
         return response
     
