@@ -1,9 +1,9 @@
 from typing import AsyncIterator
 
 from fastapi import Body, HTTPException, Depends, Request
+from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-
 
 from src.schemas.base import ChangePasswordSchema
 from src.core.settings import get_settings
@@ -60,11 +60,11 @@ async def verify_refresh_token(
         raise HTTPException(401, "Invalid token")
     
     
-async def verify_web_user(request: Request) -> int:
+async def verify_web_user(request: Request) -> int | None:
     try:
         bearer_token = request.cookies.get("bearer_token")
         if bearer_token is None:
-            raise HTTPException(401, "No access token")
+            return None
         jwt_servise = get_jwt_service()
         user_id = jwt_servise.verify_token(token=bearer_token)
         return user_id
@@ -75,11 +75,11 @@ async def verify_web_user(request: Request) -> int:
         logger.exception(e)
         raise HTTPException(401, "Invalid token")
     
-async def verify_web_refresh_token(request: Request) -> int:
+async def verify_web_refresh_token(request: Request) -> int | None:
     try:
         refresh_token = request.cookies.get("refresh_token")
         if refresh_token is None:
-            raise HTTPException(401, "No access token")
+            return None
         jwt_servise = get_jwt_service()
         user_id = jwt_servise.verify_token(token=refresh_token)
         return user_id

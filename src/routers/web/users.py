@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Body, Depends, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
-from src.dependincies import get_db, verify_refresh_token, get_jwt_service, verify_user
+from src.dependincies import get_db, get_jwt_service, verify_web_user
 from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
@@ -61,10 +61,11 @@ async def web_register_post(
 
 @web_users.post("/login")
 async def web_login_post(
+    request: Request,
     user_data: LoginRequest,
     db=Depends(get_db),
 ):
-    try:
+    try:        
         dao = UserDao(db)
         user = await dao.get_user_by_field(GetUserFields.USERNAME, user_data.username)
         if not user:
@@ -98,11 +99,26 @@ async def web_login_post(
         raise HTTPException(500, "Internal server error")
     
     
+@web_users.get("/logout")
+async def logout():
+    response = RedirectResponse(url="/web/login")
+    response.delete_cookie(key="bearer_token", httponly=True, samesite="lax")
+    response.delete_cookie(key="refresh_token", httponly=True, samesite="lax")
+    return response
+    
+    
+    
+    
+    
+    
 @web_users.get("/refresh")
 async def web_refresh_get(
     user_id = Depends(verify_web_refresh_token)
 ):
     try:
+        if user_id is None:
+            return RedirectResponse(url="/web/login")
+        
         jwt_service = get_jwt_service()
         bearer_token = jwt_service.create_access_token(user_id=user_id)
         refresh_token = jwt_service.create_refresh_token(user_id=user_id)
