@@ -133,7 +133,7 @@ async def delete_backup(
 @api_passwords.patch("/backups/{backup_id}")
 async def patch_backup(
    backup_id: int, 
-   new_name: str = Body(...),
+   new_name: str = Body(..., min_length=1, max_length=20),
    db = Depends(get_db),
    user_id = Depends(verify_user),
 ):
@@ -144,7 +144,7 @@ async def patch_backup(
          
     return MessageResponse(
         ok=True,
-        detail="Your backup was successully deleted"
+        detail="Your backup was successully renamed"
     )
 
 
