@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 
 from src.schemas.api_responses import BackupsResponse, MessageResponse
 from src.schemas.base import BackupData, DownloadRequest
@@ -30,6 +30,8 @@ async def web_upload_post(
     user_id=Depends(verify_web_user),
 ):
     try:
+        if user_id is None:
+            return RedirectResponse(url="/web/login")
         dao = BackupDao(db)
         if file.filename is None:
             raise HTTPException(401, detail="Filename is None")
@@ -60,6 +62,8 @@ async def web_get_user_backups(
     user_id = Depends(verify_web_user),
 ):
     try:
+        if user_id is None:
+            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
         backups = await dao.get_user_backups(user_id=user_id)
         backups_data = [
@@ -90,6 +94,8 @@ async def web_download_post(
    user_id = Depends(verify_web_user),
 ):
     try:
+        if user_id is None:
+            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
         backup = await dao.get_backup_by_id(backup_id=data.backup_id, user_id=user_id)
         if backup is None:
@@ -120,6 +126,8 @@ async def web_delete_backup(
    db = Depends(get_db),
    user_id = Depends(verify_web_user),
 ):
+    if user_id is None:
+            return RedirectResponse(url="/web/login")
     dao = BackupDao(session=db)
     deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=user_id)
     if deleted_backup is None:
