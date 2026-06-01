@@ -2,8 +2,8 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
-from src.dependincies import get_db, verify_refresh_token, get_jwt_service, verify_user
-from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
+from src.dependincies import get_db, verify_refresh_token, get_jwt_service, verify_user, validate_change_passwords
+from src.schemas.base import ChangePasswordSchema, RegisterRequestData, LoginRequest, GetUserFields
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
 from src.core.logger import get_logger
@@ -114,8 +114,7 @@ async def refresh_get(
 
 @api_users.patch("/change-password")
 async def change_password(
-    current_password: str = Body(...),
-    new_password: str = Body(...), 
+    data: ChangePasswordSchema = Depends(validate_change_passwords), 
     user_id = Depends(verify_user),
     db = Depends(get_db)
 ):
@@ -126,10 +125,10 @@ async def change_password(
             logger.exception(f"User with this user_id={user_id} does not exist")
             raise HTTPException(404, "User with this user_id does not exist")
         
-        if not verify_password(password=current_password, password_hash=user.password_hash):
+        if not verify_password(password=data.current_password, password_hash=user.password_hash):
             raise HTTPException(401, "Wrong user data")
         
-        new_hash = hash_password(password=new_password)
+        new_hash = hash_password(password=data.new_password)
         await dao.change_password(user=user, new_hash=new_hash)
         
         response = MessageResponse(

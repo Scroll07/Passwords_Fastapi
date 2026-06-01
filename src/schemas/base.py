@@ -78,4 +78,7 @@ class BackupData(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-    
+
+class ChangePasswordSchema(BaseModel):
+    current_password: str
+    new_password: str

@@ -1,10 +1,11 @@
 from typing import AsyncIterator
 
-from fastapi import HTTPException, Depends, Request
+from fastapi import Body, HTTPException, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+from src.schemas.base import ChangePasswordSchema
 from src.core.settings import get_settings
 from src.core.database import async_session
 from src.services.secrets import JWT, ALGORITM
@@ -89,3 +90,13 @@ async def verify_web_refresh_token(request: Request) -> int:
         logger.exception(e)
         raise HTTPException(401, "Invalid token")
     
+async def validate_change_passwords(
+    current_password: str = Body(..., min_length=4, max_length=20),
+    new_password: str = Body(..., min_length=4, max_length=20)
+) -> ChangePasswordSchema:
+    if " " in current_password.strip() or " " in new_password.strip():
+        raise HTTPException(422, "The password must not contain spaces")
+    return ChangePasswordSchema(
+        current_password=current_password,
+        new_password=new_password
+    )
