@@ -80,8 +80,8 @@ class JWT:
             
             return int(user_id)
             
-
         else:
             raise ValueError("Wrong type")
+
 
 

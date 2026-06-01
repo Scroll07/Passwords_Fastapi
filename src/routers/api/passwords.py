@@ -13,12 +13,12 @@ from src.services.backup_service import delete_backup_by_path
 
 logger = get_logger(__name__)
 
-passwords = APIRouter()
+api_passwords = APIRouter()
 
 #==============================
 #            API    
 #==============================
-@passwords.post("/api/backups/upload")
+@api_passwords.post("/backups/upload")
 async def upload_post(
     name: str = Form(...),
     rows: int = Form(...),
@@ -51,7 +51,7 @@ async def upload_post(
         raise HTTPException(500, "Internal server error")
 
 
-@passwords.get("/api/backups")
+@api_passwords.get("/backups")
 async def get_user_backups(
     db = Depends(get_db),
     user_id = Depends(verify_user),
@@ -80,7 +80,7 @@ async def get_user_backups(
         raise HTTPException(500, detail="Interal server error")
     
 
-@passwords.post("/api/backups/download")
+@api_passwords.post("/backups/download")
 async def download_post(
    data: DownloadRequest, 
    db = Depends(get_db),
@@ -111,7 +111,7 @@ async def download_post(
         raise HTTPException(500, detail="Internal server error")
     
 
-@passwords.delete("/api/backups/{backup_id}")
+@api_passwords.delete("/backups/{backup_id}")
 async def delete_backup(
    backup_id: int, 
    db = Depends(get_db),
@@ -130,10 +130,10 @@ async def delete_backup(
         detail="Your backup was successully deleted"
     )
 
-@passwords.patch("/api/backups/{backup_id}")
+@api_passwords.patch("/backups/{backup_id}")
 async def patch_backup(
    backup_id: int, 
-   new_name: str = Body(...),
+   new_name: str = Body(..., min_length=1, max_length=20),
    db = Depends(get_db),
    user_id = Depends(verify_user),
 ):
@@ -144,125 +144,9 @@ async def patch_backup(
          
     return MessageResponse(
         ok=True,
-        detail="Your backup was successully deleted"
+        detail="Your backup was successully renamed"
     )
 
 
-#==============================
-#            WEB    
-#==============================
-from src.dependincies import verify_web_user
-
-@passwords.post("/web/backups/upload")
-async def web_upload_post(
-    name: str = Form(...),
-    rows: int = Form(...),
-    file: UploadFile = File(...),
-    db=Depends(get_db),
-    user_id=Depends(verify_web_user),
-):
-    try:
-        dao = BackupDao(db)
-        if file.filename is None:
-            raise HTTPException(401, detail="Filename is None")
-
-        new_backup = dao.create_backup(user_id=user_id, filename=file.filename, name=name, rows=rows)
-        async with new_backup as backup:
-            content = await file.read()
-            with open(backup.path, "wb") as f:
-                f.write(content)
-
-            response = MessageResponse(
-                ok=True,
-                detail="Your backup was successfully uploaded"
-            )
-            return response
-
-    except HTTPException as e:
-        logger.warning(e)
-        raise e
-    except Exception as e:
-        logger.exception(e)
-        raise HTTPException(500, "Internal server error")
-
-
-@passwords.get("/web/backups")
-async def web_get_user_backups(
-    db = Depends(get_db),
-    user_id = Depends(verify_web_user),
-):
-    try:
-        dao = BackupDao(session=db)
-        backups = await dao.get_user_backups(user_id=user_id)
-        backups_data = [
-            BackupData(
-                id=b.id,
-                created_at=b.created_at,
-                name=b.name_to_show,
-                rows=b.rows
-            )
-            for b in backups
-        ]
-        response = BackupsResponse(
-            ok=True,
-            detail=f"Backups of {user_id}",
-            backups=backups_data
-        )
-        
-        return response
-    except Exception as e:
-        logger.exception(f"Error in Backups handler: {e}")
-        raise HTTPException(500, detail="Interal server error")
-    
-
-@passwords.post("/web/backups/download")
-async def web_download_post(
-   data: DownloadRequest, 
-   db = Depends(get_db),
-   user_id = Depends(verify_web_user),
-):
-    try:
-        dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(backup_id=data.backup_id, user_id=user_id)
-        if backup is None:
-            raise HTTPException(404, "Backup was not found")
-            
-        if not Path(backup.path).exists():
-            raise HTTPException(500, "We cant find your backup")
-        
-        now = datetime.now()
-        date = datetime.strftime(now, format="%d-%m-%Y_%H-%M-%S")
-        
-        return FileResponse(
-        path=backup.path,
-        filename=f'backup_{date}.json',
-        media_type="application/json"
-        )
-    except HTTPException as e:
-        logger.exception(f"Error in Download handler: {e}")
-        raise e
-    except Exception as e:
-        logger.exception(f"Error in Download handler: {e}")
-        raise HTTPException(500, detail="Internal server error")
-    
-
-@passwords.delete("/web/backups/{backup_id}")
-async def web_delete_backup(
-   backup_id: int, 
-   db = Depends(get_db),
-   user_id = Depends(verify_web_user),
-):
-    dao = BackupDao(session=db)
-    deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=user_id)
-    if deleted_backup is None:
-        raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
-    
-    #delete file local
-    delete_backup_by_path(backup_path=Path(deleted_backup.path))
-    
-    return MessageResponse(
-        ok=True,
-        detail="Your backup was successully deleted"
-    )
 
 
