@@ -24,7 +24,6 @@
                             <th>name</th>
                             <th>date</th>
                             <th>rows</th>
-                            <th>actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,10 +34,7 @@
                             </td>
                             <td>{{ backup.created_at }}</td>
                             <td>{{ backup.rows }}</td>
-                            <td class="dashboard-actions">
-                                <a href="#">Rename</a>
-                                <a href="#">Delete</a>
-                            </td>
+
                         </tr>
                         {% endfor %}
                     </tbody>

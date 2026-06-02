@@ -16,8 +16,6 @@
                         {% if backup.rows is not none %} · Rows: {{ backup.rows }}{% endif %}
                     </p>
                 </div>
-
-                <a href="{{ url_for('logout') }}" id="dashboard-logout" class="dashboard-logout">Log out →</a>
             </div>
 
             {% if success %}
