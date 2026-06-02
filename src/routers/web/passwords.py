@@ -21,39 +21,39 @@ web_passwords = APIRouter()
 #==============================
 from src.dependincies import verify_web_user
 
-@web_passwords.post("/backups/upload")
-async def web_upload_post(
-    name: str = Form(...),
-    rows: int = Form(...),
-    file: UploadFile = File(...),
-    db=Depends(get_db),
-    user_id=Depends(verify_web_user),
-):
-    try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
-        dao = BackupDao(db)
-        if file.filename is None:
-            raise HTTPException(401, detail="Filename is None")
+# @web_passwords.post("/backups/upload")
+# async def web_upload_post(
+#     name: str = Form(...),
+#     rows: int = Form(...),
+#     file: UploadFile = File(...),
+#     db=Depends(get_db),
+#     user_id=Depends(verify_web_user),
+# ):
+#     try:
+#         if user_id is None:
+#             return RedirectResponse(url="/web/login")
+#         dao = BackupDao(db)
+#         if file.filename is None:
+#             raise HTTPException(401, detail="Filename is None")
 
-        new_backup = dao.create_backup(user_id=user_id, filename=file.filename, name=name, rows=rows)
-        async with new_backup as backup:
-            content = await file.read()
-            with open(backup.path, "wb") as f:
-                f.write(content)
+#         new_backup = dao.create_backup(user_id=user_id, filename=file.filename, name=name, rows=rows)
+#         async with new_backup as backup:
+#             content = await file.read()
+#             with open(backup.path, "wb") as f:
+#                 f.write(content)
 
-            response = MessageResponse(
-                ok=True,
-                detail="Your backup was successfully uploaded"
-            )
-            return response
+#             response = MessageResponse(
+#                 ok=True,
+#                 detail="Your backup was successfully uploaded"
+#             )
+#             return response
 
-    except HTTPException as e:
-        logger.warning(e)
-        raise e
-    except Exception as e:
-        logger.exception(e)
-        raise HTTPException(500, "Internal server error")
+#     except HTTPException as e:
+#         logger.warning(e)
+#         raise e
+#     except Exception as e:
+#         logger.exception(e)
+#         raise HTTPException(500, "Internal server error")
 
 
 @web_passwords.get("/backups")
@@ -87,9 +87,9 @@ async def web_get_user_backups(
         raise HTTPException(500, detail="Interal server error")
     
 
-@web_passwords.post("/backups/download")
+@web_passwords.post("/backups/{backup_id}/download")
 async def web_download_post(
-   data: DownloadRequest, 
+   backup_id: int, 
    db = Depends(get_db),
    user_id = Depends(verify_web_user),
 ):
@@ -97,7 +97,7 @@ async def web_download_post(
         if user_id is None:
             return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(backup_id=data.backup_id, user_id=user_id)
+        backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)
         if backup is None:
             raise HTTPException(404, "Backup was not found")
             
@@ -119,6 +119,24 @@ async def web_download_post(
         logger.exception(f"Error in Download handler: {e}")
         raise HTTPException(500, detail="Internal server error")
     
+
+@web_passwords.patch("/backups/{backup_id}")
+async def patch_backup(
+   backup_id: int, 
+   new_name: str = Form(..., min_length=1, max_length=20),
+   db = Depends(get_db),
+   user_id = Depends(verify_web_user),
+):
+    dao = BackupDao(session=db)
+    pathced_backup = await dao.rename_backup_by_id(backup_id=backup_id, user_id=user_id, new_name=new_name)
+    if pathced_backup is None:
+        raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
+         
+    return MessageResponse(
+        ok=True,
+        detail="Your backup was successully renamed"
+    )
+
 
 @web_passwords.delete("/backups/{backup_id}")
 async def web_delete_backup(

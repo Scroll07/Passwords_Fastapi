@@ -71,15 +71,16 @@ async def docs(request: Request):
 @pages.get(path="/web/login", response_class=HTMLResponse)
 async def login(request: Request):
     bearer_token = request.cookies.get("bearer_token")
-    if bearer_token:
-        jwt_service = get_jwt_service()
-        if jwt_service.verify_token(token=bearer_token):
-            return RedirectResponse("/web/dashboard")
-    
-    return templates.TemplateResponse(
-        request=request,
-        name="login.html"
-    )
+    try:
+        if bearer_token:
+            jwt_service = get_jwt_service()
+            if jwt_service.verify_token(token=bearer_token):
+                return RedirectResponse("/web/dashboard")
+    finally:    
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html"
+        )
     
 @pages.get(path="/web/register", response_class=HTMLResponse)
 async def register(request: Request):
@@ -111,6 +112,40 @@ async def dashboard(
             request=request,
             name="dashboard.html",
             context={"backups": context}
+        )
+    except Exception as e:
+        logger.exception(e)
+        
+@pages.get(path="/web/backups/{backup_id}", response_class=HTMLResponse)
+async def user_backup(
+    request: Request,
+    backup_id: int,
+    user_id = Depends(verify_web_user),
+    db = Depends(get_db)
+    
+):
+    try:
+        if user_id is None:
+            return RedirectResponse(url="/web/login")
+        dao = BackupDao(session=db)
+        backup = await dao.get_backup_by_id(user_id=user_id, backup_id=backup_id)
+        if not backup:
+            return templates.TemplateResponse(
+                request=request,
+                name="user_backup.html",
+                context={"error": "This backup does not exist"}
+            )
+        context = BackupData(
+            id=backup.id,
+            name=backup.name_to_show,
+            rows=backup.rows,
+            created_at=backup.created_at
+        )
+        
+        return templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context={"backup": context.model_dump()}
         )
     except Exception as e:
         logger.exception(e)
