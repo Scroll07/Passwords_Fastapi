@@ -12,7 +12,7 @@
                     <p>Session active — API connected</p>
                 </div>
 
-                <a href="/web/logout" id="dashboard-logout" class="dashboard-logout">Log out →</a>
+                <a href="{{ url_for('logout') }}" id="dashboard-logout" class="dashboard-logout">Log out →</a>
             </div>
 
             <div class="dashboard-block">
@@ -31,7 +31,7 @@
                         {% for backup in backups %}
                         <tr>
                             <td>
-                                <a href="#" class="backup-name">{{ backup.name }}</a>
+                                <a href={{ url_for('user_backup') }} class="backup-name">{{ backup.name }}</a>
                             </td>
                             <td>{{ backup.created_at }}</td>
                             <td>{{ backup.rows }}</td>

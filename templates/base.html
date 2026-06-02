@@ -10,23 +10,23 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-           <a href="/" class="logo">
+           <a href="{{ url_for('home') }}" class="logo">
                 <img src="{{ url_for('static', path='images/logo.png') }}" alt="Pas CLI logo" class="logo-image">
                 <span class="logo-text">Pas CLI</span>
             </a>
 
             <nav class="main-nav">
-                <a href="/web/product">Product</a>
-                <a href="/web/how_it_works">How It Works</a>
-                <a href="/web/pricing">Pricing</a>
-                <a href="/web/security">Security</a>
-                <a href="/web/docs">Docs</a>
-                <a href="/web/faq">FAQ</a>
+                <a href="{{ url_for('product') }}">Product</a>
+                <a href="{{ url_for('how_it_works') }}">How It Works</a>
+                <a href="{{ url_for('pricing') }}">Pricing</a>
+                <a href="{{ url_for('security') }}">Security</a>
+                <a href="{{ url_for('docs') }}">Docs</a>
+                <a href="{{ url_for('faq') }}">FAQ</a>
             </nav>
 
             <div class="header-actions">
-                <a href="/web/login" class="login-link">Login</a>
-                <a href="/web/register" class="signup-btn">Sing Up</a>
+                <a href="{{ url_for('login') }}" class="login-link">Login</a>
+                <a href="{{ url_for('register') }}" class="signup-btn">Sing Up</a>
             </div>
         </div>
     </header>
@@ -37,7 +37,7 @@
         <div class="container">
             <div class="footer-top">
                 <div class="footer-brand">
-                    <a href="/" class="logo">
+                    <a href="{{ url_for('home') }}" class="logo">
                         <img src="{{ url_for('static', path='images/logo.png') }}" alt="Pas CLI logo" class="logo-image">
                         <span class="logo-text">Pas CLI</span>
                     </a>
@@ -62,16 +62,16 @@
 
                 <div class="footer-column">
                     <h3>Product</h3>
-                    <a href="/product">Features</a>
-                    <a href="/how-it-works">How It Works</a>
-                    <a href="/pricing">Pricing</a>
-                    <a href="/security">Security</a>
+                    <a href="{{ url_for('product') }}">Features</a>
+                    <a href="{{ url_for('how_it_works') }}">How It Works</a>
+                    <a href="{{ url_for('pricing') }}">Pricing</a>
+                    <a href="{{ url_for('security') }}">Security</a>
                 </div>
 
                 <div class="footer-column">
                     <h3>Resources</h3>
-                    <a href="/web/docs">Documentation</a>
-                    <a href="/faq">FAQ</a>
+                    <a href="{{ url_for('docs') }}">Documentation</a>
+                    <a href="{{ url_for('faq') }}">FAQ</a>
                     <a href="#">API Reference</a>
                     <a href="#">Status</a>
                 </div>

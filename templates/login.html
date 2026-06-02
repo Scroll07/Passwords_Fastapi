@@ -9,7 +9,7 @@
             <div class="auth-card">
                 <h1>Login</h1>
 
-                <form class="auth-form" id="auth-form" method="post" action="/web/login">
+                <form class="auth-form" id="auth-form" method="post" action="{{ url_for('login') }}">
                     <div class="form-group">
                         <label for="username">username</label>
                         <input
@@ -37,7 +37,7 @@
 
                 <div class="auth-links">
                     <a href="#">Forgot password</a>
-                    <p>Don’t have an account? <a href="/register">Sign up</a></p>
+                    <p>Don’t have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
                 </div>
             </div>
         </div>
