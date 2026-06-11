@@ -6,11 +6,11 @@ from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from dao.session_dao import SessionDao
+from src.dao.session_dao import SessionDao
 from src.schemas.db_schema import UserFields
 from src.dao.userDao import UserDao
 from src.schemas.jwt import JWTDecodedData
-from services.jwt_service import JWT_Service
+from src.services.jwt_service import JWT_Service
 from src.schemas.base import ChangePasswordSchema
 from src.core.settings import get_settings
 from src.core.database import async_session
@@ -120,35 +120,35 @@ async def verify_refresh_token(
         raise HTTPException(500, "Internal server error")
     
     
-# async def verify_web_user(request: Request) -> int | None:
-#     try:
-#         bearer_token = request.cookies.get("bearer_token")
-#         if bearer_token is None:
-#             return None
-#         jwt_servise = get_jwt_service()
-#         user_id = jwt_servise.verify_token(token=bearer_token)
-#         return user_id
-#     except HTTPException as e:
-#         logger.exception(e)
-#         raise e
-#     except Exception as e:
-#         logger.exception(e)
-#         raise HTTPException(401, "Invalid token")
+async def verify_web_user(request: Request) -> int | None:
+    try:
+        bearer_token = request.cookies.get("bearer_token")
+        if bearer_token is None:
+            return None
+        jwt_servise = get_jwt_service()
+        user_id = jwt_servise.verify_token(token=bearer_token)
+        return user_id
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(401, "Invalid token")
     
-# async def verify_web_refresh_token(request: Request) -> int | None:
-#     try:
-#         refresh_token = request.cookies.get("refresh_token")
-#         if refresh_token is None:
-#             return None
-#         jwt_servise = get_jwt_service()
-#         user_id = jwt_servise.verify_token(token=refresh_token)
-#         return user_id
-#     except HTTPException as e:
-#         logger.exception(e)
-#         raise e
-#     except Exception as e:
-#         logger.exception(e)
-#         raise HTTPException(401, "Invalid token")
+async def verify_web_refresh_token(request: Request) -> int | None:
+    try:
+        refresh_token = request.cookies.get("refresh_token")
+        if refresh_token is None:
+            return None
+        jwt_servise = get_jwt_service()
+        user_id = jwt_servise.verify_token(token=refresh_token)
+        return user_id
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(401, "Invalid token")
     
 async def validate_change_passwords(
     current_password: str = Body(..., min_length=4, max_length=20),
