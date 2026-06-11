@@ -1,24 +1,26 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.models.model import Users
 from sqlalchemy import select
 
-from src.schemas.base import RegisterRequestData, GetUserFields
+from src.schemas.db_schema import UserFields
+from src.models.model import Users
+from src.schemas.base import RegisterRequestData
 
 
 class UserDao:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def create_user(self, user_data: RegisterRequestData):
+    async def create_user(self, user_data: RegisterRequestData, role_id: int):
         new_user = Users(
             username=user_data.username,
             password_hash=user_data.password,
             telegram_id=user_data.telegram_id,
+            role_id=role_id
         )
         self.session.add(new_user)
         await self.session.flush()
-        await self.session.refresh(new_user)
-        await self.session.commit()
+        # await self.session.refresh(new_user)
+        # await self.session.commit()
 
         return new_user
 
@@ -29,7 +31,7 @@ class UserDao:
         return hash
 
     async def get_user_by_field(
-        self, field: GetUserFields, value: str | int
+        self, field: UserFields, value: str | int
     ) -> Users | None:
         column = getattr(Users, field)
         qeury = select(Users).where(column == value)

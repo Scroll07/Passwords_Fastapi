@@ -27,15 +27,8 @@ class LoginRequest(BaseModel):
 class RegisterRequestData(LoginRequest):
     # username: str = Field(min_length=4, max_length=20)
     # password: str = Field(min_length=4, max_length=20)
-    telegram_id: int | None = None
+    telegram_id: int | None = Field(default=None, min_length=5, max_length=14)
 
-    @field_validator("telegram_id")
-    def validate_telegram_id(cls, value: int | None) -> int | None:
-        if value is None:
-            return value
-        if not (5 < len(str(value)) < 14):
-            raise ValueError("This Telegram id can not exist")
-        return value
 
 #=============================
 #=============================
@@ -54,10 +47,6 @@ class UploadRequest(BaseModel):
 
 
 
-class CreateUserInDb(BaseModel):
-    username: str
-    password_hash: str
-    telegram_id: int
 
 
 class UserData(BaseModel):
@@ -66,10 +55,6 @@ class UserData(BaseModel):
     telegram_id: int | None
 
 
-class GetUserFields(StrEnum):
-    ID = "id"
-    USERNAME = "username"
-    TELEGRAM_ID = "telegram_id"
     
 class BackupData(BaseModel):
     id: int

@@ -8,16 +8,13 @@ class TokenType(StrEnum):
     BEARER = "bearer"
     REFRESH = "refresh"
 
-class TokenData(BaseModel):
-    user_id: int
-    type: TokenType
-    exp: datetime
+    
+class JWTDecodedData(BaseModel):
+    sub: str
+    sid: int
+    exp: int
 
 class EncodedToken(BaseModel):
     token: str
-    token_type: TokenType
+    type: TokenType
     
-
-class DecodedToken(BaseModel):
-    token: TokenData
-    token_type: TokenType
