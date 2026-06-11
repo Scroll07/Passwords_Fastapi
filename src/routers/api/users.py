@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.dao.session_dao import SessionDao
 from src.schemas.jwt import JWTDecodedData, TokenType
 from src.services.jwt_service import JWT_Service, create_token_and_session
 from src.dao.role_dao import RoleDAO
@@ -114,6 +115,21 @@ async def login_post(
         raise HTTPException(500, "Internal server error")
     
     
+@api_users.post("/logout")
+async def logout(
+    db: AsyncSession = Depends(get_db),
+    data: JWTDecodedData = Depends(verify_user)
+):    
+    session_dao = SessionDao(session=db)
+
+    await session_dao.make_unactive_session(user_id=int(data.sub))
+    await db.commit()
+    
+    return {
+        "ok": True,
+        "detail": "Logout successful",
+    }    
+
 @api_users.get("/refresh")
 async def refresh_get(
     data: JWTDecodedData = Depends(verify_refresh_token),

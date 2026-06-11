@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 
-from src.core.database import async_engine
 
+from src.core.database import async_engine, async_session
+from src.dao.role_dao import RoleDAO
 from src.routers.api.passwords import api_passwords
 from src.routers.api.users import api_users
 from src.routers.web.passwords import web_passwords
@@ -14,7 +15,14 @@ from src.metrics.middleware import logging_for_metrics
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
+    async with async_session() as session:    
+        roles_dao = RoleDAO(session=session)
+        
+        roles = await roles_dao.initialize_roles()
+        
+        await session.commit()
+    
+    
     yield
 
     await async_engine.dispose()

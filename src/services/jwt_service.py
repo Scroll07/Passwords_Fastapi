@@ -22,7 +22,7 @@ class JWT_Service:
         
     def create_access_token(self, data: JWTDecodedData) -> EncodedToken:
         encoded = jwt.encode(data.model_dump(), self.secret_key, self.algoritm)
-        return EncodedToken(token=encoded, type=TokenType.BEARER)
+        return EncodedToken(token=encoded)
     
 
     def create_refresh_token(
@@ -31,7 +31,7 @@ class JWT_Service:
         ) -> EncodedToken:
         
         encoded = jwt.encode(data.model_dump(), self.secret_key, self.algoritm) 
-        return EncodedToken(token=encoded, type=TokenType.REFRESH)
+        return EncodedToken(token=encoded)
         
 
     def verify_token(self, token: str) -> JWTDecodedData:
@@ -39,27 +39,7 @@ class JWT_Service:
             decoded = jwt.decode(token, self.secret_key, [self.algoritm])
         except Exception as e:
             raise e
-
-        type = decoded.get("type")
-        if type is None:
-            raise ValueError("No type")
-
-        if type == TokenType.BEARER:
-            user_id = decoded.get("user_id")
-            if user_id is None:
-                raise ValueError("Отстутсвует user_id")
-
-            return JWTDecodedData.model_validate(decoded)
-
-        elif type == TokenType.REFRESH:
-            user_id = decoded.get("user_id")
-            if user_id is None:
-                raise ValueError("Отстутсвует user_id")
-            
-            return JWTDecodedData.model_validate(decoded)
-            
-        else:
-            raise ValueError("Wrong type")
+        return JWTDecodedData.model_validate(decoded)
 
 
     
@@ -77,7 +57,8 @@ async def create_token_and_session(
         token_data = JWTDecodedData(
             sub=str(user_id),
             sid=user_session.id,
-            exp=exp_timestamp
+            exp=exp_timestamp,
+            type=TokenType.BEARER
         )
         bearer_token = jwt_service.create_access_token(data=token_data)
         return bearer_token
@@ -88,7 +69,8 @@ async def create_token_and_session(
         token_data = JWTDecodedData(
             sub=str(user_id),
             sid=user_session.id,
-            exp=exp_timestamp
+            exp=exp_timestamp,
+            type=TokenType.REFRESH
         )
         refresh_token = jwt_service.create_refresh_token(data=token_data)
         return refresh_token

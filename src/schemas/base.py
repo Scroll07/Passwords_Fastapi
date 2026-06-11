@@ -27,7 +27,7 @@ class LoginRequest(BaseModel):
 class RegisterRequestData(LoginRequest):
     # username: str = Field(min_length=4, max_length=20)
     # password: str = Field(min_length=4, max_length=20)
-    telegram_id: int | None = Field(default=None, min_length=5, max_length=14)
+    telegram_id: int | None = Field(default=None)
 
 
 #=============================

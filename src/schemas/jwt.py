@@ -13,8 +13,9 @@ class JWTDecodedData(BaseModel):
     sub: str
     sid: int
     exp: int
+    type: TokenType
+    
 
 class EncodedToken(BaseModel):
     token: str
-    type: TokenType
     
