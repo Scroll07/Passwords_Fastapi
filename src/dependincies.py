@@ -119,6 +119,9 @@ async def verify_refresh_token(
     except Exception:
         raise HTTPException(500, "Internal server error")
     
+    # ===============================================
+    # NEED TO FIX ALL WEB HADNLERS AND DEPENDENCIES
+    # ===============================================
     
 async def verify_web_user(request: Request) -> int | None:
     try:

@@ -1,8 +1,12 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
 
 from src.schemas.base import RegisterRequestData, LoginRequest
 from src.dependincies import get_jwt_service
+from src.services.jwt_service import create_token_and_session
+from src.schemas.jwt import TokenType
 
 @pytest.mark.asyncio
 async def test_register(client: AsyncClient):
@@ -82,9 +86,16 @@ async def test_login_wrong_creds(client: AsyncClient):
     assert response.status_code == 401
     
 @pytest.mark.asyncio
-async def test_refresh(client: AsyncClient):
+async def test_refresh(client: AsyncClient, db_session: AsyncSession, test_user):
     jwt_service = get_jwt_service()
-    refresh_token = jwt_service.create_refresh_token(user_id=123)
+    refresh_token = await create_token_and_session(
+        session=db_session,
+        jwt_service=jwt_service,
+        user_id=test_user.id,
+        token_type=TokenType.REFRESH
+    )
+    await db_session.commit()
+    
     headers = {"Refresh": refresh_token.token}
     
     response = await client.get(url="/api/refresh", headers=headers)
@@ -92,6 +103,8 @@ async def test_refresh(client: AsyncClient):
     data = response.json()
     bearer_token = data.get("bearer_token")
     refresh_token = data.get("refresh_token")
+    
+    print(data)
     
     assert response.status_code == 200
     assert bearer_token is not None

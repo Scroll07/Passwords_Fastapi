@@ -29,7 +29,11 @@ class RegisterRequestData(LoginRequest):
     # password: str = Field(min_length=4, max_length=20)
     telegram_id: int | None = Field(default=None)
 
-
+    @field_validator("telegram_id")
+    def validate_telegram_id(cls, value: int) -> int:
+        if not (6 < len(str(value)) < 16):
+            raise ValueError("Wrong telegram id")
+        return value
 #=============================
 #=============================
 #=============================
