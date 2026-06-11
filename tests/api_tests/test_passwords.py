@@ -5,13 +5,14 @@ from httpx import AsyncClient
 import pytest
 
 
+from src.schemas.jwt import JWTDecodedData
 import src.dao.backupDao as dao_file
 from src.dao.backupDao import BackupDao
 
 
 
 @pytest.mark.asyncio
-async def test_upload_without_file(client: AsyncClient, jwt_bearer_mock):
+async def test_upload_without_file(client: AsyncClient, jwt_bearer_mock: JWTDecodedData):
     data = {"name": "backup_name", "rows": 4}
     response = await client.post(
         url="/api/backups/upload",
@@ -22,9 +23,9 @@ async def test_upload_without_file(client: AsyncClient, jwt_bearer_mock):
     assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_upload(client: AsyncClient, jwt_bearer_mock, create_test_user, db_session: AsyncSession, tmp_path: Path, monkeypatch):
+async def test_upload(client: AsyncClient, jwt_bearer_mock:JWTDecodedData, test_user, db_session: AsyncSession, tmp_path: Path, monkeypatch):
     #create file
-    user_id = jwt_bearer_mock
+    user_id = test_user.id
     
     file_path = tmp_path / "test_backup.json"
     file_path.write_bytes(b"My backup data")
@@ -51,7 +52,7 @@ async def test_upload(client: AsyncClient, jwt_bearer_mock, create_test_user, db
         assert Path(backup.path).exists() and Path(backup.path).is_file()
         
 @pytest.mark.asyncio
-async def test_backups_without_backups(client: AsyncClient, jwt_bearer_mock: int, create_test_user):
+async def test_backups_without_backups(client: AsyncClient, jwt_bearer_mock: int, test_user):
     response = await client.get(
         url="/api/backups"
     )
@@ -61,7 +62,7 @@ async def test_backups_without_backups(client: AsyncClient, jwt_bearer_mock: int
     assert data.get("backups") == []
 
 @pytest.mark.asyncio
-async def test_backups(client: AsyncClient, jwt_bearer_mock: int, create_test_user, tmp_path: Path, monkeypatch):
+async def test_backups(client: AsyncClient, jwt_bearer_mock: JWTDecodedData, test_user, tmp_path: Path, monkeypatch):
     
     #create file    
     file_path = tmp_path / "test_backup.json"
@@ -94,7 +95,7 @@ async def test_backups(client: AsyncClient, jwt_bearer_mock: int, create_test_us
 
 
 @pytest.mark.asyncio
-async def test_download_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: int, create_test_user):
+async def test_download_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: JWTDecodedData, test_user):
     response = await client.post(
         url="/api/backups/download",
         json={"backup_id": 1000}
@@ -103,7 +104,7 @@ async def test_download_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: in
     assert response.status_code == 404
     
 @pytest.mark.asyncio
-async def test_download_no_backup_file_on_server(client: AsyncClient, jwt_bearer_mock: int, create_test_user, tmp_path: Path, monkeypatch, db_session: AsyncSession):
+async def test_download_no_backup_file_on_server(client: AsyncClient, jwt_bearer_mock: JWTDecodedData, tmp_path: Path, monkeypatch, db_session: AsyncSession, test_user):
     #create file    
     file_path = tmp_path / "test_backup.json"
     file_path.write_bytes(b"My backup data")
@@ -124,7 +125,7 @@ async def test_download_no_backup_file_on_server(client: AsyncClient, jwt_bearer
             assert r.status_code == 200
             
     #delete backup
-    user_id = jwt_bearer_mock
+    user_id = test_user.id
     dao = BackupDao(session=db_session)
     backups = await dao.get_user_backups(user_id=user_id)
     for b in backups:
@@ -141,7 +142,7 @@ async def test_download_no_backup_file_on_server(client: AsyncClient, jwt_bearer
     
     
 @pytest.mark.asyncio
-async def test_download(client: AsyncClient, jwt_bearer_mock: int, create_test_user, tmp_path: Path, monkeypatch):
+async def test_download(client: AsyncClient, jwt_bearer_mock: JWTDecodedData, tmp_path: Path, monkeypatch):
     #create file    
     file_path = tmp_path / "test_backup.json"
     backup_data = b"My backup data"
@@ -172,7 +173,7 @@ async def test_download(client: AsyncClient, jwt_bearer_mock: int, create_test_u
 
     
 @pytest.mark.asyncio
-async def test_delte_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: int, create_test_user):
+async def test_delte_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: JWTDecodedData):
     wrong_backup_id = 10
     response = await client.delete(
         url=f"/api/backups/{wrong_backup_id}",
@@ -182,7 +183,7 @@ async def test_delte_wrong_backup_id(client: AsyncClient, jwt_bearer_mock: int, 
     
 
 @pytest.mark.asyncio
-async def test_delete(client: AsyncClient, jwt_bearer_mock: int, create_test_user, tmp_path: Path, monkeypatch, db_session: AsyncSession):
+async def test_delete(client: AsyncClient, jwt_bearer_mock: JWTDecodedData, tmp_path: Path, monkeypatch, db_session: AsyncSession, test_user):
     #create file    
     file_path = tmp_path / "test_backup.json"
     backup_data = b"My backup data"
@@ -204,7 +205,7 @@ async def test_delete(client: AsyncClient, jwt_bearer_mock: int, create_test_use
             assert r.status_code == 200
     
     
-    user_id = jwt_bearer_mock
+    user_id = test_user.id
     backup_id = 1
     dao = BackupDao(session=db_session)
     backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)

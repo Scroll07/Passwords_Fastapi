@@ -5,12 +5,14 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from httpx import AsyncClient, ASGITransport
 
+from src.schemas.jwt import EncodedToken, JWTDecodedData, TokenType
 from src.schemas.db_schema import UserRoles
 from src.dao.role_dao import RoleDAO
 from src.schemas.base import RegisterRequestData
 from src.models.model import Base, Users
 from main import app
-from src.dependincies import get_db, verify_user, verify_refresh_token
+from src.dependincies import get_db, verify_user, verify_refresh_token, get_jwt_service
+from src.services.jwt_service import create_token_and_session, JWT_Service
 
 
 TEST_ENGINE_URL = "postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
@@ -22,6 +24,10 @@ async def db_session() -> AsyncIterator[AsyncSession]:
     async with test_session() as session:
         yield session
 
+
+@pytest.fixture
+def jwt_service() -> JWT_Service:
+    return get_jwt_service()
 
 @pytest_asyncio.fixture
 async def override_db():
@@ -63,26 +69,36 @@ async def client(override_db, init_db) -> AsyncIterator[AsyncClient]:
 
 
 @pytest.fixture
-def jwt_bearer_mock():
-    user_id = 1
+def jwt_bearer_mock(test_user):
+    token_data = JWTDecodedData(
+            sub=str(test_user.id),
+            sid=123,
+            exp=123,
+            type=TokenType.BEARER
+        )
     def mock_verify_user():
-        return user_id
+        return token_data
 
     app.dependency_overrides[verify_user] = mock_verify_user
 
-    yield user_id
+    yield token_data
 
     app.dependency_overrides.clear()
 
 @pytest.fixture
-def jwt_refresh_mock():
-    user_id = 1
+def jwt_refresh_mock(test_user):
+    token_data = JWTDecodedData(
+            sub=str(test_user.id),
+            sid=123,
+            exp=123,
+            type=TokenType.REFRESH
+        )
     def mock_verify_user():
-        return user_id
+        return token_data
 
     app.dependency_overrides[verify_refresh_token] = mock_verify_user
 
-    yield user_id
+    yield token_data
 
     app.dependency_overrides.clear()
     
@@ -102,3 +118,13 @@ async def test_user(init_db, db_session: AsyncSession) -> Users:
     await db_session.flush()
     await db_session.commit()
     return user
+
+# @pytest_asyncio.fixture
+# async def valid_token(test_user, db_session, jwt_service) -> EncodedToken:
+#     bearer_token = await create_token_and_session(
+#         session=db_session,
+#         jwt_service=jwt_service,
+#         user_id=test_user.id,
+#         token_type=TokenType.BEARER
+#     )
+#     return bearer_token

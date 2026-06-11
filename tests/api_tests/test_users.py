@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from src.schemas.base import RegisterRequestData, LoginRequest
-from src.dependincies import get_jwt_service
 from src.services.jwt_service import create_token_and_session
 from src.schemas.jwt import TokenType
 
@@ -86,8 +85,7 @@ async def test_login_wrong_creds(client: AsyncClient):
     assert response.status_code == 401
     
 @pytest.mark.asyncio
-async def test_refresh(client: AsyncClient, db_session: AsyncSession, test_user):
-    jwt_service = get_jwt_service()
+async def test_refresh(client: AsyncClient, db_session: AsyncSession, test_user, jwt_service):
     refresh_token = await create_token_and_session(
         session=db_session,
         jwt_service=jwt_service,
