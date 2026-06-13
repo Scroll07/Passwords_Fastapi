@@ -1,24 +1,7 @@
-# import pydantic_settings
-
-# class Settings(pydantic_settings.BaseSettings):
-#    DB_HOST: str
-#    DB_PORT: str
-#    DB_NAME: str
-#    DB_USER: str
-#    DB_PASSWORD: str
-
-#    BOT_TOKEN: str
-
-#    model_config = pydantic_settings.SettingsConfigDict(
-#        env_file=".env",
-#        env_file_encoding="utf-8",
-#        )
-
-
-# settings = Settings() # type: ignore
-
 from pathlib import Path
 import os
+from typing import Literal
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 BACKUPS = BASE_DIR / "BACKUPS_DATA"
@@ -33,6 +16,8 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_TOKEN_KEY", default="DyFQ5iJYbc_vDISsJWAW_tPoU9OJibzKhqorSFAiIdQ")
 
     BOT_TOKEN: str = os.getenv("BOT_TOKEN", default="test_token")
+    
+    APP_MODE: str = os.getenv("APP_MODE", default="development")
 
 
 def get_settings() -> Settings:
