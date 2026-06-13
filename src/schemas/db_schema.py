@@ -18,13 +18,13 @@ class UserFields(StrEnum):
 class CreateUserInDb(BaseModel):
     username: str
     password_hash: str
-    telegram_id: int
+    telegram_id: int | None = None
     
 class UserInDb(BaseModel):
     id: int
     username: str
     password_hash: str
-    telegram_id: int
+    telegram_id: int | None
     role_id: int
     is_active: bool
     created_at: datetime

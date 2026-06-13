@@ -9,8 +9,8 @@ from enum import StrEnum
 ##########################
 
 class LoginRequest(BaseModel):
-    username: str = Field(min_length=4, max_length=20)
-    password: str = Field(min_length=4, max_length=20)
+    username: str = Field(min_length=4, max_length=32)
+    password: str = Field(min_length=4, max_length=32)
     
     @field_validator("username")
     def validate_username(cls, value: str) -> str:
@@ -25,8 +25,8 @@ class LoginRequest(BaseModel):
         return value
 
 class RegisterRequestData(LoginRequest):
-    # username: str = Field(min_length=4, max_length=20)
-    # password: str = Field(min_length=4, max_length=20)
+    # username: str = Field(min_length=4, max_length=32)
+    # password: str = Field(min_length=4, max_length=32)
     telegram_id: int | None = Field(default=None)
 
     @field_validator("telegram_id")

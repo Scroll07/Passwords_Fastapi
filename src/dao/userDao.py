@@ -2,19 +2,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from src.schemas.dao_schemas import UserWithRole
-from src.schemas.db_schema import UserFields, UserInDb
+from src.schemas.db_schema import UserFields, UserInDb, UserRoles
 from src.models.model import Users, Roles
-from src.schemas.base import RegisterRequestData
-
+from src.schemas.db_schema import CreateUserInDb
+from src.core.settings import get_settings
+from src.dao.role_dao import RoleDAO
+from src.services.secrets import hash_password
 
 class UserDao:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def create_user(self, user_data: RegisterRequestData, role_id: int):
+    async def create_user(self, user_data: CreateUserInDb, role_id: int):
         new_user = Users(
             username=user_data.username,
-            password_hash=user_data.password,
+            password_hash=user_data.password_hash,
             telegram_id=user_data.telegram_id,
             role_id=role_id
         )
@@ -59,3 +61,24 @@ class UserDao:
             role=data[1]
         ) 
     
+    async def initialize_admins(self) -> None:
+        s = get_settings()
+        if s.ADMIN_USERNAME is None or s.ADMIN_PASSWORD is None:
+            raise ValueError("Admin login or password must not be None")
+        admin = await self.get_user_by_field(field=UserFields.USERNAME, value=s.ADMIN_USERNAME)
+        if admin is not None:
+            return None
+        
+        role_dao = RoleDAO(session=self.session)
+        admin_role = await role_dao.get_role(UserRoles.ADMIN)
+        if not admin_role:
+            raise ValueError("No admin role, initialization failed")
+        hash = hash_password(password=s.ADMIN_PASSWORD)
+        data = CreateUserInDb(
+            username=s.ADMIN_USERNAME,
+            password_hash=hash,
+        )
+        await self.create_user(user_data=data, role_id=admin_role.id)
+        
+        return None
+        

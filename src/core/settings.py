@@ -18,7 +18,9 @@ class Settings:
     BOT_TOKEN: str = os.getenv("BOT_TOKEN", default="test_token")
     
     APP_MODE: str = os.getenv("APP_MODE", default="development")
-
+    ADMIN_USERNAME: str | None = os.getenv("ADMIN_USERNAME")
+    ADMIN_PASSWORD: str | None = os.getenv("ADMIN_PASSWORD")
+    
 
 def get_settings() -> Settings:
     return Settings()

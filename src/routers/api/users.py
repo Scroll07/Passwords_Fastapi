@@ -3,10 +3,10 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dao.session_dao import SessionDao
-from src.schemas.jwt import JWTDecodedData, TokenType
 from src.services.jwt_service import JWT_Service, create_token_and_session
 from src.dao.role_dao import RoleDAO
-from src.schemas.db_schema import UserFields, UserRoles
+from src.schemas.jwt import JWTDecodedData, TokenType
+from src.schemas.db_schema import UserFields, UserRoles, CreateUserInDb
 from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
 from src.dependincies import get_db, verify_refresh_token, get_jwt_service, verify_user, validate_change_passwords
 from src.schemas.base import ChangePasswordSchema, RegisterRequestData, LoginRequest
@@ -27,9 +27,6 @@ async def register_post(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        password_hash = hash_password(user_data.password)
-        user_data.password = password_hash
-
         user_dao = UserDao(db)
 
         exist_username = await user_dao.get_user_by_field(
@@ -51,7 +48,13 @@ async def register_post(
             logger.error("Cant get user role for register")
             raise HTTPException(500, "Internal server error")
 
-        await user_dao.create_user(user_data=user_data, role_id=user_role.id)
+        password_hash = hash_password(user_data.password)
+        create_data = CreateUserInDb(
+            username=user_data.username,
+            password_hash=password_hash,
+            telegram_id=user_data.telegram_id
+        )
+        await user_dao.create_user(user_data=create_data, role_id=user_role.id)
         
         response = MessageResponse(
             ok=True,
