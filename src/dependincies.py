@@ -7,7 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dao.session_dao import SessionDao
-from src.schemas.db_schema import UserFields
+from src.schemas.db_schema import UserFields, UserRoles
 from src.dao.userDao import UserDao
 from src.schemas.jwt import JWTDecodedData
 from src.services.jwt_service import JWT_Service
@@ -118,6 +118,22 @@ async def verify_refresh_token(
         raise e
     except Exception:
         raise HTTPException(500, "Internal server error")
+    
+
+async def check_admin(
+    data = Depends(verify_user),
+    db = Depends(get_db)
+) -> JWTDecodedData:
+    user_dao = UserDao(session=db)
+    user_with_role = await user_dao.get_user_with_role(user_id=int(data.sub))
+    if not user_with_role:
+        raise HTTPException(401, "You do not have permission for this page")
+    if user_with_role.role != UserRoles.ADMIN:
+        raise HTTPException(401, "You do not have permission for this page")
+    
+    return data    
+    
+    
     
     # ===============================================
     # NEED TO FIX ALL WEB HADNLERS AND DEPENDENCIES

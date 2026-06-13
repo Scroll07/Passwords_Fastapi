@@ -1,7 +1,6 @@
+from datetime import datetime
 from enum import StrEnum
-
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 
 
 class UserRoles(StrEnum):
@@ -20,3 +19,14 @@ class CreateUserInDb(BaseModel):
     username: str
     password_hash: str
     telegram_id: int
+    
+class UserInDb(BaseModel):
+    id: int
+    username: str
+    password_hash: str
+    telegram_id: int
+    role_id: int
+    is_active: bool
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)

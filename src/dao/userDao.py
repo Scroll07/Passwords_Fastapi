@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from src.schemas.db_schema import UserFields
-from src.models.model import Users
+from src.schemas.dao_schemas import UserWithRole
+from src.schemas.db_schema import UserFields, UserInDb
+from src.models.model import Users, Roles
 from src.schemas.base import RegisterRequestData
 
 
@@ -46,4 +47,15 @@ class UserDao:
         await self.session.commit()
         await self.session.refresh(user)
         return user
+    
+    async def get_user_with_role(self, user_id: int) -> UserWithRole | None:
+        query = select(Users, Roles.name).join(Roles, Users.role_id == Roles.id).where(Users.id == user_id)
+        result = await self.session.execute(query)
+        data = result.one_or_none()
+        if data is None:
+            return None
+        return UserWithRole(
+            user=UserInDb.model_validate(data[0]),
+            role=data[1]
+        ) 
     
