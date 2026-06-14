@@ -170,14 +170,14 @@ async def refresh_get(
 @api_users.patch("/change-password")
 async def change_password(
     data: ChangePasswordSchema = Depends(validate_change_passwords), 
-    user_id = Depends(verify_user),
+    user_data = Depends(verify_user),
     db=Depends(get_db),
 ):
     try:
         dao = UserDao(session=db)
-        user = await dao.get_user_by_field(field=UserFields.ID, value=user_id)
+        user = await dao.get_user_by_field(field=UserFields.ID, value=int(user_data.sub))
         if user is None:
-            logger.exception(f"User with this user_id={user_id} does not exist")
+            logger.exception(f"User with this user_id={user_data.sub} does not exist")
             raise HTTPException(404, "User with this user_id does not exist")
         
         if not verify_password(password=data.current_password, password_hash=user.password_hash):
@@ -192,10 +192,11 @@ async def change_password(
         )
         return response
     
+    except HTTPException as e:
+        logger.exception(e)        
+        raise e
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")
     
 
-
-#add logout

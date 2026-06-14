@@ -55,7 +55,7 @@ async def verify_user(
         if user is None:
             raise HTTPException(401, "Wrong user data")
         if not user.is_active:
-            raise HTTPException(401, "This accaunt is not active")
+            raise HTTPException(401, "This account is not active")
         
         dao = SessionDao(session=db)
         session = await dao.get_session(session_id=token_data.sid)
@@ -133,8 +133,17 @@ async def check_admin(
     
     return data    
     
-    
-    
+async def validate_change_passwords(
+    current_password: str = Body(..., min_length=4, max_length=32),
+    new_password: str = Body(..., min_length=4, max_length=32)
+    ) -> ChangePasswordSchema:
+    if " " in current_password.strip() or " " in new_password.strip():
+        raise HTTPException(422, "The password must not contain spaces")
+    return ChangePasswordSchema(
+        current_password=current_password,
+        new_password=new_password
+    )
+        
     # ===============================================
     # NEED TO FIX ALL WEB HADNLERS AND DEPENDENCIES
     # ===============================================
@@ -169,13 +178,3 @@ async def verify_web_refresh_token(request: Request) -> int | None:
         logger.exception(e)
         raise HTTPException(401, "Invalid token")
     
-async def validate_change_passwords(
-    current_password: str = Body(..., min_length=4, max_length=20),
-    new_password: str = Body(..., min_length=4, max_length=20)
-) -> ChangePasswordSchema:
-    if " " in current_password.strip() or " " in new_password.strip():
-        raise HTTPException(422, "The password must not contain spaces")
-    return ChangePasswordSchema(
-        current_password=current_password,
-        new_password=new_password
-    )
