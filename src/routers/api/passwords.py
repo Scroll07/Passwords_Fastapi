@@ -65,7 +65,7 @@ async def get_user_backups(
             BackupData(
                 id=b.id,
                 created_at=b.created_at,
-                name=b.name_to_show,
+                name=b.name,
                 rows=b.rows
             )
             for b in backups
@@ -148,6 +148,29 @@ async def patch_backup(
         ok=True,
         detail="Your backup was successully renamed"
     )
+
+@api_passwords.patch("/backups/{backup_id}/pin")
+async def pin_backup(
+   backup_id: int, 
+   db: AsyncSession = Depends(get_db),
+   data: JWTDecodedData = Depends(verify_user),
+):
+    try:
+        dao = BackupDao(session=db)
+        await dao.pin_backup(backup_id=backup_id, user_id=int(data.sub))
+        await db.commit()
+        
+        return MessageResponse(
+            ok=True,
+            detail="Your backup was successully renamed"
+        )
+    except ValueError as e:
+        logger.warning(e)
+        raise HTTPException(422, e)
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")
+
 
 
 

@@ -45,8 +45,8 @@ class Backups(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    # Добавить pinned: bool
-    name_to_show: Mapped[str] = mapped_column() #заменить на name
+    pinned: Mapped[bool] = mapped_column(default=False)                # Добавить pinned: bool
+    name: Mapped[str] = mapped_column() #заменить на name
     rows: Mapped[int] = mapped_column(nullable=False)
     path: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True) ,default=lambda: datetime.now(timezone.utc))

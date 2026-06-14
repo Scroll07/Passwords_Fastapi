@@ -70,7 +70,7 @@ async def web_get_user_backups(
             BackupData(
                 id=b.id,
                 created_at=b.created_at,
-                name=b.name_to_show,
+                name=b.name,
                 rows=b.rows
             )
             for b in backups

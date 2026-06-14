@@ -12,12 +12,13 @@ class BackupDao:
 
     @asynccontextmanager
     async def create_backup(
-        self, user_id: int, filename: str, rows: int, name: str
+        self, user_id: int, filename: str, rows: int, name: str, pinned: bool = False
     ) -> AsyncGenerator[Backups, None]:
         new_backup = Backups(
             user_id=user_id,
             rows=rows,
-            name_to_show=name
+            name=name,
+            pinned=pinned
         )
         self.session.add(new_backup)
 
@@ -63,9 +64,19 @@ class BackupDao:
         backup = await self.get_backup_by_id(backup_id=backup_id, user_id=user_id)
         if not backup:
             return None
-        backup.name_to_show = new_name
+        backup.name = new_name
         await self.session.commit()
         await self.session.refresh(backup)
         return backup
+    
+    async def pin_backup(self, backup_id: int, user_id: int) -> None:
+        backup = await self.get_backup_by_id(backup_id=backup_id, user_id=user_id)
+        if not backup:
+            raise ValueError(f"No backup with such data") #for log - backup_id={backup_id}, user_id={user_id}")
+        if backup.pinned == True:
+            raise ValueError("Backup already pinned")
+        backup.pinned = True
+        return None
+        
         
         

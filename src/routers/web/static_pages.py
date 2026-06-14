@@ -103,7 +103,7 @@ async def dashboard(
         user_backups = await dao.get_user_backups(user_id=user_id)
         context = [BackupData(
             id=b.id,
-            name=b.name_to_show,
+            name=b.name,
             rows=b.rows,
             created_at=b.created_at
             ).model_dump() for b in user_backups]
@@ -137,7 +137,7 @@ async def user_backup(
             )
         context = BackupData(
             id=backup.id,
-            name=backup.name_to_show,
+            name=backup.name,
             rows=backup.rows,
             created_at=backup.created_at
         )
