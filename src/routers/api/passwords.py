@@ -66,7 +66,8 @@ async def get_user_backups(
                 id=b.id,
                 created_at=b.created_at,
                 name=b.name,
-                rows=b.rows
+                rows=b.rows,
+                pinned=b.pinned
             )
             for b in backups
         ]
@@ -149,7 +150,7 @@ async def patch_backup(
         detail="Your backup was successully renamed"
     )
 
-@api_passwords.patch("/backups/{backup_id}/pin")
+@api_passwords.patch("/backups/{backup_id}/change-pin")
 async def pin_backup(
    backup_id: int, 
    db: AsyncSession = Depends(get_db),
@@ -157,12 +158,13 @@ async def pin_backup(
 ):
     try:
         dao = BackupDao(session=db)
-        await dao.pin_backup(backup_id=backup_id, user_id=int(data.sub))
-        await db.commit()
+        backup = await dao.change_pin_backup(backup_id=backup_id, user_id=int(data.sub))
+        action = "pinned" if backup.pinned else "unpinned" 
         
+        await db.commit()
         return MessageResponse(
             ok=True,
-            detail="Your backup was successully renamed"
+            detail=f"Your backup was successully {action}"
         )
     except ValueError as e:
         logger.warning(e)

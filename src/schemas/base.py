@@ -64,6 +64,7 @@ class BackupData(BaseModel):
     id: int
     name: str
     rows: int
+    pinned: bool
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

@@ -69,14 +69,12 @@ class BackupDao:
         await self.session.refresh(backup)
         return backup
     
-    async def pin_backup(self, backup_id: int, user_id: int) -> None:
+    async def change_pin_backup(self, backup_id: int, user_id: int) -> Backups:
         backup = await self.get_backup_by_id(backup_id=backup_id, user_id=user_id)
         if not backup:
             raise ValueError(f"No backup with such data") #for log - backup_id={backup_id}, user_id={user_id}")
-        if backup.pinned == True:
-            raise ValueError("Backup already pinned")
-        backup.pinned = True
-        return None
+        backup.pinned = not backup.pinned
+        return backup
         
         
         
