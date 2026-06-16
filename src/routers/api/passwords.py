@@ -19,7 +19,7 @@ api_passwords = APIRouter()
 #==============================
 #            API    
 #==============================
-@api_passwords.post("/backups/upload")
+@api_passwords.post("/backups/upload", status_code=201)
 async def upload_post(
     name: str = Form(...),
     rows: int = Form(...),

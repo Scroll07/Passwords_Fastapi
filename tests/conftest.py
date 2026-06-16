@@ -5,10 +5,9 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from httpx import AsyncClient, ASGITransport
 
-from src.schemas.jwt import EncodedToken, JWTDecodedData, TokenType
+from src.schemas.jwt import JWTDecodedData, TokenType
 from src.schemas.db_schema import UserRoles
 from src.dao.role_dao import RoleDAO
-from src.schemas.base import RegisterRequestData
 from src.models.model import Base, Users
 from main import app
 from src.dependincies import get_db, verify_user, verify_refresh_token, get_jwt_service

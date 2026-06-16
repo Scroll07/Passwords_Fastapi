@@ -9,25 +9,7 @@ from src.dao.backupDao import BackupDao
 
 
 @pytest.mark.asyncio
-async def test_delete(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monkeypatch, db_session: AsyncSession, test_user):
-    file_path = tmp_path / "test_backup.json"
-    backup_data = b"My backup data"
-    file_path.write_bytes(backup_data)
-
-    monkeypatch.setattr(dao_file, "BACKUPS", tmp_path)
-
-    requests_to_create = 1
-    with open(file_path, "rb") as f:
-        tasks = [client.post(
-            url="/api/backups/upload",
-            files={"file": (file_path.name, f)},
-            data={"name": "backup_name", "rows": 4}
-        )
-        for _ in range(requests_to_create)]
-        responses = await asyncio.gather(*tasks)
-        for r in responses:
-            assert r.status_code == 200
-
+async def test_delete(client: AsyncClient, jwt_bearer_mock, db_session: AsyncSession, test_user, test_backup):
     user_id = test_user.id
     backup_id = 1
     dao = BackupDao(session=db_session)
@@ -44,3 +26,13 @@ async def test_delete(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monk
 
     backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)
     assert backup is None
+
+
+@pytest.mark.asyncio
+async def test_delete_wrong_backup_id(client: AsyncClient, jwt_bearer_mock, test_user):
+    wrong_backup_id = 10
+    response = await client.delete(
+        url=f"/api/backups/{wrong_backup_id}",
+    )
+
+    assert response.status_code == 404
