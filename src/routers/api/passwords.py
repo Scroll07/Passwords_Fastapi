@@ -167,8 +167,8 @@ async def pin_backup(
             detail=f"Your backup was successully {action}"
         )
     except ValueError as e:
-        logger.warning(e)
-        raise HTTPException(422, e)
+        logger.warning(str(e))
+        raise HTTPException(404, str(e))
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")

@@ -30,7 +30,7 @@ async def test_download_no_backup_file_on_server(
 
 
 @pytest.mark.asyncio
-async def test_download(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monkeypatch):
+async def test_download(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monkeypatch, test_backup):
     backup_data = b"My backup data"
 
     response = await client.post(

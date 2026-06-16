@@ -2,13 +2,12 @@ import pytest
 from httpx import AsyncClient
 
 
-from tests.api_tests.conftest import test_backup
 
 @pytest.mark.asyncio
-async def test_backups(client: AsyncClient, jwt_bearer_mock, test_user):
+async def test_backups(client: AsyncClient, jwt_bearer_mock, test_user, create_one_backup):
     requests_to_create = 4
     for _ in range(requests_to_create):
-        await test_backup() # type: ignore
+        await create_one_backup()
 
     response = await client.get(url="/api/backups")
     data = response.json()

@@ -10,3 +10,6 @@ BACKUPS_DATA/
 # Virtual environments
 .venv
 .env
+
+#Other
+*.log

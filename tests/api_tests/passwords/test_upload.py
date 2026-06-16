@@ -5,14 +5,13 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dao.backupDao import BackupDao
-from tests.api_tests.conftest import test_backup
 
 
 @pytest.mark.asyncio
-async def test_upload(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession):
+async def test_upload(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, create_one_backup):
     requests_to_create = 4
     for _ in range(requests_to_create):
-        await test_backup() # type: ignore
+        await create_one_backup()
 
 
     user_id = test_user.id
