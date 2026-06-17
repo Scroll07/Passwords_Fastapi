@@ -159,6 +159,8 @@ async def pin_backup(
     try:
         dao = BackupDao(session=db)
         backup = await dao.change_pin_backup(backup_id=backup_id, user_id=int(data.sub))
+        if not backup:
+            raise HTTPException(404, "No backup with such data")
         action = "pinned" if backup.pinned else "unpinned" 
         
         await db.commit()
@@ -166,9 +168,9 @@ async def pin_backup(
             ok=True,
             detail=f"Your backup was successully {action}"
         )
-    except ValueError as e:
-        logger.warning(str(e))
-        raise HTTPException(404, str(e))
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")

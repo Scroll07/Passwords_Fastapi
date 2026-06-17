@@ -6,11 +6,11 @@ from httpx import AsyncClient
     "id, username, password, telegram_id, expected_code",
     [
         ("Short Username", "Max", "password", "1910592094", 422),
-        ("Long username", "MaxMaxMaxMaxMaxMaxMaxMax", "password", "1910592094", 422),
+        ("Long username", "MaxMaxMaxMaxMaxMaxMaxMaxMaxMaxMaxMaxMaxMaxMaxMax", "password", "1910592094", 422),
         ("Username with space", "Max and Mia", "password", "1910592094", 422),
         ("Ok Username", "Maxim", "password", "1910592094", 201),
         ("Short passwrod", "Maxim", "pas", "1910592094", 422),
-        ("Long passwrod", "Maxim", "passwordpasswordpassword", "1910592094", 422),
+        ("Long passwrod", "Maxim", "passwordpasswordpasswordpasswordpasswordpassword", "1910592094", 422),
         ("Password with space", "Maxim", "password and pas", "1910592094", 422),
         ("Ok passwrod", "Maxim", "pass", "1910592094", 201),
         ("Short telegram id", "Maxim", "pass", "1000", 422),

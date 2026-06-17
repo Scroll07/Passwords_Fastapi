@@ -21,12 +21,13 @@ async def test_rename(client: AsyncClient, jwt_bearer_mock, test_user, db_sessio
     new_name = "new_name"
     response = await client.patch(
         url=url,
-        json={"new_name": new_name}
+        json=new_name
     )
     
     assert response.status_code == 200
     
     backup = await dao.get_backup_by_id(backup_id=backup.id, user_id=user_id)
+    await db_session.refresh(backup)
     
     assert backup
     assert backup.name == new_name
@@ -44,7 +45,7 @@ async def test_rename_with_empty_name(client: AsyncClient, jwt_bearer_mock, test
     new_name = ""
     response = await client.patch(
         url=url,
-        json={"new_name": new_name}
+        json=new_name
     )
     
     assert response.status_code == 422
@@ -68,7 +69,7 @@ async def test_rename_someones_backup(client: AsyncClient, db_session: AsyncSess
     response = await client.post(url="/api/login", json=login_data.model_dump())
     assert response.status_code == 200
     data = response.json()
-    bearer_token = data.get("bearer_token")
+    bearer_token = data.get("bearer_token").get("token")
     assert bearer_token is not None
     
     #create backup
@@ -83,6 +84,7 @@ async def test_rename_someones_backup(client: AsyncClient, db_session: AsyncSess
             data={"name": "backup_name", "rows": 4},
             headers={"Authorization": f"Bearer {bearer_token}"}
         )
+        
     assert response.status_code == 201
     
     #get first user from db
@@ -100,7 +102,7 @@ async def test_rename_someones_backup(client: AsyncClient, db_session: AsyncSess
     #register second user
     second_username = "test_user_2"
     data = RegisterRequestData(
-        username=second_username, password=password, telegram_id=1910592094
+        username=second_username, password=password, telegram_id=1910592093
     )
     response = await client.post(url="/api/register", json=data.model_dump())
     assert response.status_code == 201
@@ -113,14 +115,14 @@ async def test_rename_someones_backup(client: AsyncClient, db_session: AsyncSess
     response = await client.post(url="/api/login", json=login_data.model_dump())
     assert response.status_code == 200
     data = response.json()
-    bearer_token = data.get("bearer_token")
+    bearer_token = data.get("bearer_token").get("token")
     assert bearer_token is not None
     
     #rename backup
     url = f"/api/backups/{backup.id}"
     response = await client.patch(
         url=url,
-        json={"new_name": "new_name"},
+        json="new_name",
         headers={"Authorization": f"Bearer {bearer_token}"} #Token of second user
     )
     
