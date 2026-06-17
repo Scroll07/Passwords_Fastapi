@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
 from src.dependincies import get_db, get_jwt_service, verify_web_user
-from src.schemas.base import RegisterRequestData, LoginRequest, GetUserFields
+from src.schemas.base import RegisterRequestData, LoginRequest
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
 from src.core.logger import get_logger

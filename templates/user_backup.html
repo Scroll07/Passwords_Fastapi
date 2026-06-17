@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Backup {{ backup.name }} - Pas CLI{% endblock %}
+
+{% block content %}
+<main>
+    <section class="dashboard-section user-backup-page">
+        <div class="container">
+            <div class="dashboard-header">
+                <div>
+                    <a href="{{ url_for('dashboard') }}" class="backup-back-link">← Back to dashboard</a>
+                    <h1>{{ backup.name }}</h1>
+                    <p>
+                        Backup ID: {{ backup.id }}
+                        {% if backup.created_at %} · Created: {{ backup.created_at }}{% endif %}
+                        {% if backup.rows is not none %} · Rows: {{ backup.rows }}{% endif %}
+                    </p>
+                </div>
+            </div>
+
+            {% if success %}
+            <div class="dashboard-message success-message">
+                {{ success }}
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="dashboard-message error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="dashboard-block">
+                <h2>Download backup</h2>
+                <p>Download this backup from the server to your local machine.</p>
+
+                <form action="{{ url_for('web_download_post', backup_id=backup.id) }}" method="post">
+                    <button type="submit" class="dashboard-button primary-button">
+                        Download
+                    </button>
+                </form>
+            </div>
+
+            <div class="dashboard-block">
+                <h2>Rename backup</h2>
+                <p>Change the display name of this backup.</p>
+
+                <form action="{{ url_for('patch_backup', backup_id=backup.id) }}" method="post" class="dashboard-form">
+                    <div class="form-group">
+                        <label for="new_name">New backup name</label>
+                        <input
+                            type="text"
+                            id="new_name"
+                            name="new_name"
+                            value="{{ backup.name }}"
+                            placeholder="Enter new backup name"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="dashboard-button">
+                        Rename
+                    </button>
+                </form>
+            </div>
+
+            <div class="dashboard-block">
+                <h2>Decrypt backup</h2>
+                <p>Enter the decryption password to decrypt this backup.</p>
+
+                <form action="{{ url_for('decrypt_backup', backup_id=backup.id) }}" method="post" class="dashboard-form">
+                    <div class="form-group">
+                        <label for="decrypt_password">Password</label>
+                        <input
+                            type="password"
+                            id="decrypt_password"
+                            name="password"
+                            placeholder="Enter decryption password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="dashboard-button">
+                        Decrypt
+                    </button>
+                </form>
+            </div>
+
+            <div class="dashboard-block danger-block">
+                <h2>Delete backup</h2>
+                <p>This action permanently deletes the backup from the server.</p>
+
+                <form
+                    action="{{ url_for('web_delete_backup', backup_id=backup.id) }}"
+                    method="post"
+                    onsubmit="return confirm('Delete this backup? This action cannot be undone.');"
+                >
+                    <button type="submit" class="dashboard-button danger-button">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

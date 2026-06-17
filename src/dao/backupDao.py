@@ -2,9 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from contextlib import asynccontextmanager
 from typing import Sequence, AsyncGenerator
-from src.models.model import Backups
-from src.core.settings import BACKUPS
 
+from src.core.settings import BACKUPS
+from src.models.model import Backups
 
 class BackupDao:
     def __init__(self, session: AsyncSession) -> None:
@@ -12,12 +12,13 @@ class BackupDao:
 
     @asynccontextmanager
     async def create_backup(
-        self, user_id: int, filename: str, rows: int, name: str
+        self, user_id: int, filename: str, rows: int, name: str, pinned: bool = False
     ) -> AsyncGenerator[Backups, None]:
         new_backup = Backups(
             user_id=user_id,
             rows=rows,
-            name_to_show=name
+            name=name,
+            pinned=pinned
         )
         self.session.add(new_backup)
 
@@ -63,9 +64,17 @@ class BackupDao:
         backup = await self.get_backup_by_id(backup_id=backup_id, user_id=user_id)
         if not backup:
             return None
-        backup.name_to_show = new_name
+        backup.name = new_name
         await self.session.commit()
         await self.session.refresh(backup)
         return backup
+    
+    async def change_pin_backup(self, backup_id: int, user_id: int) -> Backups | None:
+        backup = await self.get_backup_by_id(backup_id=backup_id, user_id=user_id)
+        if not backup:
+            return None
+        backup.pinned = not backup.pinned
+        return backup
+        
         
         

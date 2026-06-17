@@ -9,8 +9,8 @@ from enum import StrEnum
 ##########################
 
 class LoginRequest(BaseModel):
-    username: str = Field(min_length=4, max_length=20)
-    password: str = Field(min_length=4, max_length=20)
+    username: str = Field(min_length=4, max_length=32)
+    password: str = Field(min_length=4, max_length=32)
     
     @field_validator("username")
     def validate_username(cls, value: str) -> str:
@@ -25,18 +25,15 @@ class LoginRequest(BaseModel):
         return value
 
 class RegisterRequestData(LoginRequest):
-    # username: str = Field(min_length=4, max_length=20)
-    # password: str = Field(min_length=4, max_length=20)
-    telegram_id: int | None = None
+    # username: str = Field(min_length=4, max_length=32)
+    # password: str = Field(min_length=4, max_length=32)
+    telegram_id: int | None = Field(default=None)
 
     @field_validator("telegram_id")
-    def validate_telegram_id(cls, value: int | None) -> int | None:
-        if value is None:
-            return value
-        if not (5 < len(str(value)) < 14):
-            raise ValueError("This Telegram id can not exist")
+    def validate_telegram_id(cls, value: int) -> int:
+        if not (6 < len(str(value)) < 16):
+            raise ValueError("Wrong telegram id")
         return value
-
 #=============================
 #=============================
 #=============================
@@ -54,10 +51,6 @@ class UploadRequest(BaseModel):
 
 
 
-class CreateUserInDb(BaseModel):
-    username: str
-    password_hash: str
-    telegram_id: int
 
 
 class UserData(BaseModel):
@@ -66,15 +59,12 @@ class UserData(BaseModel):
     telegram_id: int | None
 
 
-class GetUserFields(StrEnum):
-    ID = "id"
-    USERNAME = "username"
-    TELEGRAM_ID = "telegram_id"
     
 class BackupData(BaseModel):
     id: int
     name: str
     rows: int
+    pinned: bool
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
