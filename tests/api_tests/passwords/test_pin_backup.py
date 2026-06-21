@@ -7,7 +7,7 @@ from src.dao.backupDao import BackupDao
 
 
 @pytest.mark.asyncio
-async def test_duouble_pin_backup(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
+async def test_pin_change__double_pin__toggles_state(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
     user_id = test_user.id
     dao = BackupDao(session=db_session)
     backups = await dao.get_user_backups(user_id=user_id)
@@ -40,7 +40,7 @@ async def test_duouble_pin_backup(client: AsyncClient, jwt_bearer_mock, test_use
     assert backup.pinned == False
     
 @pytest.mark.asyncio
-async def test_pin_wrong_backup(client: AsyncClient, jwt_bearer_mock):
+async def test_pin_change__wrong_backup__returns_not_found(client: AsyncClient, jwt_bearer_mock):
     url = "/api/backups/404/change-pin"
     response = await client.patch(
         url=url,

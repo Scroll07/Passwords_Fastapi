@@ -10,7 +10,7 @@ import src.dao.backupDao as dao_file
 
 
 @pytest.mark.asyncio
-async def test_rename(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
+async def test_rename_backup__ok(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
     user_id = test_user.id
     dao = BackupDao(session=db_session)
     backups = await dao.get_user_backups(user_id=user_id)
@@ -34,7 +34,7 @@ async def test_rename(client: AsyncClient, jwt_bearer_mock, test_user, db_sessio
     
 
 @pytest.mark.asyncio
-async def test_rename_with_empty_name(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
+async def test_rename_backup__empty_name__returns_unprocessable_entity(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
     user_id = test_user.id
     dao = BackupDao(session=db_session)
     backups = await dao.get_user_backups(user_id=user_id)
@@ -51,7 +51,7 @@ async def test_rename_with_empty_name(client: AsyncClient, jwt_bearer_mock, test
     assert response.status_code == 422
     
 @pytest.mark.asyncio
-async def test_rename_someones_backup(client: AsyncClient, db_session: AsyncSession, tmp_path, monkeypatch):
+async def test_rename_backup__other_user__returns_not_found(client: AsyncClient, db_session: AsyncSession, tmp_path, monkeypatch):
     #create first user
     first_username = "test_user_1"
     password = "password"
@@ -127,5 +127,3 @@ async def test_rename_someones_backup(client: AsyncClient, db_session: AsyncSess
     )
     
     assert response.status_code == 404
-
-    

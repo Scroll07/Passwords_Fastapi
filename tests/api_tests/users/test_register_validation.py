@@ -18,7 +18,7 @@ from httpx import AsyncClient
         ("Ok telegram id", "Maxim", "pass", "1910592094", 201),
     ]
 )
-async def test_register_validation(
+async def test_register_validation__various_fields(
     id: str,
     username: str,
     password: str,

@@ -5,7 +5,7 @@ from src.schemas.base import RegisterRequestData, LoginRequest
 
 
 @pytest.mark.asyncio
-async def test_successfull_logout(client: AsyncClient, register_test_user: RegisterRequestData):
+async def test_logout__ok(client: AsyncClient, register_test_user: RegisterRequestData):
     #LOGIN
     data = LoginRequest(
         username=register_test_user.username,

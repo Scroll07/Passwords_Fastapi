@@ -5,7 +5,7 @@ from src.schemas.base import RegisterRequestData, LoginRequest
 
 
 @pytest.mark.asyncio
-async def test_login_ok(client: AsyncClient):
+async def test_login__ok(client: AsyncClient):
     username = "user"
     password = "pass"
     user = RegisterRequestData(
@@ -33,7 +33,7 @@ async def test_login_ok(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_login_wrong_creds(client: AsyncClient):
+async def test_login__wrong_creds__returns_unauthorized(client: AsyncClient):
     username = "user"
     password = "pass"
     user = RegisterRequestData(
