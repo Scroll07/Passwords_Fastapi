@@ -24,8 +24,8 @@ async def test_login_ok(client: AsyncClient):
 
     response = await client.post(url="/api/login", json=login_data.model_dump())
     data = response.json()
-    bearer_token = data.get("bearer_token")
-    refresh_token = data.get("refresh_token")
+    bearer_token = data.get("bearer_token").get("token")
+    refresh_token = data.get("refresh_token").get("token")
 
     assert response.status_code == 200
     assert bearer_token is not None

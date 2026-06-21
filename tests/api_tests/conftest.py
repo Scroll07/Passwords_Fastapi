@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 
 
 import src.dao.backupDao as dao_file
-
+from src.schemas.base import RegisterRequestData
 
 
 @pytest_asyncio.fixture
@@ -40,3 +40,14 @@ async def test_backup(test_user, tmp_path, monkeypatch, client):
             data={"name": "backup_name", "rows": 4}
         )
     assert response.status_code == 201
+    
+@pytest_asyncio.fixture
+async def register_test_user(client):
+    data = RegisterRequestData(username="test", password="test", telegram_id=129374758)
+    response = await client.post(
+        url="/api/register",
+        json=data.model_dump()
+    )
+    print(response.json())
+    assert response.status_code == 201
+    return data
