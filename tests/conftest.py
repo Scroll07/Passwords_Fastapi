@@ -1,17 +1,12 @@
+from datetime import datetime, timedelta
 from typing import AsyncIterator
-
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from httpx import AsyncClient, ASGITransport
 
 from src.schemas.jwt import JWTDecodedData, TokenType
-from src.schemas.db_schema import UserRoles
-from src.dao.role_dao import RoleDAO
-from src.models.model import Base, Users
-from main import app
-from src.dependincies import get_db, verify_user, verify_refresh_token, get_jwt_service
-from src.services.jwt_service import create_token_and_session, JWT_Service
+from src.dependincies import get_jwt_service
+from src.services.jwt_service import JWT_Service
 
 
 TEST_ENGINE_URL = "postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
@@ -29,4 +24,14 @@ def jwt_service() -> JWT_Service:
     return get_jwt_service()
 
 
-
+@pytest.fixture
+def access_token(jwt_service: JWT_Service) -> str:
+    expires = datetime.now() + timedelta(minutes=15)
+    data = JWTDecodedData(
+        sub="user_id",
+        sid=0,
+        exp=int(expires.timestamp()),
+        type=TokenType.BEARER
+    )
+    token = jwt_service.create_access_token(data=data)
+    return token.token
