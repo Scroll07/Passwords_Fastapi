@@ -30,3 +30,11 @@ class UserInDb(BaseModel):
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+    
+class BackupStats(BaseModel):
+    backups_count: int
+    max_rows: int
+    min_rows: int
+    avg_rows: int
+    backups_for_week: int
+    

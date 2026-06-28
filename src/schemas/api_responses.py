@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from src.schemas.jwt import EncodedToken
 from src.schemas.base import BackupData
-
+from src.schemas.db_schema import BackupStats
 
 
 
@@ -14,6 +14,7 @@ class TypeResponses(StrEnum):
     BACKUPS = "backups"
     DOWNLOAD = "download"
     REFRESH = "refresh"
+    STATS = "stats"
 
 
 # ===================================
@@ -36,4 +37,7 @@ class BackupsResponse(MessageResponse):
     backups: list[BackupData]
     type: TypeResponses = TypeResponses.BACKUPS
     
-
+class BackupStatsResponse(BaseModel):
+    ok: bool
+    stats: BackupStats
+    type: TypeResponses = TypeResponses.STATS
