@@ -1,8 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from enum import StrEnum
-
+from pydantic import ValidationError
 
 ##########################
 #       REQUESTS

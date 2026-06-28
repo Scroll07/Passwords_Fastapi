@@ -5,7 +5,7 @@ from src.schemas.base import RegisterRequestData, LoginRequest
 
 
 @pytest.mark.asyncio
-async def test_login_ok(client: AsyncClient):
+async def test_login__ok(client: AsyncClient):
     username = "user"
     password = "pass"
     user = RegisterRequestData(
@@ -24,8 +24,8 @@ async def test_login_ok(client: AsyncClient):
 
     response = await client.post(url="/api/login", json=login_data.model_dump())
     data = response.json()
-    bearer_token = data.get("bearer_token")
-    refresh_token = data.get("refresh_token")
+    bearer_token = data.get("bearer_token").get("token")
+    refresh_token = data.get("refresh_token").get("token")
 
     assert response.status_code == 200
     assert bearer_token is not None
@@ -33,7 +33,7 @@ async def test_login_ok(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_login_wrong_creds(client: AsyncClient):
+async def test_login__wrong_creds__returns_unauthorized(client: AsyncClient):
     username = "user"
     password = "pass"
     user = RegisterRequestData(

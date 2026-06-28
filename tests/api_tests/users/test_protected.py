@@ -3,7 +3,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.asyncio
-async def test_protected_router_without_token(client: AsyncClient):
+async def test_protected_route__without_token__returns_unauthorized(client: AsyncClient):
     response = await client.get(url="/api/backups")
     assert response.status_code == 401
 

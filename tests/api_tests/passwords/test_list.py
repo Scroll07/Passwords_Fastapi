@@ -4,7 +4,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.asyncio
-async def test_backups(client: AsyncClient, jwt_bearer_mock, test_user, create_one_backup):
+async def test_list_backups__returns_ok(client: AsyncClient, jwt_bearer_mock, test_user, create_one_backup):
     requests_to_create = 4
     for _ in range(requests_to_create):
         await create_one_backup()
@@ -17,7 +17,7 @@ async def test_backups(client: AsyncClient, jwt_bearer_mock, test_user, create_o
 
 
 @pytest.mark.asyncio
-async def test_backups_without_backups(client: AsyncClient, jwt_bearer_mock, test_user):
+async def test_list_backups__empty__returns_empty_list(client: AsyncClient, jwt_bearer_mock, test_user):
     response = await client.get(
         url="/api/backups"
     )

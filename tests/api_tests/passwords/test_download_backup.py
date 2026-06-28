@@ -8,7 +8,7 @@ from src.dao.backupDao import BackupDao
 
 
 @pytest.mark.asyncio
-async def test_download_no_backup_file_on_server(
+async def test_download_backup__file_missing__returns_server_error(
     client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monkeypatch,
     db_session: AsyncSession, test_user, test_backup
 ):
@@ -30,7 +30,7 @@ async def test_download_no_backup_file_on_server(
 
 
 @pytest.mark.asyncio
-async def test_download(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monkeypatch, test_backup):
+async def test_download_backup__ok(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monkeypatch, test_backup):
     backup_data = b"My backup data"
 
     response = await client.post(
@@ -43,7 +43,7 @@ async def test_download(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, mo
 
 
 @pytest.mark.asyncio
-async def test_download_wrong_backup_id(client: AsyncClient, jwt_bearer_mock, test_user):
+async def test_download_backup__wrong_id__returns_not_found(client: AsyncClient, jwt_bearer_mock, test_user):
     response = await client.post(
         url="/api/backups/download",
         json={"backup_id": 1000}

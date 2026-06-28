@@ -7,7 +7,7 @@ from src.schemas.jwt import TokenType
 
 
 @pytest.mark.asyncio
-async def test_refresh(client: AsyncClient, db_session: AsyncSession, test_user, jwt_service):
+async def test_refresh_token__ok(client: AsyncClient, db_session: AsyncSession, test_user, jwt_service):
     refresh_token = await create_token_and_session(
         session=db_session,
         jwt_service=jwt_service,
@@ -30,7 +30,7 @@ async def test_refresh(client: AsyncClient, db_session: AsyncSession, test_user,
 
 
 @pytest.mark.asyncio
-async def test_refresh_wrong_token(client: AsyncClient):
+async def test_refresh_token__wrong_token__returns_unauthorized(client: AsyncClient):
     response = await client.get(url="/api/refresh")
     assert response.status_code == 401
 

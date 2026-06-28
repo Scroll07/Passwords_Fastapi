@@ -8,7 +8,7 @@ from src.dao.backupDao import BackupDao
 
 
 @pytest.mark.asyncio
-async def test_upload(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, create_one_backup):
+async def test_upload_backup__multiple__saves_files(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, create_one_backup):
     requests_to_create = 4
     for _ in range(requests_to_create):
         await create_one_backup()
@@ -26,7 +26,7 @@ async def test_upload(client: AsyncClient, jwt_bearer_mock, test_user, db_sessio
 
 
 @pytest.mark.asyncio
-async def test_upload_without_file(client: AsyncClient, jwt_bearer_mock):
+async def test_upload_backup__without_file__returns_unprocessable_entity(client: AsyncClient, jwt_bearer_mock):
     data = {"name": "backup_name", "rows": 4}
     response = await client.post(
         url="/api/backups/upload",
