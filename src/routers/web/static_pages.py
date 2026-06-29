@@ -92,19 +92,18 @@ async def register(request: Request):
 @pages.get(path="/web/dashboard", response_class=HTMLResponse)
 async def dashboard(
     request: Request,
-    user_id = Depends(verify_web_user),
+    token_data = Depends(verify_web_user),
     db = Depends(get_db)
     
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        user_backups = await dao.get_user_backups(user_id=user_id)
+        user_backups = await dao.get_user_backups(user_id=int(token_data.sub))
         context = [BackupData(
             id=b.id,
             name=b.name,
             rows=b.rows,
+            pinned=b.pinned,
             created_at=b.created_at
             ).model_dump() for b in user_backups]
 
@@ -120,15 +119,13 @@ async def dashboard(
 async def user_backup(
     request: Request,
     backup_id: int,
-    user_id = Depends(verify_web_user),
+    token_data = Depends(verify_web_user),
     db = Depends(get_db)
     
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(user_id=user_id, backup_id=backup_id)
+        backup = await dao.get_backup_by_id(user_id=int(token_data.sub), backup_id=backup_id)
         if not backup:
             return templates.TemplateResponse(
                 request=request,
@@ -139,6 +136,7 @@ async def user_backup(
             id=backup.id,
             name=backup.name,
             rows=backup.rows,
+            pinned=backup.pinned,
             created_at=backup.created_at
         )
         

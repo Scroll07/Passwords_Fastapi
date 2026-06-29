@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException
 from fastapi.responses import FileResponse, RedirectResponse
 
+from src.schemas.jwt import JWTDecodedData
 from src.schemas.api_responses import BackupsResponse, MessageResponse
 from src.schemas.base import BackupData, DownloadRequest
 from src.dependincies import get_db, verify_user
@@ -59,25 +60,24 @@ from src.dependincies import verify_web_user
 @web_passwords.get("/backups")
 async def web_get_user_backups(
     db = Depends(get_db),
-    user_id = Depends(verify_web_user),
+    token_data: JWTDecodedData = Depends(verify_web_user),
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        backups = await dao.get_user_backups(user_id=user_id)
+        backups = await dao.get_user_backups(user_id=int(token_data.sub))
         backups_data = [
             BackupData(
                 id=b.id,
-                created_at=b.created_at,
                 name=b.name,
-                rows=b.rows
+                rows=b.rows,
+                pinned=b.pinned,
+                created_at=b.created_at,
             )
             for b in backups
         ]
         response = BackupsResponse(
             ok=True,
-            detail=f"Backups of {user_id}",
+            detail=f"Backups of {int(token_data.sub)}",
             backups=backups_data
         )
         
@@ -91,13 +91,11 @@ async def web_get_user_backups(
 async def web_download_post(
    backup_id: int, 
    db = Depends(get_db),
-   user_id = Depends(verify_web_user),
+   token_data: JWTDecodedData = Depends(verify_web_user),
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)
+        backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub))
         if backup is None:
             raise HTTPException(404, "Backup was not found")
             
@@ -125,10 +123,10 @@ async def patch_backup(
    backup_id: int, 
    new_name: str = Form(..., min_length=1, max_length=20),
    db = Depends(get_db),
-   user_id = Depends(verify_web_user),
+   token_data: JWTDecodedData = Depends(verify_web_user),
 ):
     dao = BackupDao(session=db)
-    pathced_backup = await dao.rename_backup_by_id(backup_id=backup_id, user_id=user_id, new_name=new_name)
+    pathced_backup = await dao.rename_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub), new_name=new_name)
     if pathced_backup is None:
         raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
          
@@ -142,12 +140,10 @@ async def patch_backup(
 async def web_delete_backup(
    backup_id: int, 
    db = Depends(get_db),
-   user_id = Depends(verify_web_user),
+   token_data: JWTDecodedData = Depends(verify_web_user),
 ):
-    if user_id is None:
-            return RedirectResponse(url="/web/login")
     dao = BackupDao(session=db)
-    deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=user_id)
+    deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub))
     if deleted_backup is None:
         raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
     

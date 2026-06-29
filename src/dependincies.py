@@ -46,10 +46,7 @@ async def verify_user(
 ) -> JWTDecodedData:
     try:
         token_data = jwt_service.verify_token(token=credentials.credentials)
-    except Exception as e:
-        print(e)
-        raise HTTPException(401, "Wrong token")
-    try:
+
         user_dao = UserDao(session=db)
         user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
         if user is None:
@@ -73,8 +70,10 @@ async def verify_user(
     
         return token_data
     except HTTPException as e:
+        logger.exception(e)
         raise e
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         raise HTTPException(500, "Internal server error")
     
 
@@ -88,10 +87,7 @@ async def verify_refresh_token(
         if refresh is None:
             raise HTTPException(401, detail="No Refresh token")
         token_data = jwt_service.verify_token(token=refresh)
-    except Exception as e:
-        print(e)
-        raise HTTPException(401, "Wrong token")
-    try:
+
         user_dao = UserDao(session=db)
         user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
         if user is None:
@@ -115,8 +111,10 @@ async def verify_refresh_token(
     
         return token_data
     except HTTPException as e:
+        logger.exception(e)
         raise e
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         raise HTTPException(500, "Internal server error")
     
 
@@ -144,18 +142,43 @@ async def validate_change_passwords(
         new_password=new_password
     )
         
-    # ===============================================
-    # NEED TO FIX ALL WEB HADNLERS AND DEPENDENCIES
-    # ===============================================
     
-async def verify_web_user(request: Request) -> int | None:
+    
+###############################
+            # WEB
+###############################
+async def verify_web_user(
+    request: Request,
+    db = Depends(get_db)    
+) -> JWTDecodedData:
     try:
         bearer_token = request.cookies.get("bearer_token")
         if bearer_token is None:
-            return None
+            raise HTTPException(401, "No bearer token")
         jwt_servise = get_jwt_service()
-        user_id = jwt_servise.verify_token(token=bearer_token)
-        return user_id
+        token_data = jwt_servise.verify_token(token=bearer_token)
+        user_dao = UserDao(session=db)
+        user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
+        if user is None:
+            raise HTTPException(401, "Wrong user data")
+        if not user.is_active:
+            raise HTTPException(401, "This account is not active")
+        
+        dao = SessionDao(session=db)
+        session = await dao.get_session(session_id=token_data.sid)
+        if session is None:
+            raise HTTPException(401, "Wrong session id, session does not exists")
+        if not session.is_active:
+            raise HTTPException(401, "Session was expired, try to login")
+    
+        if user.id != int(token_data.sub):
+            raise HTTPException(401, "Invalid session binding")
+    
+        now = datetime.now(timezone.utc)
+        if now > session.expires_at:
+            raise HTTPException(401, "Token was expired")
+    
+        return token_data
     except HTTPException as e:
         logger.exception(e)
         raise e
@@ -163,18 +186,44 @@ async def verify_web_user(request: Request) -> int | None:
         logger.exception(e)
         raise HTTPException(401, "Invalid token")
     
-async def verify_web_refresh_token(request: Request) -> int | None:
+async def verify_web_refresh_token(
+    request: Request,
+    db = Depends(get_db)
+) -> JWTDecodedData:
     try:
         refresh_token = request.cookies.get("refresh_token")
         if refresh_token is None:
-            return None
+            raise HTTPException(401, "No bearer token")
+
         jwt_servise = get_jwt_service()
-        user_id = jwt_servise.verify_token(token=refresh_token)
-        return user_id
+        token_data = jwt_servise.verify_token(token=refresh_token)
+        
+        user_dao = UserDao(session=db)
+        user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
+        if user is None:
+            raise HTTPException(401, "Wrong user data")
+        if not user.is_active:
+            raise HTTPException(401, "This accaunt is not active")
+        
+        dao = SessionDao(session=db)
+        session = await dao.get_session(session_id=token_data.sid)
+        if session is None:
+            raise HTTPException(401, "Wrong session id, session does not exists")
+        if not session.is_active:
+            raise HTTPException(401, "Session was expired, try to login")
+    
+        if user.id != int(token_data.sub):
+            raise HTTPException(401, "Invalid session binding")
+    
+        now = datetime.now(timezone.utc)
+        if now > session.expires_at:
+            raise HTTPException(401, "Token was expired")
+    
+        return token_data
     except HTTPException as e:
         logger.exception(e)
         raise e
     except Exception as e:
         logger.exception(e)
-        raise HTTPException(401, "Invalid token")
+        raise HTTPException(500, "Internal server error")
     
