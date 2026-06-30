@@ -126,14 +126,17 @@ async def web_login_post(
     
     
 @web_users.post("/logout")
-async def logout(
+async def web_logout(
     db: AsyncSession = Depends(get_db),
     data: JWTDecodedData = Depends(verify_web_user)
 ):    
     session_dao = SessionDao(session=db)
 
     await session_dao.make_unactive_session(user_id=int(data.sub))
-    response = RedirectResponse(url="/web/login")
+    response = RedirectResponse(
+        url="/web/login",
+        status_code=303
+        )
     response.delete_cookie(key="bearer_token", httponly=True, samesite="lax")
     response.delete_cookie(key="refresh_token", httponly=True, samesite="lax")
     

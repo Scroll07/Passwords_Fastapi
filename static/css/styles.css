@@ -926,6 +926,12 @@ a.button:hover {
 }
 
 .dashboard-logout {
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+
     color: var(--text-soft);
     font-size: 14px;
     white-space: nowrap;
@@ -933,6 +939,12 @@ a.button:hover {
 
 .dashboard-logout:hover {
     color: #ffffff;
+}
+
+.dashboard-logout:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.35);
+    outline-offset: 3px;
+    border-radius: 4px;
 }
 
 .dashboard-block {
