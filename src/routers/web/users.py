@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, Form, HTTPException, Request, Query
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.templates import templates
 from src.dao.session_dao import SessionDao
 from src.schemas.jwt import JWTDecodedData, TokenType
 from src.services.jwt_service import JWT_Service, create_token_and_session
 from src.dao.role_dao import RoleDAO
-from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
+from src.schemas.api_responses import RedirectPaths, MessageResponse, RefreshResponse
 from src.dependincies import get_db, get_jwt_service, verify_web_user, verify_web_refresh_token, web_validate_change_passwords
 from src.schemas.base import RegisterRequestData, LoginRequest, WebChangePasswordSchema
 from src.schemas.db_schema import UserFields, UserRoles, CreateUserInDb
@@ -74,19 +75,22 @@ async def web_register_post(
         raise HTTPException(500, "Internal server error")
 
 
-@web_users.post("/login")
+@web_users.post("/login", response_class=RedirectResponse)
 async def web_login_post(
-    user_data: LoginRequest,
+    request: Request,
+    username: str = Form(..., min_length=4, max_length=32),
+    password: str = Form(..., min_length=4, max_length=32),
     db=Depends(get_db),
     jwt_service: JWT_Service = Depends(get_jwt_service),
+    next: RedirectPaths = Query(RedirectPaths.DASHBOARD)
 ):
     try:
         dao = UserDao(db)
-        user = await dao.get_user_by_field(UserFields.USERNAME, user_data.username)
+        user = await dao.get_user_by_field(UserFields.USERNAME, username)
         if not user:
             raise HTTPException(401, "Wrong user data")
 
-        if not verify_password(user_data.password, user.password_hash):
+        if not verify_password(password, user.password_hash):
             raise HTTPException(401, "Wrong user data")
 
         bearer_token = await create_token_and_session(
@@ -102,13 +106,9 @@ async def web_login_post(
             token_type=TokenType.REFRESH
         )
         
-        content = {
-            "ok": True,
-            "detail": "Success login"
-        } 
-        
-        response = JSONResponse(
-            content=content
+        response = RedirectResponse(
+            url=f"/web/{next}",
+            status_code=303
         )
         add_bearer_cookie(response=response, value=bearer_token.token)
         add_refresh_cookie(response=response, value=refresh_token.token)
@@ -119,10 +119,31 @@ async def web_login_post(
     
     except HTTPException as e:
         logger.warning(e)
-        raise e
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html",
+            context={
+                "error": e.detail,
+                "form_data": {
+                    "username": username,
+                    "password": password
+                }
+            }
+        )
+        
     except Exception as e:
         logger.exception(e)
-        raise HTTPException(500, "Internal server error")
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html",
+            context={
+                "error": "Internal server error",
+                "form_data": {
+                    "username": username,
+                    "password": password
+                }
+            }
+        )
     
     
 @web_users.post("/logout")

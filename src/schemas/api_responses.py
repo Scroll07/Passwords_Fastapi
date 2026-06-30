@@ -6,7 +6,9 @@ from src.schemas.base import BackupData
 from src.schemas.db_schema import BackupStats
 
 
-
+class RedirectPaths(StrEnum):
+    DASHBOARD = "dashboard"
+    
     
 class TypeResponses(StrEnum):
     MESSAGE = "message"

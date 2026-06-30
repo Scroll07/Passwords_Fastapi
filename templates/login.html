@@ -7,6 +7,10 @@
     <section class="auth-section">
         <div class="auth-container">
             <div class="auth-card">
+                {% if error %}
+                    <div class="form-error">{{ error }}</div>
+                {% endif %}
+                
                 <h1>Login</h1>
 
                 <form class="auth-form" id="auth-form" method="post" action="{{ url_for('login') }}">
@@ -18,6 +22,7 @@
                             name="username"
                             placeholder="username"
                             required
+                            value={{ form_data.username if form_data else '' }}
                         >
                     </div>
 
@@ -29,6 +34,7 @@
                             name="password"
                             placeholder="••••••••"
                             required
+                            value={{ form_data.password if form_data else '' }}
                         >
                     </div>
 
@@ -43,48 +49,4 @@
         </div>
     </section>
 </main>
-{% endblock %}
-
-{% block extra_script %}
-<script>
-    const form = document.getElementById("auth-form")
-
-    if (form) {
-        form.addEventListener('submit', async function(event) {
-            event.preventDefault()
-
-            const username = document.getElementById("username").value
-            const password = document.getElementById("password").value
-            
-            const response = await fetch(
-                "/web/login",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                            "username": username,
-                            "password": password
-                        })
-                }
-            )
-            const data = await response.json()
-            if (!response.ok) {
-                if (Array.isArray(data.detail)) {
-                    alert(data.detail[0].msg)
-
-                }
-                else {
-                    alert(data.detail)
-                } 
-                console.log(data)
-                return
-            }
-
-            document.location.href = "/web/dashboard"
-        })
-    }
-    
-</script>
 {% endblock %}
