@@ -11,7 +11,7 @@ from src.schemas.db_schema import UserFields, UserRoles
 from src.dao.userDao import UserDao
 from src.schemas.jwt import JWTDecodedData
 from src.services.jwt_service import JWT_Service
-from src.schemas.base import ChangePasswordSchema
+from src.schemas.base import ChangePasswordSchema, WebChangePasswordSchema
 from src.core.settings import get_settings
 from src.core.database import async_session
 from src.core.logger import get_logger
@@ -135,8 +135,15 @@ async def validate_change_passwords(
     current_password: str = Body(..., min_length=4, max_length=32),
     new_password: str = Body(..., min_length=4, max_length=32)
     ) -> ChangePasswordSchema:
-    if " " in current_password.strip() or " " in new_password.strip():
-        raise HTTPException(422, "The password must not contain spaces")
+    current_password = current_password.strip()
+    new_password = new_password.strip()
+    
+    if " " in current_password or " " in new_password:
+        raise HTTPException(400, "The password must not contain spaces")
+    
+    if current_password == new_password:
+        raise HTTPException(400, "New password can not be the same as old password")
+    
     return ChangePasswordSchema(
         current_password=current_password,
         new_password=new_password
@@ -227,3 +234,23 @@ async def verify_web_refresh_token(
         logger.exception(e)
         raise HTTPException(500, "Internal server error")
     
+async def web_validate_change_passwords(
+    username: str = Body(..., min_length=4, max_length=32),
+    current_password: str = Body(..., min_length=4, max_length=32),
+    new_password: str = Body(..., min_length=4, max_length=32)
+    ) -> WebChangePasswordSchema:
+    current_password = current_password.strip()
+    new_password = new_password.strip()
+    
+    if " " in current_password or " " in new_password:
+        raise HTTPException(400, "The password must not contain spaces")
+    
+    if current_password == new_password:
+        raise HTTPException(400, "New password can not be the same as old password")
+    
+    return WebChangePasswordSchema(
+        username=username,
+        current_password=current_password,
+        new_password=new_password
+    )
+        

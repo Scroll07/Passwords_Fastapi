@@ -7,8 +7,8 @@ from src.schemas.jwt import JWTDecodedData, TokenType
 from src.services.jwt_service import JWT_Service, create_token_and_session
 from src.dao.role_dao import RoleDAO
 from src.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
-from src.dependincies import get_db, get_jwt_service, validate_change_passwords, verify_web_user, verify_web_refresh_token
-from src.schemas.base import ChangePasswordSchema, RegisterRequestData, LoginRequest
+from src.dependincies import get_db, get_jwt_service, verify_web_user, verify_web_refresh_token, web_validate_change_passwords
+from src.schemas.base import RegisterRequestData, LoginRequest, WebChangePasswordSchema
 from src.schemas.db_schema import UserFields, UserRoles, CreateUserInDb
 from src.dao.userDao import UserDao
 from src.services.secrets import hash_password, verify_password
@@ -145,37 +145,36 @@ async def web_logout(
     
     
     
-# @web_users.patch("/change-password")
-# async def web_change_password(
-#     data: ChangePasswordSchema = Depends(validate_change_passwords), 
-#     user_data = Depends(verify_web_user),
-#     db=Depends(get_db),
-# ):
-#     try:
-#         dao = UserDao(session=db)
-#         user = await dao.get_user_by_field(field=UserFields.ID, value=int(user_data.sub))
-#         if user is None:
-#             logger.exception(f"User with this user_id={user_data.sub} does not exist")
-#             raise HTTPException(404, "User with this user_id does not exist")
+@web_users.patch("/change-password")
+async def web_change_password(
+    data: WebChangePasswordSchema = Depends(web_validate_change_passwords), 
+    db=Depends(get_db),
+):
+    try:
+        dao = UserDao(session=db)
+        user = await dao.get_user_by_field(field=UserFields.USERNAME, value=data.username)
+        if user is None:
+            logger.exception(f"User with this user_id={data.username} does not exist")
+            raise HTTPException(404, "User with this user_id does not exist")
         
-#         if not verify_password(password=data.current_password, password_hash=user.password_hash):
-#             raise HTTPException(401, "Wrong user data")
+        if not verify_password(password=data.current_password, password_hash=user.password_hash):
+            raise HTTPException(401, "Wrong user data")
         
-#         new_hash = hash_password(password=data.new_password)
-#         await dao.change_password(user=user, new_hash=new_hash)
+        new_hash = hash_password(password=data.new_password)
+        await dao.change_password(user=user, new_hash=new_hash)
         
-#         response = MessageResponse(
-#             ok=True,
-#             detail="Your password was successuflly changed",
-#         )
-#         return response
+        response = MessageResponse(
+            ok=True,
+            detail="Your password was successuflly changed",
+        )
+        return response
     
-#     except HTTPException as e:
-#         logger.exception(e)        
-#         raise e
-#     except Exception as e:
-#         logger.exception(e)
-#         raise HTTPException(500, "Internal server error")
+    except HTTPException as e:
+        logger.exception(e)        
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")
     
     
     

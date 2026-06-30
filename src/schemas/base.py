@@ -71,3 +71,8 @@ class BackupData(BaseModel):
 class ChangePasswordSchema(BaseModel):
     current_password: str
     new_password: str
+
+class WebChangePasswordSchema(ChangePasswordSchema):
+    # current_password: str
+    # new_password: str
+    username: str

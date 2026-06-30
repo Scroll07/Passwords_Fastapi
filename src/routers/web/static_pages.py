@@ -82,6 +82,13 @@ async def login(request: Request):
             name="login.html"
         )
     
+@pages.get(path="/web/forgot-password", response_class=HTMLResponse)
+async def forgot_password(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="forgot_password.html"
+    )
+    
 @pages.get(path="/web/register", response_class=HTMLResponse)
 async def register(request: Request):
     return templates.TemplateResponse(
