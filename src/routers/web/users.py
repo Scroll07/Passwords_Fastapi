@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Body, Depends, Form, HTTPException, Request, Query
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import ValidationError
 
 from src.core.templates import templates
 from src.dao.session_dao import SessionDao
@@ -27,10 +28,16 @@ web_users = APIRouter()
 
 @web_users.post("/register", status_code=201)
 async def web_register_post(
-    user_data: RegisterRequestData,
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
     db=Depends(get_db),
 ):
     try:
+        user_data = RegisterRequestData(
+            username=username,
+            password=password
+        )
         user_dao = UserDao(db)
 
         exist_username = await user_dao.get_user_by_field(
@@ -60,19 +67,52 @@ async def web_register_post(
         )
         await user_dao.create_user(user_data=create_data, role_id=user_role.id)
         
-        response = MessageResponse(
-            ok=True,
-            detail="New user was sucessfully created"
+        response = RedirectResponse(
+            url="/web/login",
+            status_code=303
         )
         await db.commit()
         return response
 
     except HTTPException as e:
         logger.warning(e)
-        raise e
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html",
+            context={
+                "error": e.detail,
+                "form_data": {
+                    "username": username,
+                    "password": password
+                }
+            }
+        )
+    except ValidationError as e:
+        logger.warning(e)
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html",
+            context={
+                "error": e.errors()[0],
+                "form_data": {
+                    "username": username,
+                    "password": password
+                }
+            }
+        )
     except Exception as e:
         logger.exception(e)
-        raise HTTPException(500, "Internal server error")
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html",
+            context={
+                "error": "Internal server error",
+                "form_data": {
+                    "username": username,
+                    "password": password
+                }
+            }
+        )
 
 
 @web_users.post("/login", response_class=RedirectResponse)
