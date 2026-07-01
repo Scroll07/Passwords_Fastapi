@@ -1346,3 +1346,69 @@ a.button:hover {
     font-size: 14px;
     line-height: 1.4;
 }
+
+/* 404 Page */
+.error-page-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.error-code {
+    margin-top: -300px;
+    margin-bottom: 20px;
+    font-size: 100px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.error-description {
+    font-size: 18px;
+    color: var(--text-soft);
+}
+
+.error-page-content .error-message {
+    margin-bottom: 200px;
+    max-width: 400px;
+    text-align: left;
+}
+
+.go-home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+    height: 48px;
+    padding: 0 28px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #052e1b;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.go-home-btn:hover {
+    background: var(--accent-hover);
+    color: #052e1b;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .error-code {
+        font-size: 80px;
+    }
+
+    .error-description {
+        font-size: 16px;
+    }
+
+    .go-home-btn {
+        width: 100%;
+    }
+}

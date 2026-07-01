@@ -135,7 +135,11 @@ async def user_backup(
         dao = BackupDao(session=db)
         backup = await dao.get_backup_by_id(user_id=int(token_data.sub), backup_id=backup_id)
         if not backup:
-            raise HTTPException(400, "You do not have backup with such id")
+            error = "This Backup was not found at your account"
+            return RedirectResponse(
+                url=f"/web/404?error={error}",
+                status_code=303
+            )
         
         context = BackupData(
             id=backup.id,
