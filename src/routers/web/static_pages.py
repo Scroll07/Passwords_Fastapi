@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 
+from src.schemas.jinja_context import UserBackupContext
 from src.dependincies import get_jwt_service, verify_web_user, get_db
 from src.core.templates import templates
 from src.core.logger import get_logger
 from src.schemas.base import BackupData
 from src.dao.backupDao import BackupDao
+
 
 logger = get_logger(name="Static pages")
 
@@ -82,6 +84,13 @@ async def login(request: Request):
             name="login.html"
         )
     
+@pages.get(path="/web/forgot-password", response_class=HTMLResponse)
+async def forgot_password(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="forgot_password.html"
+    )
+    
 @pages.get(path="/web/register", response_class=HTMLResponse)
 async def register(request: Request):
     return templates.TemplateResponse(
@@ -92,19 +101,18 @@ async def register(request: Request):
 @pages.get(path="/web/dashboard", response_class=HTMLResponse)
 async def dashboard(
     request: Request,
-    user_id = Depends(verify_web_user),
+    token_data = Depends(verify_web_user),
     db = Depends(get_db)
     
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        user_backups = await dao.get_user_backups(user_id=user_id)
+        user_backups = await dao.get_user_backups(user_id=int(token_data.sub))
         context = [BackupData(
             id=b.id,
             name=b.name,
             rows=b.rows,
+            pinned=b.pinned,
             created_at=b.created_at
             ).model_dump() for b in user_backups]
 
@@ -120,25 +128,24 @@ async def dashboard(
 async def user_backup(
     request: Request,
     backup_id: int,
-    user_id = Depends(verify_web_user),
-    db = Depends(get_db)
-    
+    token_data = Depends(verify_web_user),
+    db = Depends(get_db) 
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(user_id=user_id, backup_id=backup_id)
+        backup = await dao.get_backup_by_id(user_id=int(token_data.sub), backup_id=backup_id)
         if not backup:
-            return templates.TemplateResponse(
-                request=request,
-                name="user_backup.html",
-                context={"error": "This backup does not exist"}
+            error = "This Backup was not found at your account"
+            return RedirectResponse(
+                url=f"/web/404?error={error}",
+                status_code=303
             )
+        
         context = BackupData(
             id=backup.id,
             name=backup.name,
             rows=backup.rows,
+            pinned=backup.pinned,
             created_at=backup.created_at
         )
         
@@ -147,5 +154,33 @@ async def user_backup(
             name="user_backup.html",
             context={"backup": context.model_dump()}
         )
+    except HTTPException as e:
+        logger.exception(e)
+        return templates.TemplateResponse(
+                request=request,
+                name="user_backup.html",
+                context=UserBackupContext(
+                    error=e.detail
+                ).model_dump()
+            )
+
     except Exception as e:
         logger.exception(e)
+        return templates.TemplateResponse(
+                request=request,
+                name="user_backup.html",
+                context=UserBackupContext(
+                    error="Internal server error"
+                ).model_dump()
+            )
+
+@pages.get(path="/web/404", response_class=HTMLResponse)
+async def error404(
+    request: Request,
+    error: str | None = Query(default=None)
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="404.html",
+        context={"error": error}
+    )

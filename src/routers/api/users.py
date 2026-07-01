@@ -168,7 +168,7 @@ async def refresh_get(
     
 
 @api_users.patch("/change-password")
-async def change_password(
+async def api_change_password(
     data: ChangePasswordSchema = Depends(validate_change_passwords), 
     user_data = Depends(verify_user),
     db=Depends(get_db),

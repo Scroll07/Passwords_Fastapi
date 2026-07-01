@@ -3,10 +3,10 @@
 
 from datetime import datetime, timedelta, timezone
 
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 
-def add_cookie(response: JSONResponse, key: str, value: str, expires: datetime) -> None:
+def add_cookie(response: JSONResponse | RedirectResponse, key: str, value: str, expires: datetime) -> None:
     response.set_cookie(
         key=key,
         value=value,
@@ -16,7 +16,7 @@ def add_cookie(response: JSONResponse, key: str, value: str, expires: datetime) 
         httponly=True
     )
     
-def add_bearer_cookie(response: JSONResponse, value: str) -> None:
+def add_bearer_cookie(response: JSONResponse | RedirectResponse, value: str) -> None:
     expires = datetime.now(timezone.utc) + timedelta(hours=1)
     add_cookie(
         response=response,
@@ -26,7 +26,7 @@ def add_bearer_cookie(response: JSONResponse, value: str) -> None:
     )
     
 
-def add_refresh_cookie(response: JSONResponse, value: str) -> None:
+def add_refresh_cookie(response: JSONResponse | RedirectResponse, value: str) -> None:
     expires = datetime.now(timezone.utc) + timedelta(days=7)
     add_cookie(
         response=response,

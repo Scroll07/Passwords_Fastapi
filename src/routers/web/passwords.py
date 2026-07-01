@@ -1,9 +1,13 @@
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi import APIRouter, Body, Form, Request, UploadFile, File, Depends, HTTPException
+from fastapi.responses import FileResponse, RedirectResponse, HTMLResponse
+from pydantic import ValidationError
 
+from src.schemas.jinja_context import UserBackupContext
+from src.core.templates import templates
+from src.schemas.jwt import JWTDecodedData
 from src.schemas.api_responses import BackupsResponse, MessageResponse
 from src.schemas.base import BackupData, DownloadRequest
 from src.dependincies import get_db, verify_user
@@ -56,28 +60,27 @@ from src.dependincies import verify_web_user
 #         raise HTTPException(500, "Internal server error")
 
 
-@web_passwords.get("/backups")
+@web_passwords.get("/`backups`")
 async def web_get_user_backups(
     db = Depends(get_db),
-    user_id = Depends(verify_web_user),
+    token_data: JWTDecodedData = Depends(verify_web_user),
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        backups = await dao.get_user_backups(user_id=user_id)
+        backups = await dao.get_user_backups(user_id=int(token_data.sub))
         backups_data = [
             BackupData(
                 id=b.id,
-                created_at=b.created_at,
                 name=b.name,
-                rows=b.rows
+                rows=b.rows,
+                pinned=b.pinned,
+                created_at=b.created_at,
             )
             for b in backups
         ]
         response = BackupsResponse(
             ok=True,
-            detail=f"Backups of {user_id}",
+            detail=f"Backups of {int(token_data.sub)}",
             backups=backups_data
         )
         
@@ -91,13 +94,11 @@ async def web_get_user_backups(
 async def web_download_post(
    backup_id: int, 
    db = Depends(get_db),
-   user_id = Depends(verify_web_user),
+   token_data: JWTDecodedData = Depends(verify_web_user),
 ):
     try:
-        if user_id is None:
-            return RedirectResponse(url="/web/login")
         dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)
+        backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub))
         if backup is None:
             raise HTTPException(404, "Backup was not found")
             
@@ -105,7 +106,7 @@ async def web_download_post(
             raise HTTPException(500, "We cant find your backup")
         
         now = datetime.now()
-        date = datetime.strftime(now, format="%d-%m-%Y_%H-%M-%S")
+        date = datetime.strftime(now, format="%Y-%m-%d_%H-%M-%S")
         
         return FileResponse(
         path=backup.path,
@@ -120,43 +121,128 @@ async def web_download_post(
         raise HTTPException(500, detail="Internal server error")
     
 
-@web_passwords.patch("/backups/{backup_id}")
-async def patch_backup(
+@web_passwords.post("/backups/{backup_id}/rename", response_class=HTMLResponse)
+async def web_patch_backup(
+   request: Request,
    backup_id: int, 
-   new_name: str = Form(..., min_length=1, max_length=20),
+   new_name: str = Form(...),
    db = Depends(get_db),
-   user_id = Depends(verify_web_user),
+   token_data: JWTDecodedData = Depends(verify_web_user),
 ):
-    dao = BackupDao(session=db)
-    pathced_backup = await dao.rename_backup_by_id(backup_id=backup_id, user_id=user_id, new_name=new_name)
-    if pathced_backup is None:
-        raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
-         
-    return MessageResponse(
-        ok=True,
-        detail="Your backup was successully renamed"
-    )
+    try:
+        dao = BackupDao(session=db)
+        user_backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub))
+        if not user_backup:
+            error = "This Backup was not found at your account"
+            return RedirectResponse(
+                url=f"/web/404?error={error}",
+                status_code=303
+            )
+        backup = BackupData.model_validate(user_backup)
+    
+    except Exception as e:
+        raise HTTPException(500, "Internal server error")          
+    
+    new_name = new_name.strip()
+    if not new_name:
+        return templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context=UserBackupContext(
+                backup=backup,
+                error="New name can not be empty"
+            ).model_dump()
+        )
+        
+    if len(new_name) > 20:
+        return templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context=UserBackupContext(
+                backup=backup,
+                error="String should have at most 20"
+            ).model_dump()
+        )
+    
+    try:
+        user_backup.name = new_name
+        await db.commit()
+        backup.name = new_name
+        
+                
+        response = templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context=UserBackupContext(
+                backup=backup,
+                success="Your backup was successully renamed"
+            ).model_dump()
+        )
+        
+        return response
+    
+    except HTTPException as e:
+        logger.warning(e)
+        return templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context=UserBackupContext(
+                backup=backup,
+                error=e.detail,
+            ).model_dump()
+        )
 
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error") 
 
-@web_passwords.delete("/backups/{backup_id}")
+@web_passwords.post("/backups/{backup_id}/delete", response_class=RedirectResponse)
 async def web_delete_backup(
+   request: Request,
    backup_id: int, 
    db = Depends(get_db),
-   user_id = Depends(verify_web_user),
+   token_data: JWTDecodedData = Depends(verify_web_user),
 ):
-    if user_id is None:
-            return RedirectResponse(url="/web/login")
-    dao = BackupDao(session=db)
-    deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=user_id)
-    if deleted_backup is None:
-        raise HTTPException(404, detail=f"Backup with '{backup_id}' id was not found at your account")
+    try:
+        dao = BackupDao(session=db)
+        user_backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub))
+        if not user_backup:
+            error = "This Backup was not found at your account"
+            return RedirectResponse(
+                url=f"/web/404?error={error}",
+                status_code=303
+            )
+        backup = BackupData.model_validate(user_backup)
     
-    #delete file local
-    delete_backup_by_path(backup_path=Path(deleted_backup.path))
+    except Exception as e:
+        raise HTTPException(500, "Internal server error")  
     
-    return MessageResponse(
-        ok=True,
-        detail="Your backup was successully deleted"
-    )
+    try:
+        dao = BackupDao(session=db)
+        deleted_backup = await dao.delete_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub))
+        if deleted_backup is None:
+            raise ValueError("No deleted backup")
+        
+        #delete file local
+        delete_backup_by_path(backup_path=Path(deleted_backup.path))
+        
+        
+        return RedirectResponse(
+            url="/web/dashboard",
+            status_code=303
+        )
 
+    except HTTPException as e:
+        logger.warning(e)
+        return templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context=UserBackupContext(
+                backup=backup,
+                error=e.detail,
+            ).model_dump()
+        )
 
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error") 

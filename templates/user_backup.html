@@ -4,8 +4,22 @@
 
 {% block content %}
 <main>
+    
     <section class="dashboard-section user-backup-page">
         <div class="container">
+            {% if success %}
+            <div class="success-message">
+                {{ success }}
+            </div>
+            {% endif %}
+        
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            {% if backup %}
             <div class="dashboard-header">
                 <div>
                     <a href="{{ url_for('dashboard') }}" class="backup-back-link">← Back to dashboard</a>
@@ -17,18 +31,6 @@
                     </p>
                 </div>
             </div>
-
-            {% if success %}
-            <div class="dashboard-message success-message">
-                {{ success }}
-            </div>
-            {% endif %}
-
-            {% if error %}
-            <div class="dashboard-message error-message">
-                {{ error }}
-            </div>
-            {% endif %}
 
             <div class="dashboard-block">
                 <h2>Download backup</h2>
@@ -45,7 +47,7 @@
                 <h2>Rename backup</h2>
                 <p>Change the display name of this backup.</p>
 
-                <form action="{{ url_for('patch_backup', backup_id=backup.id) }}" method="post" class="dashboard-form">
+                <form action="{{ url_for('web_patch_backup', backup_id=backup.id) }}" method="post" class="dashboard-form">
                     <div class="form-group">
                         <label for="new_name">New backup name</label>
                         <input
@@ -64,27 +66,7 @@
                 </form>
             </div>
 
-            <div class="dashboard-block">
-                <h2>Decrypt backup</h2>
-                <p>Enter the decryption password to decrypt this backup.</p>
 
-                <form action="{{ url_for('decrypt_backup', backup_id=backup.id) }}" method="post" class="dashboard-form">
-                    <div class="form-group">
-                        <label for="decrypt_password">Password</label>
-                        <input
-                            type="password"
-                            id="decrypt_password"
-                            name="password"
-                            placeholder="Enter decryption password"
-                            required
-                        >
-                    </div>
-
-                    <button type="submit" class="dashboard-button">
-                        Decrypt
-                    </button>
-                </form>
-            </div>
 
             <div class="dashboard-block danger-block">
                 <h2>Delete backup</h2>
@@ -102,5 +84,7 @@
             </div>
         </div>
     </section>
+
+    {% endif %}
 </main>
 {% endblock %}

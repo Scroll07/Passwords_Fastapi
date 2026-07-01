@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<main>
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="error-page-content">
+                <h1 class="error-code">404</h1>
+                {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+                {% else %}
+                <p class="error-description">Page not found</p>
+                {% endif %}
+                <a href="{{ url_for('home') }}" class="go-home-btn">Go Home</a>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

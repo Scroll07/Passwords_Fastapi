@@ -7,6 +7,11 @@
     <section class="auth-section">
         <div class="auth-container">
             <div class="auth-card">
+                
+                {% if error %}
+                    <div class="form-error">{{ error }}</div>
+                {% endif %}
+                
                 <h1>Create account</h1>
 
                 <form class="auth-form" id="auth-form" method="post" action="{{ url_for('register') }}">
@@ -29,6 +34,7 @@
                             name="password"
                             placeholder="••••••••"
                             required
+                            value={{ form_data.username if form_data else '' }}
                         >
                     </div>
 
@@ -40,6 +46,7 @@
                             name="confirm_password"
                             placeholder="••••••••"
                             required
+                            value={{ form_data.password if form_data else '' }}
                         >
                     </div>
 
@@ -53,55 +60,4 @@
         </div>
     </section>
 </main>
-{% endblock %}
-
-{% block extra_script %}
-<script>
-    const form = document.getElementById("auth-form")
-
-    if (form) {
-        form.addEventListener("submit", async function(event) {
-            event.preventDefault()
-
-            const username = document.getElementById("username").value
-            const password = document.getElementById("password").value
-            const confirm_password = document.getElementById("confirm_password").value
-
-            if (password != confirm_password) {
-                alert("Passwords should be the same")
-                return
-            }
-
-            const resposne = await fetch(
-                "/web/register",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "username": username,
-                        "password": password
-                    })
-                }
-            )
-            const data = await resposne.json()
-
-            if (! data.ok) {
-                if (Array.isArray(data.detail)) {
-                    alert(data.detail[0].msg)
-                }
-                else {
-                    alert(data.detail)
-                }
-                console.log(data)
-                return
-            }
-
-            document.location.href = "/web/login"
-        })
-    }
-    
-    
-</script>
 {% endblock %}
