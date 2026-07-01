@@ -99,7 +99,7 @@ async def download_post(
             raise HTTPException(500, "We cant find your backup")
         
         now = datetime.now()
-        date = datetime.strftime(now, format="%d-%m-%Y_%H-%M-%S")
+        date = datetime.strftime(now, format="%Y-%m-%d_%H-%M-%S")
         
         return FileResponse(
         path=backup.path,
