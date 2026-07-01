@@ -6,7 +6,7 @@ from src.schemas.base import BackupData
 class UserBackupContext(BaseModel):
     backup: BackupData | None = None
     success: str = ''
-    error: str = ''
+    error: Any = ''
 
 
 class _FormData(BaseModel):

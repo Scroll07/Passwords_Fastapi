@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from src.schemas.jinja_context import UserBackupContext
@@ -159,7 +159,7 @@ async def user_backup(
                     error=e.detail
                 ).model_dump()
             )
-    
+
     except Exception as e:
         logger.exception(e)
         return templates.TemplateResponse(
@@ -169,3 +169,14 @@ async def user_backup(
                     error="Internal server error"
                 ).model_dump()
             )
+
+@pages.get(path="/web/404", response_class=HTMLResponse)
+async def error404(
+    request: Request,
+    error: str | None = Query(default=None)
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="404.html",
+        context={"error": error}
+    )

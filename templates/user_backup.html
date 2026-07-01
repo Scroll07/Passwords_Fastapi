@@ -4,22 +4,22 @@
 
 {% block content %}
 <main>
-    {% if success %}
-    <div class="success-message">
-        {{ success }}
-    </div>
-    {% endif %}
-
-    {% if error %}
-    <div class="error-message">
-        {{ error }}
-    </div>
-    {% endif %}
     
-    {% if backup %}
-
     <section class="dashboard-section user-backup-page">
         <div class="container">
+            {% if success %}
+            <div class="success-message">
+                {{ success }}
+            </div>
+            {% endif %}
+        
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            {% if backup %}
             <div class="dashboard-header">
                 <div>
                     <a href="{{ url_for('dashboard') }}" class="backup-back-link">← Back to dashboard</a>
@@ -47,7 +47,7 @@
                 <h2>Rename backup</h2>
                 <p>Change the display name of this backup.</p>
 
-                <form action="{{ url_for('patch_backup', backup_id=backup.id) }}" method="post" class="dashboard-form">
+                <form action="{{ url_for('web_patch_backup', backup_id=backup.id) }}" method="post" class="dashboard-form">
                     <div class="form-group">
                         <label for="new_name">New backup name</label>
                         <input

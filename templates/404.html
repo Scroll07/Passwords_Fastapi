@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<main>
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="auth-card" style="text-align: center;">
+                <h1>404</h1>
+                {% if error %}
+                <div class="error-message" style="margin: 1rem 0; text-align: left;">
+                    {{ error }}
+                </div>
+                {% else %}
+                <p style="font-size: 1.1rem; color: var(--text-secondary); margin: 1rem 0;">
+                    Page not found
+                </p>
+                {% endif %}
+                <a href="{{ url_for('home') }}" class="auth-submit">Go Home</a>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
