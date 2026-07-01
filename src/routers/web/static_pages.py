@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 
+from src.schemas.jinja_context import UserBackupContext
 from src.dependincies import get_jwt_service, verify_web_user, get_db
 from src.core.templates import templates
 from src.core.logger import get_logger
 from src.schemas.base import BackupData
 from src.dao.backupDao import BackupDao
+
 
 logger = get_logger(name="Static pages")
 
@@ -127,18 +129,14 @@ async def user_backup(
     request: Request,
     backup_id: int,
     token_data = Depends(verify_web_user),
-    db = Depends(get_db)
-    
+    db = Depends(get_db) 
 ):
     try:
         dao = BackupDao(session=db)
         backup = await dao.get_backup_by_id(user_id=int(token_data.sub), backup_id=backup_id)
         if not backup:
-            return templates.TemplateResponse(
-                request=request,
-                name="user_backup.html",
-                context={"error": "This backup does not exist"}
-            )
+            raise HTTPException(400, "You do not have backup with such id")
+        
         context = BackupData(
             id=backup.id,
             name=backup.name,
@@ -152,5 +150,22 @@ async def user_backup(
             name="user_backup.html",
             context={"backup": context.model_dump()}
         )
+    except HTTPException as e:
+        logger.exception(e)
+        return templates.TemplateResponse(
+                request=request,
+                name="user_backup.html",
+                context=UserBackupContext(
+                    error=e.detail
+                ).model_dump()
+            )
+    
     except Exception as e:
         logger.exception(e)
+        return templates.TemplateResponse(
+                request=request,
+                name="user_backup.html",
+                context=UserBackupContext(
+                    error="Internal server error"
+                ).model_dump()
+            )

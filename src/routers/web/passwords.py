@@ -57,7 +57,7 @@ from src.dependincies import verify_web_user
 #         raise HTTPException(500, "Internal server error")
 
 
-@web_passwords.get("/backups")
+@web_passwords.get("/`backups`")
 async def web_get_user_backups(
     db = Depends(get_db),
     token_data: JWTDecodedData = Depends(verify_web_user),

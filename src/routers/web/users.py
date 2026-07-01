@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import ValidationError
 
+from src.schemas.jinja_context import _FormData, LoginRegisterContext
 from src.core.templates import templates
 from src.dao.session_dao import SessionDao
 from src.schemas.jwt import JWTDecodedData, TokenType
@@ -79,39 +80,39 @@ async def web_register_post(
         return templates.TemplateResponse(
             request=request,
             name="register.html",
-            context={
-                "error": e.detail,
-                "form_data": {
-                    "username": username,
-                    "password": password
-                }
-            }
+            context=LoginRegisterContext(
+                error=e.detail,
+                form_data=_FormData(
+                    username=username,
+                    password=password
+                )
+            ).model_dump()
         )
     except ValidationError as e:
         logger.warning(e)
         return templates.TemplateResponse(
             request=request,
             name="register.html",
-            context={
-                "error": e.errors()[0],
-                "form_data": {
-                    "username": username,
-                    "password": password
-                }
-            }
+            context=LoginRegisterContext(
+                error=e.errors()[0],
+                form_data=_FormData(
+                    username=username,
+                    password=password
+                )
+            ).model_dump()
         )
     except Exception as e:
         logger.exception(e)
         return templates.TemplateResponse(
             request=request,
             name="register.html",
-            context={
-                "error": "Internal server error",
-                "form_data": {
-                    "username": username,
-                    "password": password
-                }
-            }
+            context=LoginRegisterContext(
+                error="Internal server error",
+                form_data=_FormData(
+                    username=username,
+                    password=password
+                )
+            ).model_dump()
         )
 
 
@@ -162,27 +163,26 @@ async def web_login_post(
         return templates.TemplateResponse(
             request=request,
             name="login.html",
-            context={
-                "error": e.detail,
-                "form_data": {
-                    "username": username,
-                    "password": password
-                }
-            }
+            context=LoginRegisterContext(
+                error=e.detail,
+                form_data=_FormData(
+                    username=username,
+                    password=password
+                )
+            ).model_dump()
         )
-        
     except Exception as e:
         logger.exception(e)
         return templates.TemplateResponse(
             request=request,
             name="login.html",
-            context={
-                "error": "Internal server error",
-                "form_data": {
-                    "username": username,
-                    "password": password
-                }
-            }
+            context=LoginRegisterContext(
+                error="Internal server error",
+                form_data=_FormData(
+                    username=username,
+                    password=password
+                )
+            ).model_dump()
         )
     
     
