@@ -5,6 +5,7 @@ from fastapi import Body, HTTPException, Depends, Request
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
+from jwt.exceptions import InvalidTokenError
 
 from src.dao.session_dao import SessionDao
 from src.schemas.db_schema import UserFields, UserRoles
@@ -69,6 +70,10 @@ async def verify_user(
             raise HTTPException(401, "Token was expired")
     
         return token_data
+    
+    except InvalidTokenError as e:
+        logger.exception(e)
+        raise HTTPException(401, "Wrong bearer token")
     except HTTPException as e:
         logger.exception(e)
         raise e
@@ -86,6 +91,7 @@ async def verify_refresh_token(
         refresh = request.headers.get("Refresh")
         if refresh is None:
             raise HTTPException(401, detail="No Refresh token")
+        
         token_data = jwt_service.verify_token(token=refresh)
 
         user_dao = UserDao(session=db)
@@ -110,6 +116,10 @@ async def verify_refresh_token(
             raise HTTPException(401, "Token was expired")
     
         return token_data
+    
+    except InvalidTokenError as e:
+        logger.exception(e)
+        raise HTTPException(401, "Wrong refresh token")
     except HTTPException as e:
         logger.exception(e)
         raise e
@@ -186,6 +196,10 @@ async def verify_web_user(
             raise HTTPException(401, "Token was expired")
     
         return token_data
+    
+    except InvalidTokenError as e:
+        logger.exception(e)
+        raise HTTPException(401, "Wrong bearer token")
     except HTTPException as e:
         logger.exception(e)
         raise e
@@ -227,6 +241,10 @@ async def verify_web_refresh_token(
             raise HTTPException(401, "Token was expired")
     
         return token_data
+    
+    except InvalidTokenError as e:
+        logger.exception(e)
+        raise HTTPException(401, "Wrong refresh token")
     except HTTPException as e:
         logger.exception(e)
         raise e
