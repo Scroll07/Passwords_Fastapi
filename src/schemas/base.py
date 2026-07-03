@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ConfigDict, computed_field
 from pydantic import ValidationError
 
 ##########################
@@ -64,8 +64,13 @@ class BackupData(BaseModel):
     name: str
     rows: int
     pinned: bool
-    created_at: datetime
+    created_at: datetime 
 
+    @computed_field
+    @property
+    def created_at_formatted(self) -> str:
+        return self.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        
     model_config = ConfigDict(from_attributes=True)
 
 class ChangePasswordSchema(BaseModel):

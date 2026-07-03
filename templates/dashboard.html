@@ -35,7 +35,7 @@
                             <td>
                                 <a href={{ url_for('user_backup', backup_id=backup.id) }} class="backup-name">{{ backup.name }}</a>
                             </td>
-                            <td>{{ backup.created_at }}</td>
+                            <td>{{ backup.created_at_formatted }}</td>
                             <td>{{ backup.rows }}</td>
 
                         </tr>

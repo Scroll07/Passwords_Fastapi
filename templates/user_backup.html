@@ -26,7 +26,7 @@
                     <h1>{{ backup.name }}</h1>
                     <p>
                         Backup ID: {{ backup.id }}
-                        {% if backup.created_at %} · Created: {{ backup.created_at }}{% endif %}
+                        {% if backup.created_at_formatted %} · Created: {{ backup.created_at_formatted }}{% endif %}
                         {% if backup.rows is not none %} · Rows: {{ backup.rows }}{% endif %}
                     </p>
                 </div>
