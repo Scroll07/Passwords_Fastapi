@@ -1,9 +1,5 @@
 import bcrypt
 
-# from jwt.exceptions import
-
-# from src.schemas.jwt import EncodedToken, TokenType, TokenData
-
 
 def hash_password(password: str) -> str:
     password_bytes = password.encode("utf-8")
