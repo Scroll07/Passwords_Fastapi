@@ -64,10 +64,7 @@ async def verify_user(
     
         if user.id != int(token_data.sub):
             raise HTTPException(401, "Invalid session binding")
-    
-        now = datetime.now(timezone.utc)
-        if now > session.expires_at:
-            raise HTTPException(401, "Token was expired")
+
     
         return token_data
     
@@ -111,9 +108,6 @@ async def verify_refresh_token(
         if user.id != int(token_data.sub):
             raise HTTPException(401, "Invalid session binding")
     
-        now = datetime.now(timezone.utc)
-        if now > session.expires_at:
-            raise HTTPException(401, "Token was expired")
     
         return token_data
     
@@ -191,9 +185,6 @@ async def verify_web_user(
         if user.id != int(token_data.sub):
             raise HTTPException(401, "Invalid session binding")
     
-        now = datetime.now(timezone.utc)
-        if now > session.expires_at:
-            raise HTTPException(401, "Token was expired")
     
         return token_data
     
@@ -236,9 +227,6 @@ async def verify_web_refresh_token(
         if user.id != int(token_data.sub):
             raise HTTPException(401, "Invalid session binding")
     
-        now = datetime.now(timezone.utc)
-        if now > session.expires_at:
-            raise HTTPException(401, "Token was expired")
     
         return token_data
     
