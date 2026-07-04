@@ -246,3 +246,56 @@ async def web_delete_backup(
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error") 
+
+
+@web_passwords.post("/backups/{backup_id}/change-pin", response_class=HTMLResponse)
+async def web_change_pin(
+   request: Request,
+   backup_id: int, 
+   db = Depends(get_db),
+   token_data: JWTDecodedData = Depends(verify_web_user),
+):
+    try:
+        dao = BackupDao(session=db)
+        user_backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=int(token_data.sub))
+        if not user_backup:
+            error = "This Backup was not found at your account"
+            return RedirectResponse(
+                url=f"/web/404?error={error}",
+                status_code=303
+            )
+        backup = BackupData.model_validate(user_backup)
+    
+    except Exception as e:
+        raise HTTPException(500, "Internal server error")          
+    
+    try:
+        user_backup.pinned = not user_backup.pinned
+        await db.commit()
+        
+        action = "pinned" if user_backup.pinned else "unpinned"
+        response = templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context=UserBackupContext(
+                backup=backup,
+                success=f"Your backup was successully {action}"
+            ).model_dump()
+        )
+        
+        return response
+    
+    except HTTPException as e:
+        logger.warning(e)
+        return templates.TemplateResponse(
+            request=request,
+            name="user_backup.html",
+            context=UserBackupContext(
+                backup=backup,
+                error=e.detail,
+            ).model_dump()
+        )
+
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error") 

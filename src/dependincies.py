@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import AsyncIterator
 
 from fastapi import Body, HTTPException, Depends, Request
-from fastapi.responses import RedirectResponse, Response
+from fastapi.responses import RedirectResponse, Response, HTMLResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
@@ -17,6 +17,7 @@ from src.schemas.base import ChangePasswordSchema, WebChangePasswordSchema
 from src.core.settings import get_settings
 from src.core.database import async_session
 from src.core.logger import get_logger
+from src.schemas.exceptions import WebAuthRedirect
 
 
 logger = get_logger(__name__)
@@ -262,26 +263,25 @@ async def verify_web_user(
 ) -> JWTDecodedData:
     try:
         bearer_token = request.cookies.get("bearer_token")
-        if bearer_token is None:
-            raise HTTPException(401, "No bearer token")
-        jwt_servise = get_jwt_service()
-        token_data = jwt_servise.verify_token(token=bearer_token)
+        if bearer_token is None:            
+            raise WebAuthRedirect("No bearer token")
+        token_data = jwt_service.verify_token(token=bearer_token)
         user_dao = UserDao(session=db)
         user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
         if user is None:
-            raise HTTPException(401, "Wrong user data")
+            raise WebAuthRedirect( "Wrong user data")
         if not user.is_active:
-            raise HTTPException(401, "This account is not active")
+            raise WebAuthRedirect("This account is not active")
         
         dao = SessionDao(session=db)
         session = await dao.get_session(session_id=token_data.sid)
         if session is None:
-            raise HTTPException(401, "Wrong session id, session does not exists")
+            raise WebAuthRedirect("Wrong session id, session does not exists")
         if not session.is_active:
-            raise HTTPException(401, "Session was expired, try to login")
+            raise WebAuthRedirect("Session was expired, try to login")
     
         if user.id != int(token_data.sub):
-            raise HTTPException(401, "Invalid session binding")
+            raise WebAuthRedirect("Invalid session binding")
     
         return token_data
     
@@ -313,13 +313,13 @@ async def verify_web_user(
             return refresh_token_data
         except InvalidTokenError as e:
             logger.exception(e)
-            raise HTTPException(401, "Wrong refresh token") 
+            raise WebAuthRedirect("Wrong refresh token") 
     except InvalidTokenError as e:
         logger.exception(e)
-        raise HTTPException(401, "Wrong bearer token") 
-    except HTTPException as e:
+        raise WebAuthRedirect("Wrong bearer token")
+    except WebAuthRedirect as e:
         logger.exception(e)
-        raise e
+        raise e 
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")

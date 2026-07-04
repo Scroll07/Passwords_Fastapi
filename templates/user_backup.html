@@ -31,6 +31,26 @@
                     </p>
                 </div>
             </div>
+            
+            <div class="dashboard-block">
+                {% if backup.pinned %}
+                    <h2>Unpin backup</h2>
+                    <p>Remove this backup from pinned items so it no longer stays highlighted in your list.</p>
+                {% else %}
+                    <h2>Pin backup</h2>
+                    <p>Pin this backup to keep it highlighted and easier to find in your backups list.</p>
+                {% endif %}
+
+                <form action="{{ url_for('web_change_pin', backup_id=backup.id) }}" method="post">
+                    <button type="submit" class="dashboard-button primary-button">
+                        {% if backup.pinned %}
+                            Unpin
+                        {% else %}
+                            Pin
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
 
             <div class="dashboard-block">
                 <h2>Download backup</h2>

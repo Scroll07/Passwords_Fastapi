@@ -8,6 +8,7 @@ from src.dao.role_dao import RoleDAO
 from src.dao.userDao import UserDao
 from src.core.settings import get_settings
 from src.metrics.middleware import logging_for_metrics
+from src.exceptions.handlers import auth_redirect
 
 from src.routers.api.passwords import api_passwords
 from src.routers.api.users import api_users
@@ -46,6 +47,7 @@ app = FastAPI(
 
 app.middleware("http")(logging_for_metrics)
 
+auth_redirect(app=app)
 
 
 app.mount(path="/static", app=StaticFiles(directory="static"), name="static")
