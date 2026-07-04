@@ -108,6 +108,7 @@ async def dashboard(
     try:
         dao = BackupDao(session=db)
         user_backups = await dao.get_user_backups(user_id=int(token_data.sub))
+        user_backups = sorted(user_backups, key=lambda x: x.created_at, reverse=True)
         context = [BackupData(
             id=b.id,
             name=b.name,
