@@ -10,8 +10,8 @@ class UserBackupContext(BaseModel):
 
 
 class _FormData(BaseModel):
-    username: str
-    password: str
+    username: str = ''
+    password: str = ''
 
 class LoginRegisterContext(BaseModel):
     error: Any = ''
