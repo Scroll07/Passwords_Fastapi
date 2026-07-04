@@ -18,29 +18,32 @@
             </div>
 
             <div class="dashboard-block">
-                <h2>Pinned Backups</h2>
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>name</th>
-                            <th>date</th>
-                            <th>rows</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for backup in backups if backup.pinned%}
-                        <tr>
-                            <td>
-                                <a href={{ url_for('user_backup', backup_id=backup.id) }} class="backup-name">{{ backup.name }}</a>
-                            </td>
-                            <td>{{ backup.created_at_formatted }}</td>
-                            <td>{{ backup.rows }}</td>
-
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% set pinned_backups = backups | selectattr('pinned') | list %}
                 
+                {% if pinned_backups %}
+                    <h2>Pinned Backups</h2>
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>name</th>
+                                <th>date</th>
+                                <th>rows</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for backup in backups if backup.pinned%}
+                            <tr>
+                                <td>
+                                    <a href={{ url_for('user_backup', backup_id=backup.id) }} class="backup-name">{{ backup.name }}</a>
+                                </td>
+                                <td>{{ backup.created_at_formatted }}</td>
+                                <td>{{ backup.rows }}</td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
                 
                 <h2>Backups</h2>
                 <table class="dashboard-table">
