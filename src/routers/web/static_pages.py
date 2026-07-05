@@ -5,7 +5,7 @@ from src.schemas.jinja_context import UserBackupContext
 from src.dependincies import get_jwt_service, verify_web_user, get_db
 from src.core.templates import templates
 from src.core.logger import get_logger
-from src.schemas.base import BackupData
+from src.schemas.base import BackupData, SortByBackups
 from src.dao.backupDao import BackupDao
 
 
@@ -102,25 +102,35 @@ async def register(request: Request):
 async def dashboard(
     request: Request,
     token_data = Depends(verify_web_user),
-    db = Depends(get_db)
-    
+    db = Depends(get_db),
+    sort_by: SortByBackups = Query(SortByBackups.CREATED_AT)
 ):
     try:
         dao = BackupDao(session=db)
-        user_backups = await dao.get_user_backups(user_id=int(token_data.sub))
-        user_backups = sorted(user_backups, key=lambda x: x.created_at, reverse=True)
+        backups_data = await dao.get_user_backups(user_id=int(token_data.sub))
+        
+        if sort_by == SortByBackups.ROWS:
+            backups_data = sorted(backups_data, key=lambda x: x.rows, reverse=True)
+        elif sort_by == SortByBackups.NAME:
+            backups_data = sorted(backups_data, key=lambda x: x.name, reverse=False)
+        else:
+            backups_data = sorted(backups_data, key=lambda x: x.created_at, reverse=True)
+
         context = [BackupData(
             id=b.id,
             name=b.name,
             rows=b.rows,
             pinned=b.pinned,
             created_at=b.created_at
-            ).model_dump() for b in user_backups]
-
+            ).model_dump() for b in backups_data]
+        
         return templates.TemplateResponse(
             request=request,
             name="dashboard.html",
-            context={"backups": context}
+            context={
+                "backups": context,
+                "sort_by": sort_by.value
+            }
         )
     except Exception as e:
         logger.exception(e)

@@ -12,14 +12,14 @@
                     <p>Session active — API connected</p>
                 </div>
 
-                <form action="{{ url_for('web_logout') }}", method="post">
+                <form action="{{ url_for('web_logout') }}" method="post">
                     <button id="dashboard-logout" class="dashboard-logout" type="submit">Log out</button>
                 </form>
             </div>
 
             <div class="dashboard-block">
                 {% set pinned_backups = backups | selectattr('pinned') | list %}
-                
+
                 {% if pinned_backups %}
                     <h2>Pinned Backups</h2>
                     <table class="dashboard-table">
@@ -31,21 +31,50 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for backup in backups if backup.pinned%}
+                            {% for backup in backups if backup.pinned %}
                             <tr>
                                 <td>
-                                    <a href={{ url_for('user_backup', backup_id=backup.id) }} class="backup-name">{{ backup.name }}</a>
+                                    <a href="{{ url_for('user_backup', backup_id=backup.id) }}" class="backup-name">
+                                        {{ backup.name }}
+                                    </a>
                                 </td>
                                 <td>{{ backup.created_at_formatted }}</td>
                                 <td>{{ backup.rows }}</td>
-
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 {% endif %}
-                
-                <h2>Backups</h2>
+
+                <div class="backups-header">
+                    <h2>Backups</h2>
+
+                    <div class="sort-links">
+                        <span class="sort-label">Sort by:</span>
+
+                        <a
+                            href="{{ url_for('dashboard') }}?sort_by=created_at"
+                            class="sort-link {% if sort_by == 'created_at' %}sort-link-active{% endif %}"
+                        >
+                            Date
+                        </a>
+
+                        <a
+                            href="{{ url_for('dashboard') }}?sort_by=name"
+                            class="sort-link {% if sort_by == 'name' %}sort-link-active{% endif %}"
+                        >
+                            Name
+                        </a>
+
+                        <a
+                            href="{{ url_for('dashboard') }}?sort_by=rows"
+                            class="sort-link {% if sort_by == 'rows' %}sort-link-active{% endif %}"
+                        >
+                            Rows
+                        </a>
+                    </div>
+                </div>
+
                 <table class="dashboard-table">
                     <thead>
                         <tr>
@@ -55,14 +84,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for backup in backups if not backup.pinned%}
+                        {% for backup in backups if not backup.pinned %}
                         <tr>
                             <td>
-                                <a href={{ url_for('user_backup', backup_id=backup.id) }} class="backup-name">{{ backup.name }}</a>
+                                <a href="{{ url_for('user_backup', backup_id=backup.id) }}" class="backup-name">
+                                    {{ backup.name }}
+                                </a>
                             </td>
                             <td>{{ backup.created_at_formatted }}</td>
                             <td>{{ backup.rows }}</td>
-
                         </tr>
                         {% endfor %}
                     </tbody>

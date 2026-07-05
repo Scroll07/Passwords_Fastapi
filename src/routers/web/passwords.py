@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Body, Form, Request, UploadFile, File, Depends, HTTPException
+from fastapi import APIRouter, Body, Form, Request, UploadFile, File, Depends, HTTPException, Query
 from fastapi.responses import FileResponse, RedirectResponse, HTMLResponse
 from pydantic import ValidationError
 
@@ -14,6 +14,7 @@ from src.dependincies import get_db, verify_user
 from src.dao.backupDao import BackupDao
 from src.core.logger import get_logger
 from src.services.backup_service import delete_backup_by_path
+from src.schemas.base import SortByBackups
 
 logger = get_logger(__name__)
 
@@ -25,45 +26,12 @@ web_passwords = APIRouter()
 #==============================
 from src.dependincies import verify_web_user
 
-# @web_passwords.post("/backups/upload")
-# async def web_upload_post(
-#     name: str = Form(...),
-#     rows: int = Form(...),
-#     file: UploadFile = File(...),
-#     db=Depends(get_db),
-#     user_id=Depends(verify_web_user),
-# ):
-#     try:
-#         if user_id is None:
-#             return RedirectResponse(url="/web/login")
-#         dao = BackupDao(db)
-#         if file.filename is None:
-#             raise HTTPException(401, detail="Filename is None")
 
-#         new_backup = dao.create_backup(user_id=user_id, filename=file.filename, name=name, rows=rows)
-#         async with new_backup as backup:
-#             content = await file.read()
-#             with open(backup.path, "wb") as f:
-#                 f.write(content)
-
-#             response = MessageResponse(
-#                 ok=True,
-#                 detail="Your backup was successfully uploaded"
-#             )
-#             return response
-
-#     except HTTPException as e:
-#         logger.warning(e)
-#         raise e
-#     except Exception as e:
-#         logger.exception(e)
-#         raise HTTPException(500, "Internal server error")
-
-
-@web_passwords.get("/`backups`")
+@web_passwords.get("/backups")
 async def web_get_user_backups(
     db = Depends(get_db),
     token_data: JWTDecodedData = Depends(verify_web_user),
+    sort_by: SortByBackups = Query(SortByBackups.CREATED_AT)
 ):
     try:
         dao = BackupDao(session=db)
@@ -78,6 +46,13 @@ async def web_get_user_backups(
             )
             for b in backups
         ]
+        if sort_by == SortByBackups.CREATED_AT:
+            backups_data = sorted(backups_data, key=lambda x: x.created_at, reverse=True)
+        elif sort_by == SortByBackups.ROWS:
+            backups_data = sorted(backups_data, key=lambda x: x.rows, reverse=True)
+        elif sort_by == SortByBackups.NAME:
+            backups_data = sorted(backups_data, key=lambda x: x.name, reverse=False)
+        
         response = BackupsResponse(
             ok=True,
             detail=f"Backups of {int(token_data.sub)}",

@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import StrEnum
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict, computed_field
 from pydantic import ValidationError
@@ -57,7 +58,11 @@ class UserData(BaseModel):
     password_hash: str
     telegram_id: int | None
 
-
+class SortByBackups(StrEnum):
+    NAME = "name"
+    ROWS = "rows"
+    CREATED_AT = "created_at"
+    
     
 class BackupData(BaseModel):
     id: int
