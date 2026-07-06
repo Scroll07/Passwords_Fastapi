@@ -3,20 +3,20 @@ from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 
 
-from src.core.database import async_engine, async_session
-from src.dao.role_dao import RoleDAO
-from src.dao.userDao import UserDao
-from src.core.settings import get_settings
-from src.metrics.middleware import logging_for_metrics
-from src.exceptions.handlers import auth_redirect
+from backend.core.database import async_engine, async_session
+from backend.dao.role_dao import RoleDAO
+from backend.dao.userDao import UserDao
+from backend.core.settings import get_settings
+from backend.metrics.middleware import logging_for_metrics
+from backend.exceptions.handlers import auth_redirect
 
-from src.routers.api.passwords import api_passwords
-from src.routers.api.users import api_users
-from src.routers.api.statistic import api_statistic
-from src.routers.web.passwords import web_passwords
-from src.routers.web.users import web_users
-from src.routers.web.static_pages import pages
-from src.metrics.router import metrics
+from backend.routers.api.passwords import api_passwords
+from backend.routers.api.users import api_users
+from backend.routers.api.statistic import api_statistic
+from backend.routers.web.passwords import web_passwords
+from backend.routers.web.users import web_users
+from backend.routers.web.static_pages import pages
+from backend.metrics.router import metrics
 
 s = get_settings()
 

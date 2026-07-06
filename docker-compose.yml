@@ -27,7 +27,7 @@ services:
     expose:
       - 8000
     volumes:
-      - ./src:/app/src/
+      - ./backend:/app/backend/
       - ./templates:/app/templates
       - ./static:/app/static
       - ./alembic:/app/alembic

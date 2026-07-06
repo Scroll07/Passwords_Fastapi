@@ -28,7 +28,7 @@ It provides user authentication, JWT access/refresh tokens, role-based access, a
 alembic/              — Alembic migrations
 nginx/                — Nginx configuration
 scripts/              — Entrypoint and helper scripts
-src/
+backend/
   api/                — API routers (users, passwords/backups)
   bot/                — Telegram bot (work in progress)
   core/                — Settings, DB, logging, templates
