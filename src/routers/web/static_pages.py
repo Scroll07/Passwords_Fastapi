@@ -28,49 +28,49 @@ async def home(request: Request):
         name="home.html"
     )
     
-@pages.get(path="/web/product", response_class=HTMLResponse)
+@pages.get(path="/product", response_class=HTMLResponse)
 async def product(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="product.html"
     )
 
-@pages.get(path="/web/how_it_works", response_class=HTMLResponse)
+@pages.get(path="/how_it_works", response_class=HTMLResponse)
 async def how_it_works(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="how_it_works.html"
     )
 
-@pages.get(path="/web/pricing", response_class=HTMLResponse)
+@pages.get(path="/pricing", response_class=HTMLResponse)
 async def pricing(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="pricing.html"
     )
     
-@pages.get(path="/web/security", response_class=HTMLResponse)
+@pages.get(path="/security", response_class=HTMLResponse)
 async def security(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="security.html"
     )
 
-@pages.get(path="/web/faq", response_class=HTMLResponse)
+@pages.get(path="/faq", response_class=HTMLResponse)
 async def faq(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="faq.html"
     )
 
-@pages.get(path="/web/docs", response_class=HTMLResponse)
+@pages.get(path="/docs", response_class=HTMLResponse)
 async def docs(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="docs.html"
     )
     
-@pages.get(path="/web/login", response_class=HTMLResponse)
+@pages.get(path="/login", response_class=HTMLResponse)
 async def login(request: Request):
     bearer_token = request.cookies.get("bearer_token")
     try:
@@ -84,21 +84,21 @@ async def login(request: Request):
             name="login.html"
         )
     
-@pages.get(path="/web/forgot-password", response_class=HTMLResponse)
+@pages.get(path="/forgot-password", response_class=HTMLResponse)
 async def forgot_password(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="forgot_password.html"
     )
     
-@pages.get(path="/web/register", response_class=HTMLResponse)
+@pages.get(path="/register", response_class=HTMLResponse)
 async def register(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="register.html"
     )
 
-@pages.get(path="/web/dashboard", response_class=HTMLResponse)
+@pages.get(path="/dashboard", response_class=HTMLResponse)
 async def dashboard(
     request: Request,
     token_data = Depends(verify_web_user),
@@ -135,7 +135,7 @@ async def dashboard(
     except Exception as e:
         logger.exception(e)
         
-@pages.get(path="/web/backups/{backup_id}", response_class=HTMLResponse)
+@pages.get(path="/backups/{backup_id}", response_class=HTMLResponse)
 async def user_backup(
     request: Request,
     backup_id: int,
@@ -185,7 +185,7 @@ async def user_backup(
                 ).model_dump()
             )
 
-@pages.get(path="/web/404", response_class=HTMLResponse)
+@pages.get(path="/404", response_class=HTMLResponse)
 async def error404(
     request: Request,
     error: str | None = Query(default=None)
@@ -195,3 +195,9 @@ async def error404(
         name="404.html",
         context={"error": error}
     )
+    
+# @pages.get(path="/profile", response_class=HTMLResponse)
+# async def profile(
+#     requst: Request,
+# ):
+    
