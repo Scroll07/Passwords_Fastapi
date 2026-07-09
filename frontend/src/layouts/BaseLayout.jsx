@@ -1,4 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom"
+
+import Logo from '../../public/logo.png'
+import Telegram from '../assets/images/telegram.png'
+import Gmail from '../assets/images/gmail.png'
+import GitHub from '../assets/images/github.png'
+
 import './BaseLayout.css'
 
 function BaseLayout() {
@@ -7,7 +13,7 @@ function BaseLayout() {
             <header className="site-header">
                 <div className="container header-inner">
                     <NavLink to="/" className="logo">
-                        <img src="/images/logo.png" alt="Pas CLI logo" className="logo-image" />
+                        <img src={Logo} alt="Pas CLI logo" className="logo-image" />
                         <span className="logo-text">Pas CLI</span>
                     </NavLink>
 
@@ -37,7 +43,7 @@ function BaseLayout() {
                     <div className="footer-top">
                         <div className="footer-brand">
                             <NavLink to="/" className="logo">
-                                <img src="/images/logo.png" alt="Pas CLI logo" className="logo-image" />
+                                <img src={Logo} alt="Pas CLI logo" className="logo-image" />
                                 <span className="logo-text">Pas CLI</span>
                             </NavLink>
 
@@ -48,13 +54,13 @@ function BaseLayout() {
 
                             <div className="socials">
                                 <a href="https://web.telegram.org/k/#@Bot_Passwordbot" target="_blank" rel="noopener noreferrer">
-                                    <img src="/src/assets/telegram.png" alt="Telegram" />
+                                    <img src={Telegram} alt="Telegram" />
                                 </a>
                                 <a href="https://github.com/Scroll07/Passwords_Fastapi" target="_blank" rel="noopener noreferrer">
-                                    <img src="/src/assets/github.png" alt="Git Hub" />
+                                    <img src={GitHub} alt="Git Hub" />
                                 </a>
                                 <a href="mailto:vovanikolaev140707@gmai.com" target="_blank" rel="noopener noreferrer">
-                                    <img src="/src/assets/gmail.png" alt="Gmail" />
+                                    <img src={Gmail} alt="Gmail" />
                                 </a>
                             </div>
                         </div>
