@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom"
 
-import Logo from '../../public/logo.png'
+import Logo from '../assets/images/logo.png'
 import Telegram from '../assets/images/telegram.png'
 import Gmail from '../assets/images/gmail.png'
 import GitHub from '../assets/images/github.png'

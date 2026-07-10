@@ -26,13 +26,13 @@ function PricingPage() {
               </tr>
             </thead>
             <tbody>
-              <tr><td>Encrypted local vault</td><td>✓</td><td>✓</td><td className='unavailable'>—</td></tr>
-              <tr><td>All CLI commands</td><td>✓</td><td>✓</td><td className='unavailable'>—</td></tr>
-              <tr><td>Password generation</td><td>✓</td><td>✓</td><td className='unavailable'>—</td></tr>
-              <tr><td>JSON export / import</td><td>✓</td><td>✓</td><td className='unavailable'>—</td></tr>
-              <tr><td>API backup sync</td><td className='unavailable'>—</td><td>✓</td><td className='unavailable'>—</td></tr>
-              <tr><td>Multi-machine restore</td><td className='unavailable'>—</td><td>✓</td><td className='unavailable'>—</td></tr>
-              <tr><td>Shared vault</td><td className='unavailable'>—</td><td className='unavailable'>—</td><td className='unavailable'>—</td></tr>
+              <tr><td>Encrypted local vault</td><td>✓</td><td>✓</td><td>✓</td></tr>
+              <tr><td>All CLI commands</td><td>✓</td><td>✓</td><td>✓</td></tr>
+              <tr><td>Password generation</td><td>✓</td><td>✓</td><td>✓</td></tr>
+              <tr><td>JSON export / import</td><td>✓</td><td>✓</td><td>✓</td></tr>
+              <tr><td>API backup sync</td><td className='unavailable'>—</td><td>✓</td><td>✓</td></tr>
+              <tr><td>Multi-machine restore</td><td className='unavailable'>—</td><td>✓</td><td>✓</td></tr>
+              <tr><td>Shared vault</td><td className='unavailable'>—</td><td className='unavailable'>—</td><td>✓</td></tr>
             </tbody>
           </table>
         </div>
