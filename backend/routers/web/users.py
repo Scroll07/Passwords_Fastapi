@@ -116,22 +116,21 @@ async def web_register_post(
         )
 
 
-@web_users.post("/login", response_class=RedirectResponse)
+@web_users.post("/login", response_class=JSONResponse)
 async def web_login_post(
     request: Request,
-    username: str = Form(..., min_length=4, max_length=32),
-    password: str = Form(..., min_length=4, max_length=32),
+    login_data: LoginRequest,
     db=Depends(get_db),
     jwt_service: JWT_Service = Depends(get_jwt_service),
     next: RedirectPaths = Query(RedirectPaths.DASHBOARD)
 ):
     try:
         dao = UserDao(db)
-        user = await dao.get_user_by_field(UserFields.USERNAME, username)
+        user = await dao.get_user_by_field(UserFields.USERNAME, login_data.username)
         if not user:
             raise HTTPException(401, "Wrong user data")
 
-        if not verify_password(password, user.password_hash):
+        if not verify_password(login_data.password, user.password_hash):
             raise HTTPException(401, "Wrong user data")
 
         bearer_token = await create_token_and_session(
@@ -159,31 +158,37 @@ async def web_login_post(
         return response
     
     except HTTPException as e:
-        logger.warning(e)
-        return templates.TemplateResponse(
-            request=request,
-            name="login.html",
-            context=LoginRegisterContext(
-                error=e.detail,
-                form_data=_FormData(
-                    username=username,
-                    password=password
-                )
-            ).model_dump()
-        )
+        logger.exception(e)
+        raise e
     except Exception as e:
         logger.exception(e)
-        return templates.TemplateResponse(
-            request=request,
-            name="login.html",
-            context=LoginRegisterContext(
-                error="Internal server error",
-                form_data=_FormData(
-                    username=username,
-                    password=password
-                )
-            ).model_dump()
-        )
+        raise HTTPException(500, "Internal server error")
+    # except HTTPException as e:
+    #     logger.warning(e)
+    #     return templates.TemplateResponse(
+    #         request=request,
+    #         name="login.html",
+    #         context=LoginRegisterContext(
+    #             error=e.detail,
+    #             form_data=_FormData(
+    #                 username=username,
+    #                 password=password
+    #             )
+    #         ).model_dump()
+    #     )
+    # except Exception as e:
+    #     logger.exception(e)
+    #     return templates.TemplateResponse(
+    #         request=request,
+    #         name="login.html",
+    #         context=LoginRegisterContext(
+    #             error="Internal server error",
+    #             form_data=_FormData(
+    #                 username=username,
+    #                 password=password
+    #             )
+    #         ).model_dump()
+    #     )
     
     
 @web_users.post("/logout")
