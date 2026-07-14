@@ -50,6 +50,16 @@ services:
       db:
         condition: service_healthy
 
+  vite:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    expose:
+      - 5173
+    volumes:
+      - ./frontend:/app/frontend/
+    depends_on:
+      - api
 
   # bot:
   #   build:
