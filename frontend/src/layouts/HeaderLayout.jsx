@@ -6,7 +6,7 @@ function HeaderLayout() {
     return (
         <header className="site-header">
                 <div className="container header-inner">
-                    <NavLink to="/" className="logo">
+                    <NavLink to="/web/" className="logo">
                         <img src={Logo} alt="Pas CLI logo" className="logo-image" />
                         <span className="logo-text">Pas CLI</span>
                     </NavLink>

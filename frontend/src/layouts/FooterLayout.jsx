@@ -11,7 +11,7 @@ function FooterLayout() {
                 <div className="container">
                     <div className="footer-top">
                         <div className="footer-brand">
-                            <NavLink to="/" className="logo">
+                            <NavLink to="/web/" className="logo">
                                 <img src={Logo} alt="Pas CLI logo" className="logo-image" />
                                 <span className="logo-text">Pas CLI</span>
                             </NavLink>
