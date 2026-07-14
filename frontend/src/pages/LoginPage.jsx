@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom"
 import './LoginPage.css'
 
 function LoginPage() {
-    const url = '/web/login'
+    const url = '/api/login'
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
