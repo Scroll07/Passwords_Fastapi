@@ -89,8 +89,8 @@ function LoginPage() {
             </form>
 
             <div className="auth-links">
-                <NavLink to='/web/forgot-password'>Forgot password</NavLink>
-                <p>Don’t have an account? <NavLink to='/web/register'>Sign up</NavLink> </p>
+                <NavLink to='/forgot-password'>Forgot password</NavLink>
+                <p>Don’t have an account? <NavLink to='/register'>Sign up</NavLink> </p>
             </div>
         </div>
     </div>

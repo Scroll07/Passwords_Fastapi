@@ -14,7 +14,7 @@ from backend.routers.api.passwords import api_passwords
 from backend.routers.api.users import api_users
 from backend.routers.api.statistic import api_statistic
 from backend.metrics.router import metrics
-from backend.routers.pages import pages
+# from backend.routers.pages import pages
 
 s = get_settings()
 
@@ -54,5 +54,5 @@ app.mount(path="/static", app=StaticFiles(directory="static"), name="static")
 app.include_router(api_passwords, tags=["PASSWORDS", "API"], prefix="/api")
 app.include_router(api_users, tags=["USERS", "API"], prefix="/api")
 app.include_router(api_statistic, tags=["STATS"], prefix="/api")
-app.include_router(pages, tags=["PAGES"])
+# app.include_router(pages, tags=["PAGES"])
 app.include_router(metrics, tags=["METRICS"])

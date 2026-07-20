@@ -22,7 +22,7 @@ function HomePage() {
             >
               Get started
             </a>
-            <NavLink to="/web/product">Read about the product</NavLink>
+            <NavLink to="/product">Read about the product</NavLink>
           </div>
 
           <div className="hero-code">
@@ -94,7 +94,7 @@ Vault backed up to API.`}</code>
             </tbody>
           </table>
 
-          <NavLink className="text-link" to="/web/docs">
+          <NavLink className="text-link" to="/docs">
             View full command reference
           </NavLink>
         </div>
@@ -117,7 +117,7 @@ Vault backed up to API.`}</code>
             >
               View on GitHub
             </a>
-            <NavLink to="/web/how_it_works">See how it works</NavLink>
+            <NavLink to="/how_it_works">See how it works</NavLink>
           </div>
         </div>
       </section>

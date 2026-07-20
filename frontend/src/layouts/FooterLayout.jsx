@@ -11,7 +11,7 @@ function FooterLayout() {
                 <div className="container">
                     <div className="footer-top">
                         <div className="footer-brand">
-                            <NavLink to="/web/" className="logo">
+                            <NavLink to="/" className="logo">
                                 <img src={Logo} alt="Pas CLI logo" className="logo-image" />
                                 <span className="logo-text">Pas CLI</span>
                             </NavLink>
@@ -36,16 +36,16 @@ function FooterLayout() {
 
                         <div className="footer-column">
                             <h3>Product</h3>
-                            <NavLink to="/web/product">Features</NavLink>
-                            <NavLink to="/web/how_it_works">How It Works</NavLink>
-                            <NavLink to="/web/pricing">Pricing</NavLink>
-                            <NavLink to="/web/security">Security</NavLink>
+                            <NavLink to="/product">Features</NavLink>
+                            <NavLink to="/how_it_works">How It Works</NavLink>
+                            <NavLink to="/pricing">Pricing</NavLink>
+                            <NavLink to="/security">Security</NavLink>
                         </div>
 
                         <div className="footer-column">
                             <h3>Resources</h3>
-                            <NavLink to="/web/docs">Documentation</NavLink>
-                            <NavLink to="/web/faq">FAQ</NavLink>
+                            <NavLink to="/docs">Documentation</NavLink>
+                            <NavLink to="/faq">FAQ</NavLink>
                             <NavLink to="#">API Reference</NavLink>
                             <NavLink to="#">Status</NavLink>
                         </div>

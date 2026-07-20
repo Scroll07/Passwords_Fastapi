@@ -16,14 +16,14 @@ function App() {
     <Routes>
         <Route element={<BaseLayout/>}>
 
-            <Route path='/web/' element={<HomePage />} />
-            <Route path='/web/product' element={<ProductPage />} />
-            <Route path='/web/how_it_works' element={<HowItWorksPage />} />
-            <Route path='/web/pricing' element={<PricingPage />} />
-            <Route path='/web/security' element={<SecurityPage />} />
-            <Route path='/web/docs' element={<DocsPage />} />
-            <Route path='/web/faq' element={<FaqPage />} />
-            <Route path='/web/login' element={<LoginPage />} />
+            <Route path='/' element={<HomePage />} />
+            <Route path='/product' element={<ProductPage />} />
+            <Route path='/how_it_works' element={<HowItWorksPage />} />
+            <Route path='/pricing' element={<PricingPage />} />
+            <Route path='/security' element={<SecurityPage />} />
+            <Route path='/docs' element={<DocsPage />} />
+            <Route path='/faq' element={<FaqPage />} />
+            <Route path='/login' element={<LoginPage />} />
         </Route>
     </Routes>
   )
