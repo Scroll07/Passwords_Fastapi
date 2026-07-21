@@ -9,6 +9,7 @@ import SecurityPage from './pages/Security'
 import DocsPage from './pages/Docs'
 import FaqPage from './pages/FAQ'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 // import './App.css'
 
 function App() {
@@ -24,6 +25,8 @@ function App() {
             <Route path='/docs' element={<DocsPage />} />
             <Route path='/faq' element={<FaqPage />} />
             <Route path='/login' element={<LoginPage />} />
+            <Route path='/register' element={<RegisterPage />} />
+            
         </Route>
     </Routes>
   )
