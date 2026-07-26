@@ -1,17 +1,10 @@
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.dao.session_dao import SessionDao
-from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.dao.backupDao import BackupDao
-from backend.dao.role_dao import RoleDAO
-from backend.schemas.jwt import JWTDecodedData, TokenType
-from backend.schemas.db_schema import UserFields, UserRoles, CreateUserInDb
-from backend.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
-from backend.dependincies import get_db, verify_refresh_token, get_jwt_service, verify_user, validate_change_passwords
-from backend.schemas.base import ChangePasswordSchema, RegisterRequestData, LoginRequest
-from backend.dao.userDao import UserDao
+from backend.schemas.jwt import JWTDecodedData
+from backend.dependincies import get_db, verify_user
 from backend.core.logger import get_logger
 
 logger = get_logger(__name__)

@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import DateTime, ForeignKey, func
+from sqlalchemy import DateTime, ForeignKey
 
-from backend.schemas.jwt import TokenType
 from backend.schemas.db_schema import UserRoles
 
 

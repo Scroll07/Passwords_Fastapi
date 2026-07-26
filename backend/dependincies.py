@@ -1,8 +1,7 @@
-from datetime import datetime, timezone
 from typing import AsyncIterator
 
 from fastapi import Body, HTTPException, Depends, Request
-from fastapi.responses import RedirectResponse, Response, HTMLResponse
+from fastapi.responses import Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
@@ -108,7 +107,7 @@ async def verify_user(
             raise HTTPException(401, "Invalid session binding")
 
         return token_data
-    except ExpiredSignatureError as e:
+    except ExpiredSignatureError:
         logger.info("Bearer was expired, trying to verify refresh token")
         try:
             refresh_token_data = await _api_try_refresh_token(
@@ -284,7 +283,7 @@ async def verify_web_user(
     
         return token_data
     
-    except ExpiredSignatureError as e:
+    except ExpiredSignatureError:
         logger.info("Bearer was expired, trying to verify refresh token")
         try:
             refresh_token_data = await _web_try_refresh_token(

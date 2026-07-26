@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 import jwt
 
 from backend.services.jwt_service import JWT_Service

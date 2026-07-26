@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Body, Depends, Form, HTTPException, Request, Query
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,7 +14,6 @@ from backend.dao.userDao import UserDao
 from backend.services.secrets import hash_password, verify_password
 from backend.core.logger import get_logger
 from backend.services.cookies import add_bearer_cookie, add_refresh_cookie
-from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
 

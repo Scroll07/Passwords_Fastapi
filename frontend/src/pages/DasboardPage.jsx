@@ -16,12 +16,6 @@ function DashboardPage() {
     let pinned = []
     let no_pinned = []
 
-    // async function setSortAndGetBackups(sort_by = SORT_BY.CREATED_AT) {
-    //     SetSort(sort_by)
-    //     const newBackups = await get_backups(sort_by) 
-    //     SetBackups(newBackups){SetSort(SORT_BY.ROWS)}
-    // }
-
 
     async function logout(e) {
         e.preventDefault()
@@ -111,10 +105,6 @@ function DashboardPage() {
         no_pinned = backups.filter(b => !b.pinned)
     }
         
-    
-        
-
-
 
     return (
         <section className="dashboard-section">

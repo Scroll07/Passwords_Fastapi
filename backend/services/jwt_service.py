@@ -4,8 +4,7 @@ import jwt
 
 from backend.dao.session_dao import SessionDao
 from backend.schemas.jwt import EncodedToken
-from backend.schemas.jwt import JWTDecodedData, EncodedToken, TokenType
-from backend.core.settings import get_settings
+from backend.schemas.jwt import JWTDecodedData, TokenType
 
 class JWT_Service:
     def __init__(

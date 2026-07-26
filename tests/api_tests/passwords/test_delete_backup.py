@@ -1,10 +1,8 @@
-import asyncio
 from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from httpx import AsyncClient
 import pytest
 
-import backend.dao.backupDao as dao_file
 from backend.dao.backupDao import BackupDao
 
 

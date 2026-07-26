@@ -1,7 +1,6 @@
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 from fastapi import Request, HTTPException, FastAPI
 
-from backend.schemas.exceptions import WebAuthRedirect
 
 def exception_response(app: FastAPI):
     @app.exception_handler(HTTPException)
