@@ -10,7 +10,9 @@ import DocsPage from './pages/Docs'
 import FaqPage from './pages/FAQ'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import DashboardPage from './pages/DasboardPage'
 // import './App.css'
+
 
 function App() {
   return (
@@ -26,6 +28,7 @@ function App() {
             <Route path='/faq' element={<FaqPage />} />
             <Route path='/login' element={<LoginPage />} />
             <Route path='/register' element={<RegisterPage />} />
+            <Route path='/dashboard' element={<DashboardPage />} />
             
         </Route>
     </Routes>

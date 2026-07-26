@@ -1,9 +1,7 @@
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi import Request, HTTPException, FastAPI
 
 from backend.schemas.exceptions import WebAuthRedirect
-from backend.core.templates import templates
-from backend.schemas.jinja_context import _FormData, LoginRegisterContext
 
 def exception_response(app: FastAPI):
     @app.exception_handler(HTTPException)
@@ -15,17 +13,12 @@ def exception_response(app: FastAPI):
         )
 
 
-def auth_redirect(app: FastAPI):
-    @app.exception_handler(WebAuthRedirect)
-    async def open_auth_page(request: Request, exc: WebAuthRedirect):
-        return templates.TemplateResponse(
-            request=request,
-            name="login.html",
-            context=LoginRegisterContext(
-                error=exc.error,
-                form_data=_FormData()
-            ).model_dump()
-        )
+# def auth_redirect(app: FastAPI):
+#     @app.exception_handler(WebAuthRedirect)
+#     async def open_auth_page(request: Request, exc: WebAuthRedirect):
+#         return RedirectResponse(
+#             url='/login'
+#         )
 
 
 

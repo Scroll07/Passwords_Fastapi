@@ -1,41 +1,145 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import './DashboardPage.css'
 
+
+
 function DashboardPage() {
-    url = '/api/dashboard'
-    response = await fetch(
-        url,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+    const SORT_BY = Object.freeze({
+        NAME: "name",
+        ROWS: "rows",
+        CREATED_AT: "created_at"
+    })
+    let [backups, SetBackups] = useState([])
+    const [sorting, SetSort] = useState(SORT_BY.CREATED_AT)
+    const [error, SetError] = useState('')
+    let pinned = []
+    let no_pinned = []
+
+    // async function setSortAndGetBackups(sort_by = SORT_BY.CREATED_AT) {
+    //     SetSort(sort_by)
+    //     const newBackups = await get_backups(sort_by) 
+    //     SetBackups(newBackups){SetSort(SORT_BY.ROWS)}
+    // }
+
+
+    async function logout(e) {
+        e.preventDefault()
+        
+        const url = '/web/logout'
+        const response = await fetch (
+            url,
+            {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        )
+        const contentType = response.headers.get('content-type') 
+        
+        if (response.ok) {
+            document.location.href = '/login'
+            return
+
+        } else if (contentType && contentType.includes('application/json')){
+            const response_data = await response.json()
+            const response_error = response_data['detail'] || "No detail from server"
+            SetError(response_error)
+            return
+        } else {
+            const text = await response.text()
+            const parser = new DOMParser()
+            const nginx_document = parser.parseFromString(text, 'text/html') 
+            const nginx_error = nginx_document.title.slice(4)
+            SetError(nginx_error)
+            return
         }
-    )
+
+    }
+    
+    useEffect(() => {
+        async function get_backups(sort_by = SORT_BY.CREATED_AT) {
+            const url = `/web/backups?sort_by=${sort_by}`
+            const response = await fetch(
+                url,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                }
+            )
+            const contentType = response.headers.get('content-type')
+            
+            if (response.ok) {
+                const response_data = await response.json()
+                const backups = response_data['backups']
+                return backups
+            
+                 
+            } else if (contentType && contentType.includes('application/json')) {
+                const response_data = await response.json()
+                const response_error = response_data['detail'] || "No detail from server"
+                SetError(response_error)
+                if (response.status === 401) {
+                    document.location.href = '/login'
+                }
+
+                return
+
+            } else {
+                const text = await response.text()
+                const parser = new DOMParser()
+                const nginx_document = parser.parseFromString(text, 'text/html') 
+                const nginx_error = nginx_document.title.slice(4)
+                SetError(nginx_error)
+                return
+            }
+        }
+        async function loadBackups(sort_by = SORT_BY.CREATED_AT) {
+            const backups = await get_backups(sort_by)
+            console.log(backups)
+            SetBackups(backups)
+        }
+        loadBackups(sorting)
+    }, [sorting])
+    
+    
+    if (backups) {
+        pinned = backups.filter(b => b.pinned)
+        no_pinned = backups.filter(b => !b.pinned)
+    }
+        
+    
+        
 
 
 
     return (
-        <section class="dashboard-section">
-            <div class="container">
-                <div class="dashboard-header">
+        <section className="dashboard-section">
+            <div className="container">
+                <div className="dashboard-header">
                     <div>
                         <h1>Hello, user</h1>
                         <p>Session active — API connected</p>
                     </div>
 
-                    <form onSubmit={Функцию сюда для logout} method="post">
-                        <button id="dashboard-logout" class="dashboard-logout" type="submit">Log out</button>
+                    <form onSubmit={logout} method="post">
+                        <button id="dashboard-logout" className="dashboard-logout" type="submit">Log out</button>
                     </form>
                 </div>
 
-                <div class="dashboard-block">
-                    {% set pinned_backups = backups | selectattr('pinned') | list %}
+                { error &&
+                    <div className="form-error">{error}</div>
+                }
 
-                    {% if pinned_backups %}
+                <div className="dashboard-block">
+
+                    { pinned.length > 0 && 
+                    <div>
                         <h2>Pinned Backups</h2>
-                        <table class="dashboard-table">
+                        <table className="dashboard-table">
                             <thead>
                                 <tr>
                                     <th>name</th>
@@ -44,52 +148,51 @@ function DashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for backup in backups if backup.pinned %}
-                                <tr>
+                                { pinned.map(backup => (
+                                    <tr key={backup.id}>
                                     <td>
-                                        <NavLink to="{{ url_for('user_backup', backup_id=backup.id) }}" class="backup-name">
-                                            {{ backup.name }}
+                                        <NavLink to={`/backups/${backup.id}`} className="backup-name">
+                                            { backup.name }
                                         </NavLink>
                                     </td>
-                                    <td>{{ backup.created_at_formatted }}</td>
-                                    <td>{{ backup.rows }}</td>
+                                    <td>{ backup.created_at_formatted }</td>
+                                    <td>{ backup.rows }</td>
                                 </tr>
-                                {% endfor %}
+                                )) }
                             </tbody>
                         </table>
-                    {% endif %}
+                    </div>
+                    }
 
-                    <div class="backups-header">
-                        <h2>Backups</h2>
+                    <div className="sort-links">
+                        <span className="sort-label">Sort by:</span>
 
-                        <div class="sort-links">
-                            <span class="sort-label">Sort by:</span>
+                        <button
+                            type="button"
+                            className={`sort-link ${sorting === SORT_BY.CREATED_AT ? 'sort-link-active' : ''}`}
+                            onClick={() => {SetSort(SORT_BY.CREATED_AT)}}
+                        >
+                            Date
+                        </button>
 
-                            <NavLink
-                                to='/dashboard?sort_by=created_at'
-                                class="sort-link"
-                            >
-                                Date
-                            </NavLink>
-                            
+                        <button
+                            type="button"
+                            className={`sort-link ${sorting === SORT_BY.NAME ? 'sort-link-active' : ''}`}
+                            onClick={() => {SetSort(SORT_BY.NAME)}}
+                        >
+                            Name
+                        </button>
 
-                            <NavLink
-                                to="/dashboard?sort_by=name"
-                                class="sort-link"
-                            >
-                                Name
-                            </NavLink>
-
-                            <NavLink
-                                to="/dashboard?sort_by=rows"
-                                class="sort-link"
-                            >
-                                Rows
-                            </NavLink>
-                        </div>
+                        <button
+                            type="button"
+                            className={`sort-link ${sorting === SORT_BY.ROWS ? 'sort-link-active' : ''}`}
+                            onClick={() => {SetSort(SORT_BY.ROWS)}}
+                        >
+                            Rows
+                        </button>
                     </div>
 
-                    <table class="dashboard-table">
+                    <table className="dashboard-table">
                         <thead>
                             <tr>
                                 <th>name</th>
@@ -98,17 +201,19 @@ function DashboardPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {% for backup in backups if not backup.pinned %}
-                            <tr>
-                                <td>
-                                    <NavLink href="{{ url_for('user_backup', backup_id=backup.id) }}" class="backup-name">
-                                        {{ backup.name }}
-                                    </NavLink>
-                                </td>
-                                <td>{{ backup.created_at_formatted }}</td>
-                                <td>{{ backup.rows }}</td>
-                            </tr>
-                            {% endfor %}
+                            { no_pinned.map(backup =>
+
+                                <tr key={backup.id}>
+                                    <td>
+                                        <NavLink to={`/backups/${backup.id}`} className="backup-name">
+                                            { backup.name }
+                                        </NavLink>
+                                    </td>
+                                    <td>{ backup.created_at_formatted }</td>
+                                    <td>{ backup.rows }</td>
+                                </tr>
+                                ) 
+                            }
                         </tbody>
                     </table>
                 </div>
