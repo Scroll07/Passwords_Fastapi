@@ -128,7 +128,7 @@ async def web_refresh_get(
         raise HTTPException(500, "Internal server error")
     
 
-@web_users.patch("/change-password")
+@web_users.post("/change-password")
 async def web_change_password(
     data: WebChangePasswordSchema = Depends(web_validate_change_passwords), 
     db=Depends(get_db),
@@ -137,8 +137,8 @@ async def web_change_password(
         dao = UserDao(session=db)
         user = await dao.get_user_by_field(field=UserFields.USERNAME, value=data.username)
         if user is None:
-            logger.exception(f"User with this user_id={data.username} does not exist")
-            raise HTTPException(404, "User with this user_id does not exist")
+            logger.exception(f"User with this username={data.username} does not exist")
+            raise HTTPException(404, "User with this username does not exist")
         
         if not verify_password(password=data.current_password, password_hash=user.password_hash):
             raise HTTPException(401, "Wrong user data")
