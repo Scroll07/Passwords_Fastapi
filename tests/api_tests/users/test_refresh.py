@@ -2,8 +2,8 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.services.jwt_service import create_token_and_session
-from src.schemas.jwt import TokenType
+from backend.services.jwt_service import create_token_and_session
+from backend.schemas.jwt import TokenType
 
 
 @pytest.mark.asyncio

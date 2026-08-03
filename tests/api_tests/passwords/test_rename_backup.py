@@ -2,11 +2,11 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.schemas.db_schema import UserFields
-from src.schemas.base import LoginRequest, RegisterRequestData
-from src.dao.backupDao import BackupDao
-from src.dao.userDao import UserDao
-import src.dao.backupDao as dao_file
+from backend.schemas.db_schema import UserFields
+from backend.schemas.base import LoginRequest, RegisterRequestData
+from backend.dao.backupDao import BackupDao
+from backend.dao.userDao import UserDao
+import backend.dao.backupDao as dao_file
 
 
 @pytest.mark.asyncio

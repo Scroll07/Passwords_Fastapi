@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
-from src.schemas.base import RegisterRequestData, LoginRequest
+from backend.schemas.base import RegisterRequestData, LoginRequest
 
 
 @pytest.mark.asyncio

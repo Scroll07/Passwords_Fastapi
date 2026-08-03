@@ -27,7 +27,7 @@ services:
     expose:
       - 8000
     volumes:
-      - ./src:/app/src/
+      - ./backend:/app/backend/
       - ./templates:/app/templates
       - ./static:/app/static
       - ./alembic:/app/alembic
@@ -50,6 +50,16 @@ services:
       db:
         condition: service_healthy
 
+  vite:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    expose:
+      - 5173
+    volumes:
+      - ./frontend:/app/frontend/
+    depends_on:
+      - api
 
   # bot:
   #   build:

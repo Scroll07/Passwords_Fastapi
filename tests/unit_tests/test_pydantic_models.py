@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from src.schemas.base import RegisterRequestData, LoginRequest
+from backend.schemas.base import RegisterRequestData, LoginRequest
 
 
 def test_LoginRequest__ok():

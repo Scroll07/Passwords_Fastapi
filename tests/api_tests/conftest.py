@@ -6,13 +6,13 @@ from httpx import AsyncClient, ASGITransport
 
 from main import app
 from tests.conftest import TEST_ENGINE_URL
-from src.schemas.jwt import JWTDecodedData, TokenType
-from src.schemas.db_schema import UserRoles
-from src.dao.role_dao import RoleDAO
-from src.models.model import Base, Users
-from src.dependincies import get_db, verify_user, verify_refresh_token, get_jwt_service
-import src.dao.backupDao as dao_file
-from src.schemas.base import RegisterRequestData
+from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.db_schema import UserRoles
+from backend.dao.role_dao import RoleDAO
+from backend.models.model import Base, Users
+from backend.dependincies import get_db, verify_user, verify_refresh_token
+import backend.dao.backupDao as dao_file
+from backend.schemas.base import RegisterRequestData
 
 
 @pytest_asyncio.fixture

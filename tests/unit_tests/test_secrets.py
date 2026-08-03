@@ -1,4 +1,4 @@
-from src.services.secrets import verify_password, hash_password
+from backend.services.secrets import verify_password, hash_password
 
 
 def test_hash_password__returs_str():

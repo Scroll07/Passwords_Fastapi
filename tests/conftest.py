@@ -4,9 +4,9 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-from src.schemas.jwt import JWTDecodedData, TokenType
-from src.dependincies import get_jwt_service
-from src.services.jwt_service import JWT_Service
+from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.dependincies import get_jwt_service
+from backend.services.jwt_service import JWT_Service
 
 
 TEST_ENGINE_URL = "postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"

@@ -3,20 +3,20 @@ from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 
 
-from src.core.database import async_engine, async_session
-from src.dao.role_dao import RoleDAO
-from src.dao.userDao import UserDao
-from src.core.settings import get_settings
-from src.metrics.middleware import logging_for_metrics
-from src.exceptions.handlers import auth_redirect
+from backend.core.database import async_engine, async_session
+from backend.dao.role_dao import RoleDAO
+from backend.dao.userDao import UserDao
+from backend.core.settings import get_settings
+from backend.metrics.middleware import logging_for_metrics
+# from backend.exceptions.handlers import auth_redirect
 
-from src.routers.api.passwords import api_passwords
-from src.routers.api.users import api_users
-from src.routers.api.statistic import api_statistic
-from src.routers.web.passwords import web_passwords
-from src.routers.web.users import web_users
-from src.routers.web.static_pages import pages
-from src.metrics.router import metrics
+from backend.routers.api.passwords import api_passwords
+from backend.routers.api.users import api_users
+from backend.routers.api.statistic import api_statistic
+from backend.metrics.router import metrics
+from backend.routers.web.passwords import web_passwords
+from backend.routers.web.users import web_users
+# from backend.routers.pages import pages
 
 s = get_settings()
 
@@ -40,14 +40,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    docs_url=None if s.APP_MODE == "production" else "/docs",
-    redoc_url=None if s.APP_MODE == "production" else "/redoc",
-    openapi_url=None if s.APP_MODE == "production" else "/openapi.json"
+    docs_url=None if s.APP_MODE == "production" else "/api/docs",
+    redoc_url=None if s.APP_MODE == "production" else "/api/redoc",
+    openapi_url=None if s.APP_MODE == "production" else "/api/openapi.json"
 )
 
 app.middleware("http")(logging_for_metrics)
 
-auth_redirect(app=app)
+# auth_redirect(app=app)
 
 
 app.mount(path="/static", app=StaticFiles(directory="static"), name="static")
@@ -58,5 +58,5 @@ app.include_router(api_users, tags=["USERS", "API"], prefix="/api")
 app.include_router(api_statistic, tags=["STATS"], prefix="/api")
 app.include_router(web_passwords, tags=["PASSWORDS", "WEB"], prefix="/web")
 app.include_router(web_users, tags=["USERS", "WEB"], prefix="/web")
-app.include_router(pages, tags=["PAGES"])
 app.include_router(metrics, tags=["METRICS"])
+# app.include_router(pages, tags=["PAGES"])

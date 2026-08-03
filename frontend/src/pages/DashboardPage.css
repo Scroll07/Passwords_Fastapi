@@ -1,0 +1,235 @@
+/* DASHBOARD */
+
+.dashboard-section {
+    padding: 88px 0 120px;
+}
+
+.dashboard-section .container {
+    max-width: 860px;
+    min-height: 960px;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.dashboard-header h1 {
+    margin: 0 0 8px;
+    font-size: 38px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--text);
+}
+
+.dashboard-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.dashboard-logout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-soft);
+    color: var(--text-soft);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.dashboard-logout:hover {
+    color: var(--text);
+    border-color: #2a2d33;
+    background: #14161a;
+}
+
+.dashboard-logout:focus-visible {
+    outline: 2px solid rgba(16, 185, 129, 0.35);
+    outline-offset: 3px;
+}
+
+.dashboard-block {
+    margin-bottom: 20px;
+    padding: 28px 28px 20px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: var(--shadow);
+}
+
+.dashboard-block > h2 {
+    margin: 0 0 18px;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--text);
+}
+
+.backups-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 36px;
+    margin-bottom: 18px;
+}
+
+.backups-header h2 {
+    margin: 0;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--text);
+}
+
+.sort-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.sort-label {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.sort-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text-soft);
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    background: transparent;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.sort-link:hover {
+    color: var(--text);
+    border-color: var(--border);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.sort-link-active {
+    color: #dffcf2;
+    border-color: rgba(16, 185, 129, 0.28);
+    background: rgba(16, 185, 129, 0.12);
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.dashboard-table thead th {
+    padding: 0 16px 12px 0;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.dashboard-table tbody td {
+    padding: 16px 16px 16px 0;
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--text-soft);
+    font-size: 14px;
+    line-height: 1.6;
+    vertical-align: middle;
+}
+
+.dashboard-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.dashboard-table tbody tr:hover td {
+    color: var(--text);
+}
+
+.backup-name {
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.backup-name:hover {
+    color: var(--accent-hover);
+}
+
+@media (max-width: 720px) {
+    .dashboard-section {
+        padding: 64px 0 88px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 28px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 32px;
+    }
+
+    .dashboard-block {
+        padding: 20px 18px 14px;
+        border-radius: 14px;
+    }
+
+    .backups-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashboard-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .dashboard-table thead th,
+    .dashboard-table tbody td {
+        padding-right: 20px;
+    }
+}
+
+@media (max-width: 520px) {
+    .dashboard-header h1 {
+        font-size: 28px;
+    }
+
+    .dashboard-block > h2,
+    .backups-header h2 {
+        font-size: 22px;
+    }
+
+    .sort-links {
+        gap: 8px;
+    }
+
+    .sort-link {
+        font-size: 12px;
+    }
+}

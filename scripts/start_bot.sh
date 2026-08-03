@@ -4,4 +4,4 @@ echo Telegram bot started
 
 export PYTHONPATH=/app:PYTHONPATH
 
-exec /app/.venv/bin/python /app/src/bot/main.py
+exec /app/.venv/bin/python /app/backend/bot/main.py

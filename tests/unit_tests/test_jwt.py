@@ -1,8 +1,8 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 import jwt
 
-from src.services.jwt_service import JWT_Service
-from src.schemas.jwt import JWTDecodedData, TokenType
+from backend.services.jwt_service import JWT_Service
+from backend.schemas.jwt import JWTDecodedData, TokenType
 
 
 
