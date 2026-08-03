@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom'
-import './static_pages.css'
 
 function HomePage() {
   return (

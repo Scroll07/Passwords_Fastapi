@@ -1,5 +1,3 @@
-import './static_pages.css'
-
 
 function FaqPage() {
   return (

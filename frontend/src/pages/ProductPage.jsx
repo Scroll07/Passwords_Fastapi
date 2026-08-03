@@ -1,4 +1,3 @@
-import './static_pages.css'
 
 function ProductPage() {
   return (
@@ -99,16 +98,18 @@ function ProductPage() {
           <table>
             <tbody>
               <tr>
-                <th>CLI</th>
+                <th><span className="accent-text">CLI</span></th>
                 <td>Python</td>
               </tr>
               <tr>
-                <th>Backend</th>
+                <th><span className="accent-text">Backend</span></th>
                 <td>Python · FastAPI · PostgreSQL · SQLAlchemy · Alembic · Docker · pytest</td>
               </tr>
             </tbody>
           </table>
-          <p>The source code, README, and installation instructions are available on GitHub.</p>
+          <p>
+            The source code, README, and installation instructions are available on GitHub.
+          </p>
         </div>
       </section>
     </main>

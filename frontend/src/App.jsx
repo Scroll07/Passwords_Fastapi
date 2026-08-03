@@ -13,7 +13,9 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DasboardPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import BackupPage from './pages/BackupPage'
-// import './App.css'
+
+
+import './App.css'
 
 
 function App() {
