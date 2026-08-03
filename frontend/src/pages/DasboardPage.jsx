@@ -124,9 +124,9 @@ function DashboardPage() {
                     <div className="form-error">{error}</div>
                 }
 
-                <div className="dashboard-block">
 
-                    { pinned.length > 0 && 
+                { pinned.length > 0 && 
+                <div className="dashboard-block">
                     <div>
                         <h2>Pinned Backups</h2>
                         <table className="dashboard-table">
@@ -152,8 +152,11 @@ function DashboardPage() {
                             </tbody>
                         </table>
                     </div>
+                </div>
                     }
 
+                { no_pinned.length > 0 &&
+                <div className="dashboard-block">
                     <div className="sort-links">
                         <span className="sort-label">Sort by:</span>
 
@@ -206,8 +209,8 @@ function DashboardPage() {
                             }
                         </tbody>
                     </table>
+                    </div>  }
                 </div>
-            </div>
         </section>
     )
 }

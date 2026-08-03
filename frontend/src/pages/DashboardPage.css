@@ -6,6 +6,7 @@
 
 .dashboard-section .container {
     max-width: 860px;
+    min-height: 960px;
 }
 
 .dashboard-header {
@@ -59,6 +60,7 @@
 }
 
 .dashboard-block {
+    margin-bottom: 20px;
     padding: 28px 28px 20px;
     border: 1px solid var(--border);
     border-radius: 18px;

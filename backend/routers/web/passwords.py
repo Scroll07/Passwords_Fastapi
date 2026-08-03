@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.api_responses import BackupsResponse, MessageResponse
-from backend.schemas.base import BackupData, DownloadRequest, SortByBackups
+from backend.schemas.base import BackupData, SortByBackups
 from backend.dependincies import get_db, verify_web_user
 from backend.dao.backupDao import BackupDao
 from backend.core.logger import get_logger
@@ -85,16 +85,42 @@ async def get_user_backups(
         logger.exception(f"Error in Backups handler: {e}")
         raise HTTPException(500, detail="Interal server error")
     
+@web_passwords.get("/backups/{backup_id}")
+async def get_user_backup(
+    backup_id: int,
+    db: AsyncSession = Depends(get_db),
+    data: JWTDecodedData = Depends(verify_web_user),
+):
+    try:
+        dao = BackupDao(session=db)
+        user_id_int = int(data.sub)
+        backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id_int)
+        if backup:
+            detail = "Backup was found"
+        else:
+            detail = "Backup was not found"
+        
+        response = {
+            "ok":True,
+            "detail": detail,
+            "backup": backup
+        }            
+        
+        return response
+    except Exception as e:
+        logger.exception(f"Error in Backups handler: {e}")
+        raise HTTPException(500, detail="Interal server error")
+    
 
-@web_passwords.post("/backups/download")
+@web_passwords.post("/backups/{backup_id}/download")
 async def download_post(
-   req: DownloadRequest, 
+   backup_id: int,
    db: AsyncSession = Depends(get_db),
    data: JWTDecodedData = Depends(verify_web_user),
 ):
     try:
         dao = BackupDao(session=db)
-        backup = await dao.get_backup_by_id(backup_id=req.backup_id, user_id=int(data.sub))
+        backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=int(data.sub))
         if backup is None:
             raise HTTPException(404, "Backup was not found")
             
@@ -105,9 +131,9 @@ async def download_post(
         date = datetime.strftime(now, format="%Y-%m-%d_%H-%M-%S")
         
         return FileResponse(
-        path=backup.path,
-        filename=f'backup_{date}.json',
-        media_type="application/json"
+            path=backup.path,
+            filename=f'backup_{date}.json',
+            media_type="application/json"
         )
     except HTTPException as e:
         logger.exception(f"Error in Download handler: {e}")
