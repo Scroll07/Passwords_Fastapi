@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from fastapi.staticfiles import StaticFiles
+# from fastapi.staticfiles import StaticFiles
 
 
 from backend.core.database import async_engine, async_session
@@ -50,7 +50,7 @@ app.middleware("http")(logging_for_metrics)
 # auth_redirect(app=app)
 
 
-app.mount(path="/static", app=StaticFiles(directory="static"), name="static")
+# app.mount(path="/static", app=StaticFiles(directory="static"), name="static")
 
 
 app.include_router(api_passwords, tags=["PASSWORDS", "API"], prefix="/api")
