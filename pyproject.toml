@@ -9,7 +9,9 @@ dependencies = [
     "alembic>=1.18.4",
     "asyncpg>=0.31.0",
     "bcrypt>=5.0.0",
+    "cryptography==46.0.3",
     "fastapi[standard]>=0.135.3",
+    "keyring>=25.7.0",
     "pyjwt>=2.12.1",
     "sqlalchemy>=2.0.49",
 ]
