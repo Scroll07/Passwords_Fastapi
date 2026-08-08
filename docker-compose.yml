@@ -28,8 +28,6 @@ services:
       - 8000
     volumes:
       - ./backend:/app/backend/
-      - ./templates:/app/templates
-      - ./static:/app/static
       - ./alembic:/app/alembic
       - ./BACKUPS_DATA:/app/BACKUPS_DATA
     env_file:
