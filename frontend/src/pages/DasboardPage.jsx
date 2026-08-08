@@ -13,8 +13,38 @@ function DashboardPage() {
     let [backups, SetBackups] = useState([])
     const [sorting, SetSort] = useState(SORT_BY.CREATED_AT)
     const [error, SetError] = useState('')
+    const [username, SetUsername] = useState('')
+    let user_data = {}
     let pinned = []
     let no_pinned = []
+
+    useEffect(() => {
+        async function get_user_data() {
+            const url = "/web/me"
+            const response = await fetch(
+                url,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
+            if (response.ok) {
+                const response_data = await response.json()
+                if (response_data["ok"]) {
+                    user_data = response_data["data"]
+                    SetUsername(response_data["data"]["username"])
+                } else {
+                    return
+                }
+            } else {
+                return
+            }
+    
+        }
+        get_user_data()
+    }, [])
 
 
     async function logout(e) {
@@ -111,7 +141,12 @@ function DashboardPage() {
             <div className="container">
                 <div className="dashboard-header">
                     <div>
-                        <h1>Hello, user</h1>
+                        {username && 
+                            <h1>Hello, {username}</h1>
+                        }
+                        {!username && 
+                            <h1>Hello, User</h1>
+                        }
                         <p>Session active — API connected</p>
                     </div>
 

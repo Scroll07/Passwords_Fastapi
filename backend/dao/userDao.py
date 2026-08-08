@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from backend.schemas.dao_schemas import UserWithRole
+from backend.schemas.dao_schemas import UserWithRole, UserData
 from backend.schemas.db_schema import UserFields, UserInDb, UserRoles
 from backend.models.model import Users, Roles
 from backend.schemas.db_schema import CreateUserInDb
@@ -81,4 +81,21 @@ class UserDao:
         await self.create_user(user_data=data, role_id=admin_role.id)
         
         return None
+    
+    async def get_user_data(self, user_id: int) -> UserData | None:
+        user = await self.get_user_by_field(field=UserFields.ID, value=user_id)
+        if not user:
+            return None
+        query = select(Roles.name).where(Roles.id == user.role_id)
+        result = await self.session.execute(query)
+        role_name = result.scalar_one()
         
+        user_data = UserData(
+            id=user.id,
+            username=user.username,
+            telegram_id=user.telegram_id,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            role=role_name
+        ) 
+        return user_data
