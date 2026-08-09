@@ -18,14 +18,15 @@ from backend.password_manager.schemas.passwords import (
 from backend.password_manager.services.file_utils import (
     load_encrypted_vault, is_vault_files_exists, get_vault_usernames
 )
+from backend.password_manager.schemas.users import UserData
 
 
 
         
-def get_key(username: str, master_password: str) -> bytes:
-    encrypted_vault = load_encrypted_vault(username=username)
+def get_key(user_data: UserData) -> bytes:
+    encrypted_vault = load_encrypted_vault(username=user_data.username)
 
-    key = derive_key(master_password, encrypted_vault.salt)  # type: ignore
+    key = derive_key(user_data.master_password, encrypted_vault.salt)  # type: ignore
     decrypt_vault_passwords(encrypted_vault.encrypted_passwords, key)
 
     return key

@@ -19,6 +19,7 @@ from backend.password_manager.schemas.passwords import (
     UserVault,
     EncryptedUserVault,
 )
+from backend.password_manager.schemas.users import UserData
 
 
 def dump_last_matches(matches: list[str]) -> None:
@@ -48,13 +49,13 @@ def load_encrypted_vault(username: str) -> EncryptedUserVault:
         ) from e
 
 
-def load_data(username: str, master_password: str) -> UserVault:
+def load_data(user_data: UserData) -> UserVault:
     from backend.password_manager.services.password import get_key
     
-    encrypted = load_encrypted_vault(username=username)
+    encrypted = load_encrypted_vault(username=user_data.username)
 
     try:
-        key = get_key(username=username, master_password=master_password)
+        key = get_key(user_data=user_data)
     except InvalidToken as e:
         typer.echo("Wrong master password")
         raise typer.Exit(code=1) from e
@@ -76,7 +77,7 @@ def load_data(username: str, master_password: str) -> UserVault:
     return vault_data
 
 
-def save_data(username: str, master_password: str ,vault_data: UserVault) -> None:
+def save_data(user_data: UserData, vault_data: UserVault) -> None:
     from backend.password_manager.services.password import get_key
 
     vault_file = VAULTS / f"{vault_data.username}.json"
@@ -86,7 +87,7 @@ def save_data(username: str, master_password: str ,vault_data: UserVault) -> Non
             f"Файл {vault_data.username}.json не существует"
         )
 
-    key = get_key(username=username, master_password=master_password)
+    key = get_key(user_data=user_data)
 
     if key is None:
         raise RuntimeError("Ключ из текущей сессии отсутствует")
