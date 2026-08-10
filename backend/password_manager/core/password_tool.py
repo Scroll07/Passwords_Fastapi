@@ -7,7 +7,6 @@ from backend.password_manager.services.file_utils import (
 from backend.password_manager.schemas.users import UserData
 from backend.password_manager.schemas.passwords import Password
 
-
 class PasswordTool:
     def __init__(self, user_data: UserData) -> None:
         self.user_data = user_data

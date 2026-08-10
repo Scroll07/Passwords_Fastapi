@@ -14,7 +14,7 @@ from backend.routers.api.passwords import api_passwords
 from backend.routers.api.users import api_users
 from backend.routers.api.statistic import api_statistic
 from backend.metrics.router import metrics
-from backend.routers.web.passwords import web_passwords
+from backend.routers.web.backups import web_passwords
 from backend.routers.web.users import web_users
 # from backend.routers.pages import pages
 
