@@ -15,12 +15,12 @@ from backend.services.backup_service import delete_backup_by_path
 
 logger = get_logger(__name__)
 
-web_passwords = APIRouter()
+web_backups = APIRouter()
 
 #==============================
 #            API    
 #==============================
-@web_passwords.post("/backups/upload", status_code=201)
+@web_backups.post("/backups/upload", status_code=201)
 async def upload_post(
     name: str = Form(...),
     rows: int = Form(...),
@@ -53,7 +53,7 @@ async def upload_post(
         raise HTTPException(500, "Internal server error")
 
 
-@web_passwords.get("/backups")
+@web_backups.get("/backups")
 async def get_user_backups(
     db: AsyncSession = Depends(get_db),
     data: JWTDecodedData = Depends(verify_web_user),
@@ -85,7 +85,7 @@ async def get_user_backups(
         logger.exception(f"Error in Backups handler: {e}")
         raise HTTPException(500, detail="Interal server error")
     
-@web_passwords.get("/backups/{backup_id}")
+@web_backups.get("/backups/{backup_id}")
 async def get_user_backup(
     backup_id: int,
     db: AsyncSession = Depends(get_db),
@@ -112,7 +112,7 @@ async def get_user_backup(
         raise HTTPException(500, detail="Interal server error")
     
 
-@web_passwords.post("/backups/{backup_id}/download")
+@web_backups.post("/backups/{backup_id}/download")
 async def download_post(
    backup_id: int,
    db: AsyncSession = Depends(get_db),
@@ -143,7 +143,7 @@ async def download_post(
         raise HTTPException(500, detail="Internal server error")
     
 
-@web_passwords.delete("/backups/{backup_id}")
+@web_backups.delete("/backups/{backup_id}")
 async def delete_backup(
    backup_id: int, 
    db: AsyncSession = Depends(get_db),
@@ -162,7 +162,7 @@ async def delete_backup(
         detail="Your backup was successully deleted"
     )
 
-@web_passwords.patch("/backups/{backup_id}")
+@web_backups.patch("/backups/{backup_id}")
 async def patch_backup(
    backup_id: int, 
    new_name: str = Body(..., min_length=1, max_length=20),
@@ -179,7 +179,7 @@ async def patch_backup(
         detail="Your backup was successully renamed"
     )
 
-@web_passwords.patch("/backups/{backup_id}/change-pin")
+@web_backups.patch("/backups/{backup_id}/change-pin")
 async def pin_backup(
    backup_id: int, 
    db: AsyncSession = Depends(get_db),

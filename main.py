@@ -14,7 +14,7 @@ from backend.routers.api.passwords import api_passwords
 from backend.routers.api.users import api_users
 from backend.routers.api.statistic import api_statistic
 from backend.metrics.router import metrics
-from backend.routers.web.backups import web_passwords
+from backend.routers.web.backups import web_backups
 from backend.routers.web.users import web_users
 # from backend.routers.pages import pages
 
@@ -56,7 +56,7 @@ app.middleware("http")(logging_for_metrics)
 app.include_router(api_passwords, tags=["PASSWORDS", "API"], prefix="/api")
 app.include_router(api_users, tags=["USERS", "API"], prefix="/api")
 app.include_router(api_statistic, tags=["STATS"], prefix="/api")
-app.include_router(web_passwords, tags=["PASSWORDS", "WEB"], prefix="/web")
+app.include_router(web_backups, tags=["BACKUPS", "WEB"], prefix="/web")
 app.include_router(web_users, tags=["USERS", "WEB"], prefix="/web")
 app.include_router(metrics, tags=["METRICS"])
 # app.include_router(pages, tags=["PAGES"])
