@@ -80,3 +80,31 @@ class PasswordTool:
         
         save_data(user_data=self.user_data, vault_data=data)
         
+    def edit_command(
+        self,
+        serivce: str,
+        username: str = '',
+        password: str = '',
+        note: str = ''
+    ):
+        data = load_data(user_data=self.user_data)
+        
+        #Finding password to edit
+        pas_to_change = None
+        for pas in data.user_passwords:
+            if pas.service == serivce.strip():
+                pas_to_change = pas
+                break
+        
+        if not pas_to_change:
+            raise ValueError("Wrong service label to edit")
+        
+        pas_to_change.username = (username if username else pas_to_change.username)
+        pas_to_change.password = (password if password else pas_to_change.password)
+        pas_to_change.note = (note if note else pas_to_change.note)
+        
+        save_data(user_data=self.user_data, vault_data=data)
+        
+        
+    
+        
