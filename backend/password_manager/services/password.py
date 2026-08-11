@@ -32,8 +32,8 @@ def get_key(user_data: UserData) -> bytes:
     return key
 
 
-def create_user_vault(username: str):
-    new_vault = VAULTS / f"{username}.json"
+def create_user_vault(username: str, vault_name: str):
+    new_vault = VAULTS / username / f"{vault_name}.json"
     if new_vault.exists():
         raise FileExistsError(f"File {username}.json already exists")
 
@@ -46,7 +46,11 @@ def create_user_vault(username: str):
     with open(new_vault, "w") as f:
         f.write(data)
 
-
+def check_is_vault_exists(username: str, vault_name: str) -> bool:
+    new_vault = VAULTS / username / f"{vault_name}.json"
+    if new_vault.exists():
+        return True
+    return False 
 
 def find_digits_in_a_row(row: str) -> int:
     result = 0
