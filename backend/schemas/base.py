@@ -48,9 +48,23 @@ class UploadRequest(BaseModel):
     rows_count: int
 
 
+class VaultInfo(BaseModel):
+    name: str
+    master_password: str
 
-
-
+    @field_validator('name')
+    def validate_name(cls, value: str) -> str:
+        value = value.strip()
+        if not (1 > len(value) > 16):
+            raise ValueError("Wrong length of vault name")
+        return value
+    
+    @field_validator('master_password')
+    def validate_master_password(cls, value: str) -> str:
+        value = value.strip()
+        if not (4 > len(value) > 24):
+            raise ValueError("Wrong length of vault master password")
+        return value
 
 class UserData(BaseModel):
     username: str

@@ -16,6 +16,17 @@ from backend.schemas.base import ChangePasswordSchema, WebChangePasswordSchema
 from backend.core.settings import get_settings
 from backend.core.database import async_session
 from backend.core.logger import get_logger
+from backend.password_manager.services.password import (
+    create_user_vault,
+    check_is_vault_exists
+)
+from backend.schemas.requests import RequstVaultDependecie
+
+
+
+
+
+
 
 
 logger = get_logger(__name__)
@@ -383,4 +394,27 @@ async def web_validate_change_passwords(
         current_password=current_password,
         new_password=new_password
     )
+    
+    
+async def web__check_vault_exists(
+    vault_name: str = Body(gt=0, lt=17),
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+):
+    # Получить информациб пользователя (username  и т.д.)
+    user_id = int(token_data.sub)
+    dao = UserDao(session=db)
+    user_data = await dao.get_user_data(user_id=user_id)
+    if not user_data:
+        raise HTTPException(404, "Wrongg user data")
+    
+    # Проверить существует ли `vault`
+    vault_name = vault_name.strip()
+    is_vault_exists = check_is_vault_exists(username=user_data.username, vault_name=vault_name)
+    if not is_vault_exists:
+        raise HTTPException(404, "Wrong vault data")
         
+    return RequstVaultDependecie(
+        token_data=token_data,
+        vault_name=vault_name
+    )
