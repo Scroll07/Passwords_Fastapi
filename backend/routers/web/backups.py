@@ -7,10 +7,11 @@ from fastapi.responses import FileResponse
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.api_responses import BackupsResponse, MessageResponse
 from backend.schemas.base import BackupData, SortByBackups
-from backend.dependincies import get_db, verify_web_user
+from backend.dependencies import get_db
 from backend.dao.backupDao import BackupDao
 from backend.core.logger import get_logger
 from backend.services.backup_service import delete_backup_by_path
+from backend.web_dependencies import verify_web_user
 
 
 logger = get_logger(__name__)

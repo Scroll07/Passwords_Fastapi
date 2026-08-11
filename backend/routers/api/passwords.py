@@ -7,7 +7,8 @@ from fastapi.responses import FileResponse
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.api_responses import BackupsResponse, MessageResponse
 from backend.schemas.base import BackupData, DownloadRequest
-from backend.dependincies import get_db, verify_user
+from backend.dependencies import get_db
+from backend.api_dependencies import verify_user
 from backend.dao.backupDao import BackupDao
 from backend.core.logger import get_logger
 from backend.services.backup_service import delete_backup_by_path

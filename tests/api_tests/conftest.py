@@ -10,7 +10,7 @@ from backend.schemas.jwt import JWTDecodedData, TokenType
 from backend.schemas.db_schema import UserRoles
 from backend.dao.role_dao import RoleDAO
 from backend.models.model import Base, Users
-from backend.dependincies import get_db, verify_user, verify_refresh_token
+from backend.dependencies import get_db, verify_user, verify_refresh_token
 import backend.dao.backupDao as dao_file
 from backend.schemas.base import RegisterRequestData
 

@@ -1,17 +1,14 @@
 from datetime import datetime
-from pathlib import Path
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException, Query
-from fastapi.responses import FileResponse
 from pydantic import ValidationError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.dao.userDao import UserDao
 
 from backend.schemas.jwt import JWTDecodedData
-from backend.schemas.api_responses import BackupsResponse, MessageResponse
 from backend.schemas.base import VaultInfo
-from backend.dependincies import get_db, verify_web_user, web__check_vault_exists
-from backend.dao.backupDao import BackupDao
+from backend.dependencies import get_db
+from backend.web_dependencies import verify_web_user, web__check_vault_exists
 from backend.core.logger import get_logger
 from backend.services.backup_service import delete_backup_by_path
 from backend.schemas.requests import RequstVaultDependecie

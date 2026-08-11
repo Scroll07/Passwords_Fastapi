@@ -5,7 +5,7 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from backend.schemas.jwt import JWTDecodedData, TokenType
-from backend.dependincies import get_jwt_service
+from backend.dependencies import get_jwt_service
 from backend.services.jwt_service import JWT_Service
 
 

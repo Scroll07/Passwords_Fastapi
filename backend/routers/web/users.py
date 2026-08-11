@@ -7,13 +7,14 @@ from backend.dao.session_dao import SessionDao
 from backend.schemas.jwt import JWTDecodedData, TokenType
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.api_responses import MessageResponse
-from backend.dependincies import get_db, get_jwt_service, verify_web_user, verify_web_refresh_token, web_validate_change_passwords
+from backend.dependencies import get_db, get_jwt_service
 from backend.schemas.base import RegisterRequestData, WebChangePasswordSchema
 from backend.schemas.db_schema import UserFields
 from backend.dao.userDao import UserDao
 from backend.services.secrets import hash_password, verify_password
 from backend.core.logger import get_logger
 from backend.services.cookies import add_bearer_cookie, add_refresh_cookie
+from backend.web_dependencies import verify_web_refresh_token, verify_web_user, web_validate_change_passwords
 
 logger = get_logger(__name__)
 

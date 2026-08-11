@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.dao.backupDao import BackupDao
 from backend.schemas.jwt import JWTDecodedData
-from backend.dependincies import get_db, verify_user
+from backend.dependencies import get_db
+from backend.api_dependencies import verify_user
 from backend.core.logger import get_logger
 
 logger = get_logger(__name__)
