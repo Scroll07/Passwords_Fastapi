@@ -44,6 +44,8 @@ class KeyringValues(StrEnum):
     LAST_ACTION = "last_action"
     
     
-class PasswordDataRequest(Password):
+class PasswordDataRequest(BaseModel):
+    vault_name: str
+    pas_data: Password
     gen: bool = False
     
