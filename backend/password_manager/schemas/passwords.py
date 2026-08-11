@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class UserVault(BaseModel):
+    name: str
     username: str
     salt: str
     user_passwords: list["Password"]
@@ -11,6 +12,7 @@ class UserVault(BaseModel):
 
 
 class EncryptedUserVault(BaseModel):
+    name: str
     username: str
     salt: str
     encrypted_passwords: str
@@ -20,7 +22,7 @@ class Password(BaseModel):
     service: str
     username: str
     password: str
-    note: str | None
+    note: str = ''
 
 
 class Passwords(BaseModel):
@@ -40,4 +42,8 @@ class KeyringValues(StrEnum):
     BEARER_TOKEN = "bearer_token"
     REFRESH_TOKEN = "refresh_token"
     LAST_ACTION = "last_action"
+    
+    
+class PasswordDataRequest(Password):
+    gen: bool = False
     

@@ -23,8 +23,8 @@ from backend.password_manager.schemas.users import UserData
 
 
         
-def get_key(user_data: UserData) -> bytes:
-    encrypted_vault = load_encrypted_vault(username=user_data.username)
+def get_key(user_data: UserData, vault_name: str) -> bytes:
+    encrypted_vault = load_encrypted_vault(username=user_data.username, vault_name=vault_name)
 
     key = derive_key(user_data.master_password, encrypted_vault.salt)  # type: ignore
     decrypt_vault_passwords(encrypted_vault.encrypted_passwords, key)
@@ -39,7 +39,10 @@ def create_user_vault(username: str, vault_name: str):
 
     salt = create_random_salt()
     vault_data = EncryptedUserVault(
-        username=username, salt=salt, encrypted_passwords=""
+        name=vault_name,
+        username=username,
+        salt=salt, 
+        encrypted_passwords=""
     )
 
     data = vault_data.model_dump_json()

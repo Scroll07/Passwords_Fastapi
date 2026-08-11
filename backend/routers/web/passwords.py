@@ -18,7 +18,7 @@ from backend.password_manager.services.password import (
     create_user_vault,
     check_is_vault_exists
 )
-
+from backend.password_manager.schemas.passwords import PasswordDataRequest
 
 logger = get_logger(__name__)
 
@@ -60,7 +60,10 @@ async def create_vault__router(
 
 
 
-# @web_passwords.post('/add')
-# async def add_router(
-#     token_data: JWTDecodedData = Depends()
-# )
+@web_passwords.post('/add')
+async def add__router(
+    password_data: PasswordDataRequest,
+    token_data: JWTDecodedData = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    

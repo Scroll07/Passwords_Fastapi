@@ -11,7 +11,6 @@ from backend.password_manager.core.crypto import (
 )
 from backend.password_manager.core.config import (
     BASE_DIR,
-    LAST_MATCHES,
     VAULTS,
 )
 from backend.password_manager.schemas.passwords import (
@@ -22,16 +21,9 @@ from backend.password_manager.schemas.passwords import (
 from backend.password_manager.schemas.users import UserData
 
 
-def dump_last_matches(matches: list[str]) -> None:
-    try:
-        with open(LAST_MATCHES, "w", encoding="utf-8") as f:
-            json.dump(matches, f, indent=2, ensure_ascii=False)
-    except OSError as e:
-        typer.echo(f"Ошибка при сохранении последних совпадений: {e}")
 
-
-def load_encrypted_vault(username: str) -> EncryptedUserVault:
-    vault_file = VAULTS / f"{username}.json"
+def load_encrypted_vault(username: str, vault_name: str) -> EncryptedUserVault:
+    vault_file = VAULTS / username / f"{vault_name}.json"
     try:
         with open(vault_file, "r", encoding="utf-8") as f:
             data = f.read()
@@ -49,13 +41,13 @@ def load_encrypted_vault(username: str) -> EncryptedUserVault:
         ) from e
 
 
-def load_data(user_data: UserData) -> UserVault:
+def load_data(user_data: UserData, vault_name: str) -> UserVault:
     from backend.password_manager.services.password import get_key
     
-    encrypted = load_encrypted_vault(username=user_data.username)
+    encrypted = load_encrypted_vault(username=user_data.username, vault_name=vault_name)
 
     try:
-        key = get_key(user_data=user_data)
+        key = get_key(user_data=user_data, vault_name=vault_name)
     except InvalidToken as e:
         typer.echo("Wrong master password")
         raise typer.Exit(code=1) from e
@@ -69,6 +61,7 @@ def load_data(user_data: UserData) -> UserVault:
     )
 
     vault_data = UserVault(
+        name=encrypted.name,
         username=encrypted.username,
         salt=encrypted.salt,
         user_passwords=decoded_passwords.passwords,
@@ -80,14 +73,14 @@ def load_data(user_data: UserData) -> UserVault:
 def save_data(user_data: UserData, vault_data: UserVault) -> None:
     from backend.password_manager.services.password import get_key
 
-    vault_file = VAULTS / f"{vault_data.username}.json"
+    vault_file = VAULTS / user_data.username / f"{vault_data.name}.json"
 
     if not vault_file.exists():
         raise FileExistsError(
             f"Файл {vault_data.username}.json не существует"
         )
 
-    key = get_key(user_data=user_data)
+    key = get_key(user_data=user_data, vault_name=vault_data.name)
 
     if key is None:
         raise RuntimeError("Ключ из текущей сессии отсутствует")
@@ -98,6 +91,7 @@ def save_data(user_data: UserData, vault_data: UserVault) -> None:
     )
 
     encrypted_vault = EncryptedUserVault(
+        name=vault_data.name,
         username=vault_data.username,
         salt=vault_data.salt,
         encrypted_passwords=encrypted_passwords,

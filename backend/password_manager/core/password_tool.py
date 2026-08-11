@@ -8,8 +8,9 @@ from backend.password_manager.schemas.users import UserData
 from backend.password_manager.schemas.passwords import Password
 
 class PasswordTool:
-    def __init__(self, user_data: UserData) -> None:
+    def __init__(self, user_data: UserData, vault_name: str) -> None:
         self.user_data = user_data
+        self.vault_name = vault_name
         
     def add_command(self,
                     service: str,
@@ -19,7 +20,7 @@ class PasswordTool:
         if not password:
             password = secrets.token_urlsafe(24)
         
-        data = load_data(user_data=self.user_data)
+        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
         
         labels = set(b.service for b in data.user_passwords)
         candidate = service.strip()
@@ -42,7 +43,7 @@ class PasswordTool:
                     service: str,
                     get_all: bool = False
                         ):
-        data = load_data(user_data=self.user_data)
+        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
         passwords = data.user_passwords
 
         if not data or passwords:
@@ -61,7 +62,7 @@ class PasswordTool:
         service: str,
         delete_all: bool = False
     ):
-        data = load_data(user_data=self.user_data)
+        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
         
         is_deleted = False
         if delete_all:
@@ -86,7 +87,7 @@ class PasswordTool:
         password: str = '',
         note: str = ''
     ):
-        data = load_data(user_data=self.user_data)
+        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
         
         #Finding password to edit
         pas_to_change = None
