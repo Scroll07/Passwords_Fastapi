@@ -5,15 +5,21 @@ from typing import Literal
 from backend.password_manager.core.crypto import(
     create_random_salt,
     decrypt_vault_passwords,
-    derive_key
+    derive_key,
+    create_dek,
+    decrypt_dek,
+    encrypt_vault_passwords
+    
 )
 from backend.password_manager.core.config import (
     VAULTS,
     BASE_DIR
 )
 from backend.password_manager.schemas.passwords import (
+    CreateUserVaultData,
     Password,
-    EncryptedUserVault
+    EncryptedUserVault,
+    Passwords
 )
 from backend.password_manager.services.file_utils import (
     load_encrypted_vault, is_vault_files_exists, get_vault_usernames
@@ -21,6 +27,7 @@ from backend.password_manager.services.file_utils import (
 from backend.password_manager.schemas.users import UserData
 
 
+# new_vault = VAULTS / username / f"{vault_name}.json"
 
         
 def get_key(user_data: UserData, vault_name: str) -> bytes:
@@ -32,22 +39,19 @@ def get_key(user_data: UserData, vault_name: str) -> bytes:
     return key
 
 
-def create_user_vault(username: str, vault_name: str):
-    new_vault = VAULTS / username / f"{vault_name}.json"
-    if new_vault.exists():
-        raise FileExistsError(f"File {username}.json already exists")
-
+def create_user_vault(master_password: str) -> CreateUserVaultData:
+    
     salt = create_random_salt()
-    vault_data = EncryptedUserVault(
-        name=vault_name,
-        username=username,
-        salt=salt, 
-        encrypted_passwords=""
+    kek = derive_key(master_password=master_password, salt_b64=salt)
+    dek, encrypted_dek = create_dek(kek=kek)
+    encrypted_passwords = encrypt_vault_passwords(passwords=Passwords(passwords=[]), key=dek)
+    
+    return CreateUserVaultData(
+        encrypted_passwords=encrypted_passwords,
+        encrypted_dek=encrypted_dek
     )
+    
 
-    data = vault_data.model_dump_json()
-    with open(new_vault, "w") as f:
-        f.write(data)
 
 def check_is_vault_exists(username: str, vault_name: str) -> bool:
     new_vault = VAULTS / username / f"{vault_name}.json"

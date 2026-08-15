@@ -49,3 +49,7 @@ class PasswordDataRequest(BaseModel):
     pas_data: Password
     gen: bool = False
     
+
+class CreateUserVaultData(BaseModel):
+    encrypted_passwords: str
+    encrypted_dek: bytes
