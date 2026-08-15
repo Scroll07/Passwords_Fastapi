@@ -217,5 +217,6 @@ async def web__check_vault_exists(
         
     return RequstVaultDependecie(
         token_data=token_data,
-        vault_name=vault_name
+        vault_name=vault_name,
+        username=user_data.username
     )

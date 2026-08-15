@@ -23,8 +23,8 @@ from backend.password_manager.services.password import (
     check_is_vault_exists
 )
 from backend.password_manager.schemas.passwords import PasswordDataRequest
+from backend.password_manager.schemas.users import UserData
 from backend.password_manager.core.password_tool import PasswordTool
-
 
 
 
@@ -97,4 +97,8 @@ async def add__router(
     token_and_vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
     db: AsyncSession = Depends(get_db),
 ):
-    
+    user_data = UserData(
+        username=token_and_vault_data.username,
+        master_password= #Решить проблему хранения мастер пароля
+    )
+    password_tool = PasswordTool()

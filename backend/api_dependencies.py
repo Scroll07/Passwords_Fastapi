@@ -1,4 +1,3 @@
-from typing import AsyncIterator
 from fastapi import Body, HTTPException, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,8 +10,6 @@ from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData, TokenType
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.base import ChangePasswordSchema
-from backend.core.settings import get_settings
-from backend.core.database import async_session
 from backend.core.logger import get_logger
 
 
