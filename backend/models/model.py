@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, LargeBinary
 
 from backend.schemas.db_schema import UserRoles
 
@@ -58,8 +58,9 @@ class Vaults(Base): #PLEASE DONT FORGET TO DO ALEMBIC REVISION +1
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)       
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     name: Mapped[str] = mapped_column(nullable=False)
-    salt: Mapped[str] = mapped_column(nullable=False)
     encrypted_passwords: Mapped[str] = mapped_column(nullable=False)
+    salt: Mapped[str] = mapped_column(nullable=False)
+    encrypted_dek: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
