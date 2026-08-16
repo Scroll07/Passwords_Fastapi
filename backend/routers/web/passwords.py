@@ -61,21 +61,24 @@ async def create_vault__router(
         if is_vault_exists:
             raise HTTPException(409, "Vault with such name alredy exists")
         
-        # Провалидировать данные и сохранить
+        # Провалидировать данные
         vault_data = VaultInfo(
             name=vault_name,
             master_password=vault_master_password
         )
-        master_password_hash = hash_password(password=vault_data.master_password)
+        
+        # Создать Vault
+        encrypted_data = create_user_vault(master_password=vault_master_password)  # encrypted_passwords: str encrypted_dek: bytes
+        
+        # Сохранить данные в бд
         vault_dao = VaultDao(session=db)
         await vault_dao.create_vault(
             user_id=user_id,
-            name=vault_data.name,
-            master_password_hash=master_password_hash
+            name=vault_name,
+            encrypted_passwords=encrypted_data.encrypted_passwords,
+            salt=encrypted_data.salt,
+            encrypted_dek=encrypted_data.encrypted_dek
         )
-        
-        # Создать Vault файл
-        create_user_vault(username=user_data.username, vault_name=vault_name)
         
         return {
             "ok": True,

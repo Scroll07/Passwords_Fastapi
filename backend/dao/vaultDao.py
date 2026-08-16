@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from enum import StrEnum
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -8,6 +9,10 @@ from typing import Sequence, AsyncGenerator
 from backend.schemas.db_schema import BackupStats
 from backend.models.model import Vaults
 
+
+class VaultFields(StrEnum):
+    ID = 'id'
+    NAME = 'name'
 
 # Auto Commit at the end of every method
 class VaultDao:
@@ -35,14 +40,15 @@ class VaultDao:
         await self.session.commit()
         return new_vault
     
-    async def get_vault(self, user_id: int, vault_id: int) -> Vaults | None:
-        query = select(Vaults).where(Vaults.user_id == user_id, Vaults.id == vault_id)
+    async def get_vault_by_field(self, field: VaultFields, value: str | int, user_id: int) -> Vaults | None:
+        column = getattr(Vaults, field)
+        query = select(Vaults).where(Vaults.user_id == user_id, column == value)
         result = await self.session.execute(query)
         vault = result.scalar_one_or_none()
         return vault
     
     async def delete_vault(self, user_id: int, vault_id: int) -> Vaults | None:
-        vault_to_delete = await self.get_vault(user_id=user_id, vault_id=vault_id)
+        vault_to_delete = await self.get_vault_by_field(field=VaultFields.ID, value=vault_id, user_id=user_id)
         if not vault_to_delete:
             return None
         await self.session.delete(vault_to_delete)

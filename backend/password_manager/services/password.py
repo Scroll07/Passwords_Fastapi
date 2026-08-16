@@ -16,7 +16,7 @@ from backend.password_manager.core.config import (
     BASE_DIR
 )
 from backend.password_manager.schemas.passwords import (
-    CreateUserVaultData,
+    EncryptedData,
     Password,
     EncryptedUserVault,
     Passwords
@@ -32,16 +32,17 @@ from backend.password_manager.schemas.users import UserData
         
 
 
-def create_user_vault(master_password: str) -> CreateUserVaultData:
+def create_user_vault(master_password: str) -> EncryptedData:
     
     salt = create_random_salt()
     kek = derive_key(master_password=master_password, salt_b64=salt)
     dek, encrypted_dek = create_dek(kek=kek)
     encrypted_passwords = encrypt_vault_passwords(passwords=Passwords(passwords=[]), key=dek)
     
-    return CreateUserVaultData(
+    return EncryptedData(
         encrypted_passwords=encrypted_passwords,
-        encrypted_dek=encrypted_dek
+        encrypted_dek=encrypted_dek,
+        salt=salt
     )
     
 

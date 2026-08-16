@@ -17,6 +17,7 @@ from backend.password_manager.services.password import (
     check_is_vault_exists
 )
 from backend.schemas.requests import RequstVaultDependecie
+from backend.dao.vaultDao import VaultDao, VaultFields
 
 
 
@@ -211,8 +212,9 @@ async def web__check_vault_exists(
     
     # Проверить существует ли `vault`
     vault_name = vault_name.strip()
-    is_vault_exists = check_is_vault_exists(username=user_data.username, vault_name=vault_name)
-    if not is_vault_exists:
+    vault_dao = VaultDao(session=db)
+    vault = await vault_dao.get_vault_by_field(field=VaultFields.NAME, value=vault_name, user_id=user_id)
+    if vault:
         raise HTTPException(404, "Wrong vault data")
         
     return RequstVaultDependecie(

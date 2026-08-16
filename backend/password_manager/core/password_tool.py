@@ -2,7 +2,7 @@ import secrets
 from sqlalchemy.ext.asyncio import AsyncSession
 from cryptography.fernet import InvalidToken
 
-from backend.dao.vaultDao import VaultDao
+from backend.dao.vaultDao import VaultDao, VaultFields
 from backend.models.model import Vaults
 from backend.password_manager.schemas.passwords import Password, Passwords
 from backend.password_manager.core.crypto import (
@@ -27,7 +27,7 @@ class PasswordTool:
     async def _get_dek(self) -> None:
         if self.dek:
             return None
-        vault = await self.dao.get_vault(user_id=self.user_id, vault_id=self.vault_id)
+        vault = await self.dao.get_vault_by_field(field=VaultFields.ID, value=self.vault_id, user_id=self.user_id)
         if not vault:
             raise ValueError("No vault")
         kek = derive_key(master_password=self.master_password, salt_b64=vault.salt)

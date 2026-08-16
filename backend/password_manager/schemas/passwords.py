@@ -50,6 +50,7 @@ class PasswordDataRequest(BaseModel):
     gen: bool = False
     
 
-class CreateUserVaultData(BaseModel):
+class EncryptedData(BaseModel):
     encrypted_passwords: str
     encrypted_dek: bytes
+    salt: str
