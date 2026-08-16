@@ -203,22 +203,23 @@ async def web__check_vault_exists(
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
-    # Получить информациб пользователя (username  и т.д.)
-    user_id = int(token_data.sub)
-    dao = UserDao(session=db)
-    user_data = await dao.get_user_data(user_id=user_id)
-    if not user_data:
-        raise HTTPException(404, "Wrongg user data")
+    # # Получить информацию пользователя (username  и т.д.)
+    # user_id = int(token_data.sub)
+    # dao = UserDao(session=db)
+    # user_data = await dao.get_user_data(user_id=user_id)
+    # if not user_data:
+    #     raise HTTPException(404, "Wrongg user data")
     
     # Проверить существует ли `vault`
+    user_id = int(token_data.sub)
     vault_name = vault_name.strip()
     vault_dao = VaultDao(session=db)
     vault = await vault_dao.get_vault_by_field(field=VaultFields.NAME, value=vault_name, user_id=user_id)
-    if vault:
+    if not vault:
         raise HTTPException(404, "Wrong vault data")
         
     return RequstVaultDependecie(
         token_data=token_data,
-        vault_name=vault_name,
-        username=user_data.username
+        vault=vault,
+        # username=user_data.username
     )

@@ -12,7 +12,7 @@ from backend.web_dependencies import verify_web_user, web__check_vault_exists
 from backend.core.logger import get_logger
 from backend.services.backup_service import delete_backup_by_path
 from backend.schemas.requests import RequstVaultDependecie
-from backend.dao.vaultDao import VaultDao
+from backend.dao.vaultDao import VaultDao, VaultFields
 from backend.services.secrets import (
     hash_password,
     verify_password
@@ -100,8 +100,27 @@ async def add__router(
     token_and_vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
     db: AsyncSession = Depends(get_db),
 ):
-    user_data = UserData(
-        username=token_and_vault_data.username,
-        master_password= #Решить проблему хранения мастер пароля
+    user_id = int(token_and_vault_data.token_data.sub)
+    
+    password_tool = PasswordTool(
+        user_id=user_id,
+        vault_id=token_and_vault_data.vault.id,
+        master_password=password_data.master_password,
+        session=db
     )
-    password_tool = PasswordTool()
+    pas_data = password_data.pas_data
+    await password_tool.add_command(
+        service=pas_data.service,
+        username=pas_data.username,
+        password=pas_data.password,
+        note=pas_data.note
+    )
+    
+    return {
+        "ok": True,
+        "detail": "New password entry was created"
+    }
+    
+    # Добавить обработку ошибок, включительно ValueError
+    # Добавить логирование
+    

@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 
 from backend.schemas.jwt import JWTDecodedData
-
+from backend.models.model import Vaults
 
 
 class RequstVaultDependecie(BaseModel):
     token_data: JWTDecodedData
-    vault_name: str
-    username: str
+    vault: Vaults
+    # username: str
