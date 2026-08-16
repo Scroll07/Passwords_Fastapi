@@ -105,7 +105,7 @@ async def add__router(
     password_tool = PasswordTool(
         user_id=user_id,
         vault_id=token_and_vault_data.vault.id,
-        master_password=password_data.master_password,
+        master_password=token_and_vault_data.master_password,
         session=db
     )
     pas_data = password_data.pas_data
@@ -124,3 +124,23 @@ async def add__router(
     # Добавить обработку ошибок, включительно ValueError
     # Добавить логирование
     
+@web_passwords.post('/get')
+async def get__router(
+    label: str = Body(min_length=1),
+    token_and_vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(token_and_vault_data.token_data.sub)
+    
+    password_tool = PasswordTool(
+        user_id=user_id,
+        vault_id=token_and_vault_data.vault.id,
+        master_password=token_and_vault_data.master_password,
+        session=db
+    )
+    
+    
+    return {
+        "ok": True,
+        "detail": "New password entry was created"
+    }

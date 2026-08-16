@@ -2,6 +2,7 @@ from fastapi import Body, HTTPException, Depends, Request
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+from cryptography.fernet import InvalidToken
 
 from backend.api_dependencies import get_db, get_jwt_service
 from backend.services.cookies import add_bearer_cookie, add_refresh_cookie
@@ -18,7 +19,12 @@ from backend.password_manager.services.password import (
 )
 from backend.schemas.requests import RequstVaultDependecie
 from backend.dao.vaultDao import VaultDao, VaultFields
-
+from backend.password_manager.core.crypto import (
+    derive_key,
+    decrypt_dek,
+    decrypt_vault_passwords,
+    encrypt_vault_passwords
+)
 
 
 logger = get_logger(__name__)
@@ -200,6 +206,7 @@ async def web_validate_change_passwords(
     
 async def web__check_vault_exists(
     vault_name: str = Body(gt=0, lt=17),
+    master_password: str = Body(min_length=1),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -217,9 +224,18 @@ async def web__check_vault_exists(
     vault = await vault_dao.get_vault_by_field(field=VaultFields.NAME, value=vault_name, user_id=user_id)
     if not vault:
         raise HTTPException(404, "Wrong vault data")
+    
+    # Проверить правильный ли master_password с помощью того чтобы расшифровать пароли
+    try:
+        kek = derive_key(master_password=master_password, salt_b64=vault.salt)
+        dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
+        decrypted_passwords = decrypt_vault_passwords(encrypted_passwords=vault.encrypted_passwords, key=dek)
+    except InvalidToken:
+        raise HTTPException(401, "Wrong master password")
         
     return RequstVaultDependecie(
         token_data=token_data,
         vault=vault,
+        master_password=master_password,
         # username=user_data.username
     )

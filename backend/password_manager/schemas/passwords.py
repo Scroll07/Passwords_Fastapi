@@ -1,5 +1,4 @@
 from enum import StrEnum
-
 from pydantic import BaseModel
 
 
@@ -46,7 +45,6 @@ class KeyringValues(StrEnum):
     
 class PasswordDataRequest(BaseModel):
     vault_name: str
-    master_password: str
     pas_data: Password
     gen: bool = False
     
