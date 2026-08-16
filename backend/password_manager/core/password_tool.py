@@ -1,18 +1,67 @@
 import secrets
+from sqlalchemy.ext.asyncio import AsyncSession
+from cryptography.fernet import InvalidToken
 
-from backend.password_manager.services.file_utils import (
-    load_data,
-    save_data
+from backend.dao.vaultDao import VaultDao
+from backend.models.model import Vaults
+from backend.password_manager.schemas.passwords import Password, Passwords
+from backend.password_manager.core.crypto import (
+    derive_key,
+    decrypt_dek,
+    decrypt_vault_passwords,
+    encrypt_vault_passwords
 )
-from backend.password_manager.schemas.users import UserData
-from backend.password_manager.schemas.passwords import Password
+
+
 
 class PasswordTool:
-    def __init__(self, user_data: UserData, vault_name: str) -> None:
-        self.user_data = user_data
-        self.vault_name = vault_name
+    def __init__(self, user_id: int, vault_id: int, master_password: str, session: AsyncSession) -> None:
+        self.user_id = user_id
+        self.vault_id = vault_id
+        self.master_password = master_password
+        self.session = session
+        self.dao = VaultDao(session=session)
+        self.dek: bytes | None = None  
+        self.vault: Vaults | None = None
         
-    def add_command(self,
+    async def _get_dek(self) -> None:
+        if self.dek:
+            return None
+        vault = await self.dao.get_vault(user_id=self.user_id, vault_id=self.vault_id)
+        if not vault:
+            raise ValueError("No vault")
+        kek = derive_key(master_password=self.master_password, salt_b64=vault.salt)
+        dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
+        self.dek = dek
+        self.vault = vault
+        
+        
+        
+    async def _load_passwords(self) -> Passwords:
+        try:
+            await self._get_dek()
+            if self.vault and self.dek:
+                decrypted_passwords = decrypt_vault_passwords(encrypted_passwords=self.vault.encrypted_passwords, key=self.dek)
+            else:
+                raise ValueError("No vault or no dek")
+            return decrypted_passwords
+        
+        except InvalidToken:
+            raise ValueError("Wrong master password")
+        except Exception as e:
+            raise e
+            
+    async def _save_passwords(self, passwords: Passwords) -> None:
+        if self.vault and self.dek:
+            encrypted_passwords = encrypt_vault_passwords(passwords=passwords, key=self.dek)
+            self.vault.encrypted_passwords = encrypted_passwords
+            await self.session.commit()
+        else:
+            raise ValueError("No vault or no dek")
+        
+        
+    
+    async def add_command(self,
                     service: str,
                     username: str,
                     password: str = "",
@@ -20,13 +69,14 @@ class PasswordTool:
         if not password:
             password = secrets.token_urlsafe(24)
         
-        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
+        passwords = await self._load_passwords()
         
-        labels = set(b.service for b in data.user_passwords)
+        labels = set(p.service for p in passwords.passwords)
         candidate = service.strip()
         i = 1
         while candidate in labels:
             candidate = service + '-' + str(i)
+            i += 1
         
         password_to_add = Password(
             service=candidate,
@@ -34,64 +84,64 @@ class PasswordTool:
             password=password,
             note=note
         )
-        data.user_passwords.append(password_to_add)
+        passwords.passwords.append(password_to_add)
         
-        save_data(user_data=self.user_data, vault_data=data)
+        await self._save_passwords(passwords=passwords)
             
-    def get_command(
+    async def get_command(
                     self,
                     service: str,
                     get_all: bool = False
                         ):
-        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
-        passwords = data.user_passwords
-
-        if not data or passwords:
+        passwords = await self._load_passwords()
+        
+        
+        if not passwords:
             raise ValueError("No entries were found")
 
         if get_all:
-            passwords = sorted([p for p in passwords], key=lambda x: x.service)
+            passwords = sorted([p for p in passwords.passwords], key=lambda x: x.service)
         else:
-            passwords = sorted([p for p in passwords if p.service.lower().startswith(service.lower())],
+            passwords = sorted([p for p in passwords.passwords if p.service.lower().startswith(service.lower())],
                             key=lambda p: p.service)
             
         return passwords
     
-    def delete_command(
+    async def delete_command(
         self,
         service: str,
         delete_all: bool = False
     ):
-        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
+        passwords = await self._load_passwords()
         
         is_deleted = False
         if delete_all:
-            data.user_passwords = []
+            passwords.passwords = []
             is_deleted = True
         else:
-            for pas in data.user_passwords:
+            for pas in passwords.passwords:
                 if pas.service == service:
-                    data.user_passwords.remove(pas)
+                    passwords.passwords.remove(pas)
                     is_deleted = True
                     break
         
         if not is_deleted:
             raise ValueError("Wrong service")
         
-        save_data(user_data=self.user_data, vault_data=data)
+        await self._save_passwords(passwords=passwords)
         
-    def edit_command(
+    async def edit_command(
         self,
         serivce: str,
         username: str = '',
         password: str = '',
         note: str = ''
     ):
-        data = load_data(user_data=self.user_data, vault_name=self.vault_name)
+        passwords = await self._load_passwords()
         
         #Finding password to edit
         pas_to_change = None
-        for pas in data.user_passwords:
+        for pas in passwords.passwords:
             if pas.service == serivce.strip():
                 pas_to_change = pas
                 break
@@ -103,7 +153,7 @@ class PasswordTool:
         pas_to_change.password = (password if password else pas_to_change.password)
         pas_to_change.note = (note if note else pas_to_change.note)
         
-        save_data(user_data=self.user_data, vault_data=data)
+        await self._save_passwords(passwords=passwords)
         
         
     
