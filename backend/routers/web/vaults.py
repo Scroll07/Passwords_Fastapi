@@ -36,6 +36,8 @@ web_vaults = APIRouter()
 
 # Добавь логи к каждой ручке
 
+# Добавить роутер для скачивания vault file (Но сначала переделай cli)
+
 @web_vaults.post('/create-vault')
 async def create_vault__router(
     vault_name: str = Body(),
@@ -53,8 +55,9 @@ async def create_vault__router(
         
         # Проверить существует ли `vault`
         vault_name = vault_name.strip()
-        is_vault_exists = check_is_vault_exists(username=user_data.username, vault_name=vault_name)
-        if is_vault_exists:
+        vault_dao = VaultDao(session=db)
+        vault = await vault_dao.get_vault_by_field(field=VaultFields.NAME, value=vault_name, user_id=user_id)
+        if vault:
             raise HTTPException(409, "Vault with such name alredy exists")
         
         # Провалидировать данные
@@ -122,4 +125,19 @@ async def rename_vault__router(
     return {
         "ok": True,
         "detail": "Vault was successfully renamed"
+    }
+    
+    
+@web_vaults.get('/vaults')
+async def get_user_vaults__router(
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(token_data.sub)
+    dao = VaultDao(session=db)
+    vaults = await dao.get_user_vaults(user_id=user_id)
+    
+    return {
+        "ok": True,
+        "vaults": vaults
     }

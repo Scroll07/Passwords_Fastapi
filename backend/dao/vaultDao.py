@@ -55,5 +55,11 @@ class VaultDao:
         await self.session.commit()
         return vault_to_delete
     
+    async def get_user_vaults(self, user_id: int) -> Sequence[Vaults]:
+        query = select(Vaults).where(Vaults.user_id == user_id)
+        result = await self.session.execute(query)
+        vaults = result.scalars().all()
+        return vaults
+    
             
         
