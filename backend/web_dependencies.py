@@ -205,7 +205,7 @@ async def web_validate_change_passwords(
     
     
 async def web__check_vault_exists(
-    vault_name: str = Body(gt=0, lt=17),
+    request: Request,
     master_password: str = Body(min_length=1),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
@@ -218,10 +218,12 @@ async def web__check_vault_exists(
     #     raise HTTPException(404, "Wrongg user data")
     
     # Проверить существует ли `vault`
+    vault_id = request.path_params.get("vault_id")
+    if not vault_id:
+        raise HTTPException(400, detail="Wrong uri path")
     user_id = int(token_data.sub)
-    vault_name = vault_name.strip()
     vault_dao = VaultDao(session=db)
-    vault = await vault_dao.get_vault_by_field(field=VaultFields.NAME, value=vault_name, user_id=user_id)
+    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
     if not vault:
         raise HTTPException(404, "Wrong vault data")
     
@@ -234,7 +236,7 @@ async def web__check_vault_exists(
         raise HTTPException(401, "Wrong master password")
         
     return RequstVaultDependecie(
-        token_data=token_data,
+        # token_data=token_data,
         vault=vault,
         master_password=master_password,
         # username=user_data.username

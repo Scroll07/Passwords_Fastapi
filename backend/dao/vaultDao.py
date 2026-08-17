@@ -54,5 +54,6 @@ class VaultDao:
         await self.session.delete(vault_to_delete)
         await self.session.commit()
         return vault_to_delete
+    
             
         

@@ -5,7 +5,7 @@ from backend.models.model import Vaults
 
 
 class RequstVaultDependecie(BaseModel):
-    token_data: JWTDecodedData
+    # token_data: JWTDecodedData
     vault: Vaults
     master_password: str
     # username: str
