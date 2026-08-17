@@ -25,7 +25,7 @@ from backend.password_manager.services.password import (
 from backend.password_manager.schemas.passwords import PasswordDataRequest
 from backend.password_manager.schemas.users import UserData
 from backend.password_manager.core.password_tool import PasswordTool
-
+from backend.password_manager.schemas.passwords import Password
 
 
 logger = get_logger(__name__)
@@ -68,7 +68,7 @@ async def add__router(
 @web_passwords.post('/vaults/{vault_id}/passwords/get')
 async def get__router(
     vault_id: int,
-    label: str = Body(min_length=1),
+    service: str = Body(min_length=1),
     get_all: bool = Body(default=False),
     token_data: JWTDecodedData = Depends(verify_web_user),
     vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
@@ -83,9 +83,71 @@ async def get__router(
         session=db
     )
     
-    result = await password_tool.get_command(service=label, get_all=get_all)
+    result = await password_tool.get_command(service=service, get_all=get_all)
     
     return {
         "ok": True,
         "passwords": result, #list[Password]
     }
+    # Добавить обработку ошибок, включительно ValueError
+    # Добавить логирование
+
+@web_passwords.post('/vaults/{vault_id}/passwords/delete')
+async def delete__router(
+    vault_id: int,
+    service: str = Body(min_length=1),
+    delete_all: bool = Body(False),
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(token_data.sub)
+        
+    password_tool = PasswordTool(
+        user_id=user_id,
+        vault_id=vault_id,
+        master_password=vault_data.master_password,
+        session=db
+    )
+    
+    await password_tool.delete_command(service=service, delete_all=delete_all)
+    
+    return {
+        "ok": True,
+        "detail": "Password was deleted"
+    }
+    # Добавить обработку ошибок, включительно ValueError
+    # Добавить логирование
+    
+@web_passwords.post('/vaults/{vault_id}/passwords/update')
+async def update__router(
+    password_data: Password,
+    vault_id: int,
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(token_data.sub)
+        
+    password_tool = PasswordTool(
+        user_id=user_id,
+        vault_id=vault_id,
+        master_password=vault_data.master_password,
+        session=db
+    )
+    
+    await password_tool.edit_command(
+        serivce=password_data.service,
+        username=password_data.username,
+        password=password_data.password,
+        note=password_data.note
+    )
+    
+    return {
+        "ok": True,
+        "detail": "Password data was updated"
+    }
+    # Добавить обработку ошибок, включительно ValueError
+    # Добавить логирование
+    
+    
