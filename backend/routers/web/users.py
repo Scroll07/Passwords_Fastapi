@@ -4,12 +4,12 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.dao.session_dao import SessionDao
-from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.jwt import JWTDecodedData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.api_responses import MessageResponse
 from backend.dependencies import get_db, get_jwt_service
 from backend.schemas.base import RegisterRequestData, WebChangePasswordSchema
-from backend.schemas.db_schema import UserFields
+from backend.schemas.db_schema import UserFields, SessionType
 from backend.dao.userDao import UserDao
 from backend.services.secrets import hash_password, verify_password
 from backend.core.logger import get_logger
@@ -43,13 +43,13 @@ async def web_login_post(
             session=db,
             jwt_service=jwt_service,
             user_id=user.id,
-            token_type=TokenType.BEARER
+            token_type=SessionType.BEARER
         )
         refresh_token = await create_token_and_session(
             session=db,
             jwt_service=jwt_service,
             user_id=user.id,
-            token_type=TokenType.REFRESH
+            token_type=SessionType.REFRESH
         )
         
         content = MessageResponse(
@@ -101,13 +101,13 @@ async def web_refresh_get(
             session=db,
             jwt_service=jwt_service,
             user_id=int(token_data.sub),
-            token_type=TokenType.BEARER
+            token_type=SessionType.BEARER
         )
         refresh_token = await create_token_and_session(
             session=db,
             jwt_service=jwt_service,
             user_id=int(token_data.sub),
-            token_type=TokenType.REFRESH
+            token_type=SessionType.REFRESH
         )
         
         content = {

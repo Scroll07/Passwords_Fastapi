@@ -1,18 +1,14 @@
 from enum import StrEnum
-
 from pydantic import BaseModel
 
-
-class TokenType(StrEnum):
-    BEARER = "bearer"
-    REFRESH = "refresh"
+from backend.schemas.db_schema import SessionType
 
     
 class JWTDecodedData(BaseModel):
     sub: str
     sid: int
     exp: int
-    type: TokenType
+    type: SessionType
     
 
 class EncodedToken(BaseModel):

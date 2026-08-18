@@ -7,9 +7,9 @@ from cryptography.fernet import InvalidToken
 from backend.api_dependencies import get_db, get_jwt_service
 from backend.services.cookies import add_bearer_cookie, add_refresh_cookie
 from backend.dao.session_dao import SessionDao
-from backend.schemas.db_schema import UserFields
+from backend.schemas.db_schema import UserFields, SessionType
 from backend.dao.userDao import UserDao
-from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.jwt import JWTDecodedData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.base import WebChangePasswordSchema
 from backend.core.logger import get_logger
@@ -45,7 +45,7 @@ async def _web_try_refresh_token(
             session=db,
             jwt_service=jwt_service,
             user_id=int(refresh_token_data.sub),
-            token_type=TokenType.REFRESH
+            token_type=SessionType.REFRESH
         )   
         user_dao = UserDao(session=db)
         user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(refresh_token_data.sub))
@@ -114,13 +114,13 @@ async def verify_web_user(
                 session=db,
                 jwt_service=jwt_service,
                 user_id=int(refresh_token_data.sub),
-                token_type=TokenType.BEARER
+                token_type=SessionType.BEARER
             )
             refresh_token = await create_token_and_session(
                 session=db,
                 jwt_service=jwt_service,
                 user_id=int(refresh_token_data.sub),
-                token_type=TokenType.REFRESH
+                token_type=SessionType.REFRESH
             )
             
             add_bearer_cookie(response=response, value=bearer_token.token)

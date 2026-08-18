@@ -1,8 +1,12 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import DateTime, ForeignKey, LargeBinary
+from enum import StrEnum
 
-from backend.schemas.db_schema import UserRoles
+from backend.schemas.db_schema import (
+    UserRoles,
+    SessionType
+)
 
 
 class Base(DeclarativeBase):
@@ -22,8 +26,6 @@ class Users(Base):
 
     backups: Mapped[list["Backups"]] = relationship(back_populates="user")
 
-
-
 class Roles(Base):
     __tablename__="roles"
 
@@ -35,6 +37,7 @@ class Sessions(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    type: Mapped[SessionType] = mapped_column(nullable=False) 
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

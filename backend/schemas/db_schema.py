@@ -14,6 +14,12 @@ class UserFields(StrEnum):
     USERNAME = "username"
     TELEGRAM_ID = "telegram_id"
 
+class SessionType(StrEnum):
+    BEARER = "bearer"
+    REFRESH = "refresh"
+    VAULT = 'vault'
+
+
 
 class CreateUserInDb(BaseModel):
     username: str

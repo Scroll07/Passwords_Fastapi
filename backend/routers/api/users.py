@@ -6,8 +6,8 @@ from backend.api_dependencies import validate_change_passwords, verify_refresh_t
 from backend.dao.session_dao import SessionDao
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.dao.role_dao import RoleDAO
-from backend.schemas.jwt import JWTDecodedData, TokenType
-from backend.schemas.db_schema import UserFields, UserRoles, CreateUserInDb
+from backend.schemas.jwt import JWTDecodedData
+from backend.schemas.db_schema import UserFields, UserRoles, CreateUserInDb, SessionType
 from backend.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
 from backend.dependencies import get_db, get_jwt_service
 from backend.schemas.base import ChangePasswordSchema, RegisterRequestData, LoginRequest
@@ -92,13 +92,13 @@ async def login_post(
             session=db,
             jwt_service=jwt_service,
             user_id=user.id,
-            token_type=TokenType.BEARER
+            token_type=SessionType.BEARER
         )
         refresh_token = await create_token_and_session(
             session=db,
             jwt_service=jwt_service,
             user_id=user.id,
-            token_type=TokenType.REFRESH
+            token_type=SessionType.REFRESH
         )
         
         response = LoginResponse(
@@ -145,13 +145,13 @@ async def refresh_get(
             session=db,
             jwt_service=jwt_service,
             user_id=int(data.sub),
-            token_type=TokenType.BEARER
+            token_type=SessionType.BEARER
         )
         refresh_token = await create_token_and_session(
             session=db,
             jwt_service=jwt_service,
             user_id=int(data.sub),
-            token_type=TokenType.REFRESH
+            token_type=SessionType.REFRESH
         )
         
         response = RefreshResponse(

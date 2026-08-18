@@ -4,7 +4,8 @@ import jwt
 
 from backend.dao.session_dao import SessionDao
 from backend.schemas.jwt import EncodedToken
-from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.jwt import JWTDecodedData
+from backend.schemas.db_schema import SessionType
 
 class JWT_Service:
     def __init__(
@@ -19,19 +20,9 @@ class JWT_Service:
         self.access_expire = access_token_expire_in_min
         self.refresh_expire = refresh_token_expire_in_days
         
-    def create_access_token(self, data: JWTDecodedData) -> EncodedToken:
+    def create_token(self, data: JWTDecodedData) -> EncodedToken:
         encoded = jwt.encode(data.model_dump(), self.secret_key, self.algoritm)
-        return EncodedToken(token=encoded)
-    
-
-    def create_refresh_token(
-        self,
-        data: JWTDecodedData 
-        ) -> EncodedToken:
-        
-        encoded = jwt.encode(data.model_dump(), self.secret_key, self.algoritm) 
-        return EncodedToken(token=encoded)
-        
+        return EncodedToken(token=encoded)    
 
     def verify_token(self, token: str) -> JWTDecodedData:
         try:
@@ -46,33 +37,45 @@ async def create_token_and_session(
     session: AsyncSession,
     jwt_service: JWT_Service,
     user_id: int,
-    token_type: TokenType
+    token_type: SessionType
         ) -> EncodedToken:
     session_dao = SessionDao(session=session)
-    if token_type == TokenType.BEARER:
+    if token_type == SessionType.BEARER:
         expires = datetime.now(timezone.utc) + timedelta(minutes=jwt_service.access_expire)
         exp_timestamp = int(expires.timestamp())
-        user_session = await session_dao.create_session(user_id=user_id, expires_at=expires)
+        user_session = await session_dao.create_session(user_id=user_id, expires_at=expires, type=SessionType.BEARER)
         token_data = JWTDecodedData(
             sub=str(user_id),
             sid=user_session.id,
             exp=exp_timestamp,
-            type=TokenType.BEARER
+            type=SessionType.BEARER
         )
-        bearer_token = jwt_service.create_access_token(data=token_data)
+        bearer_token = jwt_service.create_token(data=token_data)
         return bearer_token
-    elif token_type == TokenType.REFRESH:
+    elif token_type == SessionType.REFRESH:
         expires = datetime.now(timezone.utc) + timedelta(days=jwt_service.refresh_expire)
         exp_timestamp = int(expires.timestamp())
-        user_session = await session_dao.create_session(user_id=user_id, expires_at=expires)
+        user_session = await session_dao.create_session(user_id=user_id, expires_at=expires, type=SessionType.REFRESH)
         token_data = JWTDecodedData(
             sub=str(user_id),
             sid=user_session.id,
             exp=exp_timestamp,
-            type=TokenType.REFRESH
+            type=SessionType.REFRESH
         )
-        refresh_token = jwt_service.create_refresh_token(data=token_data)
+        refresh_token = jwt_service.create_token(data=token_data)
         return refresh_token
+    elif token_type == SessionType.VAULT:
+        expires = datetime.now(timezone.utc) + timedelta(days=jwt_service.refresh_expire)
+        exp_timestamp = int(expires.timestamp())
+        vault_session = await session_dao.create_session(user_id=user_id, expires_at=expires, type=SessionType.VAULT)
+        token_data = JWTDecodedData(
+            sub=str(user_id),
+            sid=vault_session.id,
+            exp=exp_timestamp,
+            type=SessionType.VAULT
+        )
+        vault_token = jwt_service.create_token(data=token_data)
+        return vault_token
     else:
         raise ValueError("Wrong token type")
         

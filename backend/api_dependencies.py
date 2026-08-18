@@ -5,9 +5,9 @@ from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
 from backend.dao.session_dao import SessionDao
 from backend.dependencies import get_db, get_jwt_service
-from backend.schemas.db_schema import UserFields, UserRoles
+from backend.schemas.db_schema import UserFields, UserRoles, SessionType
 from backend.dao.userDao import UserDao
-from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.jwt import JWTDecodedData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.base import ChangePasswordSchema
 from backend.core.logger import get_logger
@@ -35,7 +35,7 @@ async def _api_try_refresh_token(
         session=db,
         jwt_service=jwt_service,
         user_id=int(refresh_token_data.sub),
-        token_type=TokenType.REFRESH
+        token_type=SessionType.REFRESH
     )   
         user_dao = UserDao(session=db)
         user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(refresh_token_data.sub))
