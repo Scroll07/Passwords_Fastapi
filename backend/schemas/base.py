@@ -48,7 +48,7 @@ class UploadRequest(BaseModel):
     rows_count: int
 
 
-class VaultInfo(BaseModel):
+class CreateVaultData(BaseModel):
     name: str
     master_password: str
 
@@ -65,6 +65,20 @@ class VaultInfo(BaseModel):
         if not (4 > len(value) > 24):
             raise ValueError("Wrong length of vault master password")
         return value
+
+class VaultData(BaseModel):
+    id: int
+    name: str
+    entries: int
+    pinned: bool
+    created_at: datetime 
+
+    @computed_field
+    @property
+    def created_at_formatted(self) -> str:
+        return self.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        
+    model_config = ConfigDict(from_attributes=True)
 
 class UserData(BaseModel):
     username: str

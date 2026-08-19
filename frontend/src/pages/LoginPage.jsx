@@ -60,7 +60,7 @@ function LoginPage() {
         )
 
         if (response.ok) {
-            window.location.href = "/dashboard"
+            window.location.href = "/vaults"
             return
         }
         

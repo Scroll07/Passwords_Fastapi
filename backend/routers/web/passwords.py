@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.dao.userDao import UserDao
 
 from backend.schemas.jwt import JWTDecodedData
-from backend.schemas.base import VaultInfo
 from backend.dependencies import get_db
 from backend.web_dependencies import verify_web_user, web__check_vault_exists
 from backend.core.logger import get_logger

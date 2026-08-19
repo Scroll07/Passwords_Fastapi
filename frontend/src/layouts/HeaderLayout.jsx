@@ -21,6 +21,7 @@ function HeaderLayout() {
                     </nav>
 
                     <div className="header-actions">
+                        <NavLink to="/vaults" className="login-link">Vaults</NavLink>
                         <NavLink to="/dashboard" className="login-link">Dashboard</NavLink>
                         <NavLink to="/login" className="login-link">Login</NavLink>
                         <NavLink to="/register" className="signup-btn">Sign Up</NavLink>

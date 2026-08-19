@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.dao.userDao import UserDao
 
 from backend.schemas.jwt import JWTDecodedData
-from backend.schemas.base import VaultInfo
+from backend.schemas.base import CreateVaultData, SortByBackups
 from backend.dependencies import get_db
 from backend.web_dependencies import verify_web_user, web__check_vault_exists
 from backend.core.logger import get_logger
@@ -61,7 +61,7 @@ async def create_vault__router(
             raise HTTPException(409, "Vault with such name alredy exists")
         
         # Провалидировать данные
-        vault_data = VaultInfo(
+        vault_data = CreateVaultData(
             name=vault_name,
             master_password=vault_master_password
         )
@@ -132,6 +132,7 @@ async def rename_vault__router(
 async def get_user_vaults__router(
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
+    sort_by: SortByBackups = Query(SortByBackups.CREATED_AT)
 ):
     user_id = int(token_data.sub)
     dao = VaultDao(session=db)

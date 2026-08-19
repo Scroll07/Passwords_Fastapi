@@ -10,7 +10,7 @@ function DashboardPage() {
         ROWS: "rows",
         CREATED_AT: "created_at"
     })
-    let [backups, SetBackups] = useState([])
+    const [backups, SetBackups] = useState([])
     const [sorting, SetSort] = useState(SORT_BY.CREATED_AT)
     const [error, SetError] = useState('')
     const [username, SetUsername] = useState('')

@@ -13,12 +13,14 @@ class JWT_Service:
         secret_key: str,
         algoritm: str,
         access_token_expire_in_min: int,
-        refresh_token_expire_in_days: int
+        refresh_token_expire_in_days: int,
+        vault_token_expire_in_mins: int
     ) -> None:
         self.secret_key = secret_key
         self.algoritm = algoritm
         self.access_expire = access_token_expire_in_min
         self.refresh_expire = refresh_token_expire_in_days
+        self.vault_expire = vault_token_expire_in_mins
         
     def create_token(self, data: JWTDecodedData) -> EncodedToken:
         encoded = jwt.encode(data.model_dump(), self.secret_key, self.algoritm)
@@ -65,7 +67,7 @@ async def create_token_and_session(
         refresh_token = jwt_service.create_token(data=token_data)
         return refresh_token
     elif token_type == SessionType.VAULT:
-        expires = datetime.now(timezone.utc) + timedelta(days=jwt_service.refresh_expire)
+        expires = datetime.now(timezone.utc) + timedelta(minutes=jwt_service.vault_expire)
         exp_timestamp = int(expires.timestamp())
         vault_session = await session_dao.create_session(user_id=user_id, expires_at=expires, type=SessionType.VAULT)
         token_data = JWTDecodedData(

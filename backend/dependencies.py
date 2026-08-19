@@ -12,7 +12,8 @@ def get_jwt_service() -> JWT_Service:
     secret_key=settings.SECRET_KEY,
     algoritm="HS256",
     access_token_expire_in_min=30,
-    refresh_token_expire_in_days=3
+    refresh_token_expire_in_days=3,
+    vault_token_expire_in_mins=30
 )
 
 async def get_db() -> AsyncIterator[AsyncSession]:

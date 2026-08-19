@@ -10,7 +10,7 @@
   --text-muted: #71717a;
   --accent: #10b981;
   --accent-hover: #34d399;
-  --container: 1120px;
+  --container: 1400px;
   --radius: 12px;
   --radius-sm: 10px;
 }
@@ -48,6 +48,10 @@ a {
 .container {
   width: min(100% - 48px, var(--container));
   margin: 0 auto;
+}
+
+.site-header .container {
+  width: 25%;
 }
 
 .site-header {
@@ -296,8 +300,8 @@ a {
     order: 3;
     flex-basis: 100%;
     margin-left: 0;
-    flex-wrap: wrap;
-    gap: 14px 18px;
+    flex: 1 0 auto;
+    gap: 14px;
   }
 
   .footer-top {
@@ -306,7 +310,7 @@ a {
   }
 }
 
-@media (max-width: 2500px) {
+@media (max-width: 1000px) {
   .container {
     width: 100%;
   }

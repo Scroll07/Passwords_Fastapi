@@ -60,6 +60,8 @@ class Vaults(Base): #PLEASE DONT FORGET TO DO ALEMBIC REVISION +1
     
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)       
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    pinned: Mapped[bool] = mapped_column(default=False)
+    entries: Mapped[int] = mapped_column(default=0) #убрать default когда будет импорт vault и добавить в dao этот параметр при создании vault
     name: Mapped[str] = mapped_column(nullable=False)
     encrypted_passwords: Mapped[str] = mapped_column(nullable=False)
     salt: Mapped[str] = mapped_column(nullable=False)
