@@ -8,7 +8,7 @@ from cryptography.fernet import InvalidToken
 from backend.services.jwt_service import JWT_Service
 from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData
-from backend.schemas.base import CreateVaultData, SortByBackups
+from backend.schemas.base import CreateVaultData, SortByVaults, VaultData
 from backend.schemas.db_schema import SessionType
 from backend.dependencies import get_db, get_jwt_service
 from backend.web_dependencies import verify_web_user, web__check_vault_exists
@@ -141,15 +141,28 @@ async def rename_vault__router(
 async def get_user_vaults__router(
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
-    sort_by: SortByBackups = Query(SortByBackups.CREATED_AT)
+    sort_by: SortByVaults = Query(SortByVaults.CREATED_AT)
 ):
     user_id = int(token_data.sub)
     dao = VaultDao(session=db)
     vaults = await dao.get_user_vaults(user_id=user_id)
     
+    vaults_data = [
+        VaultData(
+            id=v.id,
+            name=v.name,
+            entries=v.entries,
+            pinned=v.pinned,
+            created_at=v.created_at,
+        )
+        for v in vaults
+    ]
+    
+    vaults_data.sort(key=lambda b: getattr(b, sort_by))
+    
     return {
         "ok": True,
-        "vaults": vaults
+        "vaults": vaults_data
     }
     
 @web_vaults.post('/vaults/{vault_id}/unlock')

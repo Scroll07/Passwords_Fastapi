@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-
+import './DasboardPage.css'
 
 function VaultsPage() {
     const SORT_BY = Object.freeze({
         NAME: "name",
-        ROWS: "rows",
+        ENTRIES: "entries",
         CREATED_AT: "created_at"
     })
     const [sorting, SetSort] = useState(SORT_BY.CREATED_AT)
@@ -173,10 +173,10 @@ function VaultsPage() {
 
                         <button
                             type="button"
-                            className={`sort-link ${sorting === SORT_BY.ROWS ? 'sort-link-active' : ''}`}
-                            onClick={() => {SetSort(SORT_BY.ROWS)}}
+                            className={`sort-link ${sorting === SORT_BY.ENTRIES ? 'sort-link-active' : ''}`}
+                            onClick={() => {SetSort(SORT_BY.ENTRIES)}}
                         >
-                            Rows
+                            Entries
                         </button>
                     </div>
 

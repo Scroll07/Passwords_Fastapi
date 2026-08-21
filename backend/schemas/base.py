@@ -90,6 +90,11 @@ class SortByBackups(StrEnum):
     ROWS = "rows"
     CREATED_AT = "created_at"
     
+class SortByVaults(StrEnum):
+    NAME = "name"
+    ENTRIES = "entries"
+    CREATED_AT = "created_at"
+    
     
 class BackupData(BaseModel):
     id: int
