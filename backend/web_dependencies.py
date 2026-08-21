@@ -246,6 +246,7 @@ async def web__check_vault_exists(
 async def verify_vault_session(
     request: Request,
     db = Depends(get_db),
+    bearer_token_data: JWTDecodedData = Depends(verify_web_user),
     jwt_service = Depends(get_jwt_service)    
 ) -> JWTDecodedData:
     try:
