@@ -59,8 +59,8 @@ async def web_login_post(
         response = JSONResponse(
             content=content.model_dump(),
         )
-        add_bearer_cookie(response=response, value=bearer_token.token)
-        add_refresh_cookie(response=response, value=refresh_token.token)
+        add_bearer_cookie(response=response, jwt_service=jwt_service, value=bearer_token.token)
+        add_refresh_cookie(response=response, jwt_service=jwt_service, value=refresh_token.token)
         
         await db.commit()
             
@@ -118,8 +118,8 @@ async def web_refresh_get(
         response = JSONResponse(
             content=content
         )
-        add_bearer_cookie(response=response, value=bearer_token.token)
-        add_refresh_cookie(response=response, value=refresh_token.token)
+        add_bearer_cookie(response=response, jwt_service=jwt_service, value=bearer_token.token)
+        add_refresh_cookie(response=response, jwt_service=jwt_service, value=refresh_token.token)
         
         await db.commit()
         return response

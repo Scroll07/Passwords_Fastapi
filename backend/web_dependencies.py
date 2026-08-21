@@ -123,8 +123,8 @@ async def verify_web_user(
                 token_type=SessionType.REFRESH
             )
             
-            add_bearer_cookie(response=response, value=bearer_token.token)
-            add_refresh_cookie(response=response, value=refresh_token.token)
+            add_bearer_cookie(response=response, jwt_service=jwt_service, value=bearer_token.token)
+            add_refresh_cookie(response=response, jwt_service=jwt_service, value=refresh_token.token)
         
             await db.commit()
             return refresh_token_data
@@ -227,7 +227,7 @@ async def web__check_vault_exists(
     if not vault:
         raise HTTPException(404, "Wrong vault data")
     
-    # Проверить правильный ли master_password с помощью того чтобы расшифровать пароли
+    # Проверить правильный ли master_password с помощью попытки расшифровать пароли
     try:
         kek = derive_key(master_password=master_password, salt_b64=vault.salt)
         dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
@@ -241,3 +241,46 @@ async def web__check_vault_exists(
         master_password=master_password,
         # username=user_data.username
     )
+    
+    
+async def verify_vault_session(
+    request: Request,
+    db = Depends(get_db),
+    jwt_service = Depends(get_jwt_service)    
+) -> JWTDecodedData:
+    try:
+        vault_token = request.cookies.get("vault_token")
+        if vault_token is None:            
+            raise HTTPException(401, "No bearer token")
+        token_data = jwt_service.verify_token(token=vault_token)
+        user_dao = UserDao(session=db)
+        user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
+        if user is None:
+            raise HTTPException(401, "Wrong user data")
+        if not user.is_active:
+            raise HTTPException(401, "This account is not active")
+        
+        dao = SessionDao(session=db)
+        session = await dao.get_session(session_id=token_data.sid)
+        if session is None:
+            raise HTTPException(401, "Wrong session id, session does not exists")
+        if not session.is_active:
+            raise HTTPException(401, "Session was expired, try to login")
+    
+        if user.id != int(token_data.sub):
+            raise HTTPException(401, "Invalid session binding")
+    
+        return token_data
+    
+    except ExpiredSignatureError:
+        logger.info("Vault token was expired")
+        raise HTTPException(401, "Vault session was expired")
+    except InvalidTokenError as e:
+        logger.exception(e)
+        raise HTTPException(401, "Wrong bearer token")
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")

@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
+from cryptography.fernet import InvalidToken
 
+
+from backend.services.jwt_service import JWT_Service
 from backend.dao.userDao import UserDao
-
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.base import CreateVaultData, SortByBackups
-from backend.dependencies import get_db
+from backend.schemas.db_schema import SessionType
+from backend.dependencies import get_db, get_jwt_service
 from backend.web_dependencies import verify_web_user, web__check_vault_exists
 from backend.core.logger import get_logger
 from backend.schemas.requests import RequstVaultDependecie
@@ -15,13 +19,18 @@ from backend.services.secrets import (
     hash_password,
     verify_password
 )
-
+from backend.services.jwt_service import create_token_and_session
 from backend.password_manager.services.password import (
     create_user_vault,
     check_is_vault_exists
 )
-
-
+from backend.password_manager.core.crypto import (
+    derive_key,
+    decrypt_dek,
+    decrypt_vault_passwords,
+    encrypt_vault_passwords
+)
+from backend.services.cookies import add_vault_cookie
 
 
 logger = get_logger(__name__)
@@ -40,8 +49,8 @@ web_vaults = APIRouter()
 
 @web_vaults.post('/create-vault')
 async def create_vault__router(
-    vault_name: str = Body(),
-    vault_master_password: str = Body(),
+    vault_name: str = Body(...),
+    vault_master_password: str = Body(...),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -143,4 +152,47 @@ async def get_user_vaults__router(
         "vaults": vaults
     }
     
+@web_vaults.post('/vaults/{vault_id}/unlock')
+async def unlock_vault__router(
+    vault_id: int,
+    vault_master_password: str = Body(...),
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+    jwt_service: JWT_Service = Depends(get_jwt_service)
+):
+    user_id = int(token_data.sub)
+    vault_dao = VaultDao(session=db)
+    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
+    if not vault:
+        raise HTTPException(404, "Wrong vault data")
+    
+    # Проверить правильный ли master_password с помощью попытки расшифровать пароли
+    try:
+        kek = derive_key(master_password=vault_master_password, salt_b64=vault.salt)
+        dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
+        decrypted_passwords = decrypt_vault_passwords(encrypted_passwords=vault.encrypted_passwords, key=dek)
+    except InvalidToken:
+        raise HTTPException(401, "Wrong master password")
+        
+    # Создать токен и добавить его в ответ
+    vault_token = await create_token_and_session(
+        session=db,
+        jwt_service=jwt_service,
+        user_id=user_id,
+        token_type=SessionType.VAULT
+    )
+    content = {
+        "ok": True,
+        "detail": "Vault is successfully unlocked"
+    }    
+    response = JSONResponse(content=content)
+    add_vault_cookie(response=response, jwt_service=jwt_service, value=vault_token.token)
+    
+    # Сохранить сессию которую созздали
+    await db.commit()
+    
+    return response
+    
+
+
     
