@@ -77,17 +77,26 @@ async def web_logout(
     db: AsyncSession = Depends(get_db),
     data: JWTDecodedData = Depends(verify_web_user)
 ):    
+    user_id = int(data.sub)
     session_dao = SessionDao(session=db)
-
-    await session_dao.make_unactive_session(user_id=int(data.sub))
+    await session_dao.make_unactive_session(user_id=user_id)
+    active_vault_sessions = await session_dao.get_active_user_sessions(
+        user_id=user_id,
+        session_type=SessionType.VAULT
+    )
+    for session in active_vault_sessions:
+        session.is_active = False
+    
+    await db.commit()
+    
     response = RedirectResponse(
         url="/login",
         status_code=303
         )
     response.delete_cookie(key="bearer_token", httponly=True, samesite="lax")
     response.delete_cookie(key="refresh_token", httponly=True, samesite="lax")
-    
-    await db.commit()
+    response.delete_cookie(key="vault_token", httponly=True, samesite="lax")
+
     return response
 
 @web_users.get("/refresh")

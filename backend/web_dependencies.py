@@ -226,6 +226,8 @@ async def web__check_vault_exists(
     vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
     if not vault:
         raise HTTPException(404, "Wrong vault data")
+    if vault_id != vault.id:
+        raise HTTPException(401, "Wrong vault data")
     
     # Проверить правильный ли master_password с помощью попытки расшифровать пароли
     try:
@@ -266,7 +268,7 @@ async def verify_vault_session(
         if session is None:
             raise HTTPException(401, "Wrong session id, session does not exists")
         if not session.is_active:
-            raise HTTPException(401, "Session was expired, try to login")
+            raise HTTPException(401, "Session was expired, try to use master password")
     
         if user.id != int(token_data.sub):
             raise HTTPException(401, "Invalid session binding")

@@ -30,8 +30,18 @@ class SessionDao:
         session = result.scalar_one_or_none()
         return session
     
-    async def get_active_user_sessions(self, user_id: int) -> Sequence[Sessions]:
-        query = select(Sessions).where(Sessions.user_id == user_id, Sessions.is_active == True)
+    async def get_active_user_sessions(self, user_id: int, session_type: SessionType | None = None) -> Sequence[Sessions]:
+        if session_type:
+            query = select(Sessions).where(
+                Sessions.user_id == user_id, 
+                Sessions.is_active == True,
+                Sessions.type == session_type
+            )
+        else:            
+            query = select(Sessions).where(
+                Sessions.user_id == user_id, 
+                Sessions.is_active == True
+            )
         result = await self.session.execute(query)
         sessions = result.scalars().all()
         return sessions

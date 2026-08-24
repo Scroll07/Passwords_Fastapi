@@ -14,6 +14,7 @@ import DashboardPage from './pages/DasboardPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import BackupPage from './pages/BackupPage'
 import VaultsPage from './pages/VaultsPage'
+import VaultPage from './pages/VaultPage'
 
 import './App.css'
 
@@ -36,6 +37,7 @@ function App() {
             <Route path='/forgot-password' element={<ForgotPasswordPage />} />
             <Route path='/backups/:backup_id' element={<BackupPage />} />
             <Route path='/vaults' element={<VaultsPage />} />
+            <Route path='/vaults/:vault_id' element={<VaultPage />} />
             
         </Route>
     </Routes>

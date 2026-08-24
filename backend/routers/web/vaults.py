@@ -1,17 +1,19 @@
-from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Form, Request, UploadFile, File, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from cryptography.fernet import InvalidToken
+from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
-
+from backend.dao.session_dao import SessionDao
 from backend.services.jwt_service import JWT_Service
 from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.base import CreateVaultData, SortByVaults, VaultData
-from backend.schemas.db_schema import SessionType
+from backend.schemas.db_schema import SessionType, UserFields
+from backend.schemas.api_responses import VaultStatusResponse
 from backend.dependencies import get_db, get_jwt_service
-from backend.web_dependencies import verify_web_user, web__check_vault_exists
+from backend.web_dependencies import verify_web_user, web__check_vault_exists, verify_vault_session
 from backend.core.logger import get_logger
 from backend.schemas.requests import RequstVaultDependecie
 from backend.dao.vaultDao import VaultDao, VaultFields
@@ -47,10 +49,10 @@ web_vaults = APIRouter()
 
 # Добавить роутер для скачивания vault file (Но сначала переделай cli)
 
-@web_vaults.post('/create-vault')
+@web_vaults.post('/vaults/create')
 async def create_vault__router(
-    vault_name: str = Body(...),
-    vault_master_password: str = Body(...),
+    vault_name: str = Body(..., max_length=32),
+    vault_master_password: str = Body(..., max_length=32),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -205,7 +207,89 @@ async def unlock_vault__router(
     await db.commit()
     
     return response
-    
 
 
+@web_vaults.post('/vaults/{vault_id}/status')
+async def status_vault__router(
+    vault_id: int,
+    request: Request,
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+    jwt_service: JWT_Service = Depends(get_jwt_service)
+):
+    try:
+        vault_token = request.cookies.get("vault_token")
+        if vault_token is None:            
+            raise HTTPException(401, "No bearer token")
+        token_data = jwt_service.verify_token(token=vault_token)
+        user_dao = UserDao(session=db)
+        user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
+        if user is None:
+            raise HTTPException(401, "Wrong user data")
+        if user.id != int(token_data.sub):
+            raise HTTPException(401, "Invalid session binding")
+        if not user.is_active:
+            raise HTTPException(401, "This account is not active")
+        
+        dao = SessionDao(session=db)
+        session = await dao.get_session(session_id=token_data.sid)
+        if session is None:
+            raise HTTPException(401, "Wrong session id, session does not exists")
+        if not session.is_active:
+            return VaultStatusResponse(
+                detail="Session was expired",
+                access=False
+            )    
+        if session.vault_id != vault_id:
+            return VaultStatusResponse(
+                detail="You have no acces to this vault",
+                access=False
+            )    
+            
     
+        return VaultStatusResponse(
+            detail="Session is active",
+            access=True
+        )
+    
+    except ExpiredSignatureError:
+        logger.info("Vault token was expired")
+        return VaultStatusResponse(
+            detail="Vault token was expired",
+            access=False
+        )
+    except InvalidTokenError as e:
+        logger.exception(e)
+        return VaultStatusResponse(
+            detail="Wrong vault token",
+            access=False
+        )
+    except HTTPException as e:
+        logger.exception(e)
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")
+
+
+@web_vaults.get('/vaults/{vault_id}/info')
+async def get_vault__router(
+    vault_id: int,
+    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+):
+    
+    user_id = int(token_data.sub)
+    vault_dao = VaultDao(session=db)
+    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=vault_id, user_id=user_id)
+    if not vault:
+        raise HTTPException(401, "Wrong vault data")
+    
+    vault_response_data = VaultData.model_validate(vault)
+    
+    
+    return {
+        "ok": True,
+        "vault": vault_response_data
+    }

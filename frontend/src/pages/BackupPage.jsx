@@ -152,43 +152,6 @@ function BackupPage() {
         }
     }
 
-    // async function download_backup(e) {
-    //     e.preventDefault()
-
-    //     setError("")
-    //     setMessage("")
-
-    //     const url = `/web/backups/${backup_id}`
-    //     const response = await fetch(
-    //         url,
-    //         {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json"
-    //             },
-    //             body: JSON.stringify({
-    //                 "backup_id": backup_id
-    //             })
-    //         }
-    //     )
-
-    //     const contentType = response.headers.get('content-type')
-    //     if (response.ok) {
-    //         const response_data = await response.blob()
-    //         setMessage("Your backup was successfully downloaded")
-    //         document.location.href = '/dashboard'
-    //     } else  if (contentType.includes("application/json")) {
-    //         const response_data = await response.json()
-    //         const server_error = response_data['detail']
-    //         setError(server_error)
-    //     } else {
-    //         const text = await response.text()
-    //         const parser = new DOMParser()
-    //         const nginx_document = parser.parseFromString(text, "text/html")
-    //         const nginx_error = nginx_document.title.slice(4)
-    //         setError(nginx_error) 
-    //     }
-    // }
 
     async function delete_backup(e) {
         e.preventDefault()

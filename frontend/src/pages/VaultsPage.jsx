@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import './DasboardPage.css'
+import './DashboardPage.css'
 
 function VaultsPage() {
     const SORT_BY = Object.freeze({
@@ -45,6 +45,41 @@ function VaultsPage() {
         }
         get_user_data()
     }, [])
+
+    async function logout(e) {
+        e.preventDefault()
+        
+        const url = '/web/logout'
+        const response = await fetch (
+            url,
+            {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        )
+        const contentType = response.headers.get('content-type') 
+        
+        if (response.ok) {
+            document.location.href = '/login'
+            return
+
+        } else if (contentType && contentType.includes('application/json')){
+            const response_data = await response.json()
+            const response_error = response_data['detail'] || "No detail from server"
+            SetError(response_error)
+            return
+        } else {
+            const text = await response.text()
+            const parser = new DOMParser()
+            const nginx_document = parser.parseFromString(text, 'text/html') 
+            const nginx_error = nginx_document.title.slice(4)
+            SetError(nginx_error)
+            return
+        }
+    }
+
 
     useEffect(() => {
         async function get_vaults(sort_by = SORT_BY.CREATED_AT) {
@@ -113,6 +148,9 @@ function VaultsPage() {
                         }
                         <p>Session active — API connected</p>
                     </div>
+                    <form onSubmit={logout} method="post">
+                        <button id="dashboard-logout" className="dashboard-logout" type="submit">Log out</button>
+                    </form>
                 </div>
 
                 { error &&

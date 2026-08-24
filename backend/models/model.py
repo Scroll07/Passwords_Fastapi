@@ -19,7 +19,7 @@ class Users(Base):
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(nullable=False)
-    telegram_id: Mapped[int] = mapped_column(unique=True, nullable=True)
+    telegram_id: Mapped[int | None] = mapped_column(unique=True, nullable=True, default=None)
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True) ,default=lambda: datetime.now(timezone.utc))
@@ -36,7 +36,8 @@ class Sessions(Base):
     __tablename__="sessions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    vault_id: Mapped[int | None] = mapped_column(ForeignKey("vaults.id", ondelete="CASCADE"), nullable=True, default=None)
     type: Mapped[SessionType] = mapped_column(nullable=False) 
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -46,7 +47,7 @@ class Backups(Base):
     __tablename__ = "backups"
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     pinned: Mapped[bool] = mapped_column(default=False)
     name: Mapped[str] = mapped_column()
     rows: Mapped[int] = mapped_column(nullable=False)
@@ -59,9 +60,9 @@ class Vaults(Base): #PLEASE DONT FORGET TO DO ALEMBIC REVISION +1
     __tablename__ = "vaults"
     
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)       
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     pinned: Mapped[bool] = mapped_column(default=False)
-    entries: Mapped[int] = mapped_column(default=0) #убрать default когда будет импорт vault и добавить в dao этот параметр при создании vault
+    entries: Mapped[int] = mapped_column(default=0) # убрать default когда будет импорт vault и добавить в dao этот параметр при создании vault
     name: Mapped[str] = mapped_column(nullable=False)
     encrypted_passwords: Mapped[str] = mapped_column(nullable=False)
     salt: Mapped[str] = mapped_column(nullable=False)
