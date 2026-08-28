@@ -239,19 +239,13 @@ async def status_vault__router(
         if session is None:
             raise HTTPException(401, "Wrong session id, session does not exists")
         
-        logger.debug(f"Session vault_id = {session.vault_id}")
-        logger.debug(f"vault_id from request = {vault_id}")
+        # logger.debug(f"Session vault_id = {session.vault_id}")
+        # logger.debug(f"vault_id from request = {vault_id}")
         if not session.is_active:
-            return VaultStatusResponse(
-                detail="Session was expired",
-                access=False
-            )    
+            raise HTTPException(401, "Session was expired")
+
         if session.vault_id != vault_id:
-            return VaultStatusResponse(
-                detail="You have no access to this vault. Wrong vault id",
-                access=False
-            )    
-            
+            raise HTTPException(401, "You have no access to this vault. Wrong vault id")
     
         return VaultStatusResponse(
             detail="Session is active",

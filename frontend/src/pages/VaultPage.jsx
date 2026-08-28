@@ -202,7 +202,11 @@ function VaultPage() {
     
             
             {!access && 
+                
                 <form className="vault-form" id="master_password-form" method="post" onSubmit={verify_password_request}>
+                    <NavLink to="/vaults" className="vault-back-link">
+                            ← Back to vaults
+                    </NavLink>
                     <div className="form-group">
                         <label htmlFor="master_password">Master Password</label>
                         <input
@@ -228,37 +232,9 @@ function VaultPage() {
                             ← Back to vaults
                         </NavLink>
 
-                        <NavLink to="/vaults/create" className="create-vault-link">
-                            Create new vault
+                        <NavLink to={`/vaults/${vault_id}/settings`} className="settings-vault-link">
+                            Vault Settings
                         </NavLink>
-                    </div>
-
-                    <div className="vault-header">
-                    {vault.length > 0 &&
-                    <div>
-                        <p className="vault-label">Vault</p>
-
-                        <h1>{vault.name}</h1>
-
-                        <div className="vault-meta">
-                        <span>
-                            Entries: <strong>{vault.entries}</strong>
-                        </span>
-
-                        <span>
-                            Created: <strong>{vault.created_at_formatted}</strong>
-                        </span>
-                        </div>
-                    </div>
-                    }
-
-                    <NavLink
-                        to={`/vaults/${vault.id}/settings`}
-                        className="vault-settings-button"
-                    >
-                        Vault settings
-                    </NavLink>
-
                     </div>
                     <div className="vault-block">
                     <div className="vault-block-header">
@@ -331,7 +307,7 @@ function VaultPage() {
                             Add first entry
                         </NavLink>
                         </div>
-                    ) : ( // НЕПОНЯТНЫЙ МОМЕНТ
+                    ) : (
                         <div className="vault-table-wrapper">
                         <table className="vault-table">
                             <thead>
@@ -370,7 +346,7 @@ function VaultPage() {
 
                                 <td className="entry-note">
                                     {entry.note
-                                    ? `${entry.note.slice(0, 16)}...` // НЕПОНЯТНЫЙ МОМЕНТ
+                                    ? `${entry.note.slice(0, 16)}...`
                                     : "—"}
                                 </td>
 
