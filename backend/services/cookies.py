@@ -17,7 +17,8 @@ def add_cookie(response: Response, key: str, value: str, expires: datetime) -> N
     )
     
 def add_bearer_cookie(response: Response, jwt_service: JWT_Service, value: str) -> None:
-    expires = datetime.now(timezone.utc) + timedelta(minutes=jwt_service.access_expire)
+    # expires = datetime.now(timezone.utc) + timedelta(minutes=jwt_service.access_expire)
+    expires = datetime.now(timezone.utc) + timedelta(days=jwt_service.refresh_expire)
     add_cookie(
         response=response,
         key="bearer_token",
