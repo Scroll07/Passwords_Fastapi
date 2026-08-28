@@ -13,11 +13,12 @@ class SessionDao:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
         
-    async def create_session(self, user_id: int, expires_at: datetime, type: SessionType) -> Sessions:
+    async def create_session(self, user_id: int, expires_at: datetime, type: SessionType, vault_id: int | None = None) -> Sessions:
         new_session = Sessions(
             user_id=user_id,
             type=type,
-            expires_at=expires_at
+            expires_at=expires_at,
+            vault_id=vault_id
         )
         self.session.add(new_session)
         await self.session.flush()

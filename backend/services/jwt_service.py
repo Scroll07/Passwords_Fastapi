@@ -39,7 +39,8 @@ async def create_token_and_session(
     session: AsyncSession,
     jwt_service: JWT_Service,
     user_id: int,
-    token_type: SessionType
+    token_type: SessionType,
+    vault_id: int | None = None
         ) -> EncodedToken:
     session_dao = SessionDao(session=session)
     if token_type == SessionType.BEARER:
@@ -67,9 +68,11 @@ async def create_token_and_session(
         refresh_token = jwt_service.create_token(data=token_data)
         return refresh_token
     elif token_type == SessionType.VAULT:
+        if vault_id is None:
+            raise ValueError("Vault id must not be None")
         expires = datetime.now(timezone.utc) + timedelta(minutes=jwt_service.vault_expire)
         exp_timestamp = int(expires.timestamp())
-        vault_session = await session_dao.create_session(user_id=user_id, expires_at=expires, type=SessionType.VAULT)
+        vault_session = await session_dao.create_session(user_id=user_id, expires_at=expires, type=SessionType.VAULT, vault_id=vault_id)
         token_data = JWTDecodedData(
             sub=str(user_id),
             sid=vault_session.id,

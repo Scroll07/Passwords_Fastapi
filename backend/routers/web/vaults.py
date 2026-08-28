@@ -195,7 +195,8 @@ async def unlock_vault__router(
         session=db,
         jwt_service=jwt_service,
         user_id=user_id,
-        token_type=SessionType.VAULT
+        token_type=SessionType.VAULT,
+        vault_id=vault.id
     )
     content = {
         "ok": True,
@@ -204,7 +205,7 @@ async def unlock_vault__router(
     response = JSONResponse(content=content)
     add_vault_cookie(response=response, jwt_service=jwt_service, value=vault_token.token)
     
-    # Сохранить сессию которую созздали
+    # Сохранить сессию которую создали
     await db.commit()
     
     return response
@@ -216,14 +217,19 @@ async def status_vault__router(
     request: Request,
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
-    # jwt_service: JWT_Service = Depends(get_jwt_service)
+    jwt_service: JWT_Service = Depends(get_jwt_service)
 ):
     try:
+        vault_token = request.cookies.get("vault_token")
+        if vault_token is None:            
+            raise HTTPException(401, "No vault token")
+        token_data = jwt_service.verify_token(token=vault_token)
+        user_id = int(token_data.sub)
         user_dao = UserDao(session=db)
-        user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
+        user = await user_dao.get_user_by_field(field=UserFields.ID, value=user_id)
         if user is None:
             raise HTTPException(401, "Wrong user data")
-        if user.id != int(token_data.sub):
+        if user.id != user_id:
             raise HTTPException(401, "Invalid session binding")
         if not user.is_active:
             raise HTTPException(401, "This account is not active")
@@ -232,6 +238,9 @@ async def status_vault__router(
         session = await dao.get_session(session_id=token_data.sid)
         if session is None:
             raise HTTPException(401, "Wrong session id, session does not exists")
+        
+        logger.debug(f"Session vault_id = {session.vault_id}")
+        logger.debug(f"vault_id from request = {vault_id}")
         if not session.is_active:
             return VaultStatusResponse(
                 detail="Session was expired",
@@ -239,7 +248,7 @@ async def status_vault__router(
             )    
         if session.vault_id != vault_id:
             return VaultStatusResponse(
-                detail="You have no acces to this vault",
+                detail="You have no access to this vault. Wrong vault id",
                 access=False
             )    
             

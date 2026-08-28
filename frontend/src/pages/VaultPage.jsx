@@ -38,9 +38,12 @@ function VaultPage() {
             const contentType = response.headers.get("content-type")
             if (response.ok) {
                 const response_data = await response.json()
-                access = response_data['access']
+                let access = response_data['access']
+                if (access) {
+                    SetMessage(response_data['detail'])
                 SetAccess(access)
-                SetMessage(response_data['detail'])
+                }
+                    
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
@@ -150,10 +153,7 @@ function VaultPage() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: master_password.trim()
-                // body: JSON.stringify({
-                //     "vault_master_password": master_password.trim()
-                // })
+                body: JSON.stringify(master_password.trim())
             }
         )
         
@@ -164,16 +164,19 @@ function VaultPage() {
             const server_message = response_data['detail']
             SetAccess(true) 
             SetMessage(server_message)
+            SetError('')
         } else if (contentType && contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_message = response_data['detail']
             SetAccess(false)
+            SetMessage('')
             SetError(server_message)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
+            SetMessage('')
             SetError(nginx_error)
             return  
         }
