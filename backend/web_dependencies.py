@@ -254,7 +254,7 @@ async def verify_vault_session(
     try:
         vault_token = request.cookies.get("vault_token")
         if vault_token is None:            
-            raise HTTPException(401, "No bearer token")
+            raise HTTPException(401, "No vault token")
         token_data = jwt_service.verify_token(token=vault_token)
         user_dao = UserDao(session=db)
         user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
@@ -280,7 +280,7 @@ async def verify_vault_session(
         raise HTTPException(401, "Vault session was expired")
     except InvalidTokenError as e:
         logger.exception(e)
-        raise HTTPException(401, "Wrong bearer token")
+        raise HTTPException(401, "Wrong vault token")
     except HTTPException as e:
         logger.exception(e)
         raise e

@@ -95,10 +95,11 @@ async def create_vault__router(
             "detail": "New vault was successfully created"
         }
         
+    except ValidationError as e:
+        error_msg = e.errors()[0]["msg"]
+        raise HTTPException(401, error_msg)
     except HTTPException as e:
         raise e
-    except ValidationError as e:
-        raise HTTPException(401, e.errors)
     except Exception as e:
         raise HTTPException(500, 'Internal server error')
     
@@ -215,13 +216,9 @@ async def status_vault__router(
     request: Request,
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
-    jwt_service: JWT_Service = Depends(get_jwt_service)
+    # jwt_service: JWT_Service = Depends(get_jwt_service)
 ):
     try:
-        vault_token = request.cookies.get("vault_token")
-        if vault_token is None:            
-            raise HTTPException(401, "No bearer token")
-        token_data = jwt_service.verify_token(token=vault_token)
         user_dao = UserDao(session=db)
         user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
         if user is None:

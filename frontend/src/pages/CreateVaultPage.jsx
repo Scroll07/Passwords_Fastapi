@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
 import { NavLink } from "react-router-dom"
+import './CreateVaultPage.css'
 
 function CreateVaultPage() {
     const [vaultName, setVaultName] = useState('') 
     const [vaultPassword, setVaultPassword] = useState('') 
-    const [error, setError] = useState('')
+    const [error, SetError] = useState('')
 
 
     function validate_data() {
@@ -27,10 +28,12 @@ function CreateVaultPage() {
         }
     }
     
-    async function createRequest() {
-        const validate_data = validate_data()
-        if (validate_data['error']) {
-            setError(validate_data['error'])
+    async function createRequest(e) {
+        e.preventDefault()
+        
+        const validated_data = validate_data()
+        if (validated_data['error']) {
+            SetError(validated_data['error'])
             return
         }
 
@@ -43,8 +46,8 @@ function CreateVaultPage() {
                     "content-type": "application/json"
                 },
                 body: JSON.stringify({
-                    "vault_name": validate_data['name'],
-                    "vault_master_password": validate_data['master_password'] 
+                    "vault_name": validated_data['name'],
+                    "vault_master_password": validated_data['master_password'] 
                 })
             }
         )
@@ -65,13 +68,63 @@ function CreateVaultPage() {
             SetError(nginx_error)
             return  
         }
-
+        
     }
-
+    
     return (
-        // H1 Create Vault
-        // Кнопка назад к /vaults
-        // ФОРМА ДЛЯ СОЗДАНИЯ VAULT С КНОПКОЙ
+        <section className="create-vault-section">
+        <div className="container">
+            <NavLink to="/vaults" className="vault-back-link">
+                ← Back to vaults
+            </NavLink>
+
+            <div className="create-vault-card">
+                <h1>Create vault</h1>
+                <p>Create a secure vault for your passwords and private entries.</p>
+
+            {error && 
+                <div className="form-error">
+                {error}
+                </div>
+            }
+
+                <form className="auth-form" onSubmit={createRequest}>
+                <div className="form-group">
+                    <label htmlFor="vault_name">Vault name</label>
+                    <input
+                    type="text"
+                    id="vault_name"
+                    name="vault_name"
+                    placeholder="For example: Personal"
+                    value={vaultName}
+                    onChange={(event) => setVaultName(event.target.value)}
+                    required
+                    minLength={1}
+                    maxLength={32}
+                    />
+
+                    <label htmlFor="master_password">Master password</label>
+                    <input
+                    type="password"
+                    id="master_password"
+                    name="master_password"
+                    placeholder="Password"
+                    value={vaultPassword}
+                    onChange={(event) => setVaultPassword(event.target.value)}
+                    required
+                    minLength={1}
+                    maxLength={32}
+                    />
+                </div>
+
+
+                <button type="submit" className="auth-submit">
+                    Create vault
+                </button>
+                </form>
+            </div>
+        </div>
+  </section>
     )
 
 }

@@ -742,3 +742,11 @@ main table:not(.pricing-table):not(.docs-table) td {
 .accent-text {
   color: var(--accent);
 }
+
+.form-messages {
+  width: min(100% - 32px, 440px);
+  margin: 20px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

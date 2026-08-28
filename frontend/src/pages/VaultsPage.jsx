@@ -135,117 +135,153 @@ function VaultsPage() {
         no_pinned = vaults.filter(v => !v.pinned)
     }
 
-    return (
-        <section className="dashboard-section">
-            <div className="container">
-                <div className="dashboard-header">
-                    <div>
-                        {username && 
-                            <h1>Hello, {username}</h1>
-                        }
-                        {!username && 
-                            <h1>Hello, User</h1>
-                        }
-                        <p>Session active — API connected</p>
-                    </div>
-                    <form onSubmit={logout} method="post">
-                        <button id="dashboard-logout" className="dashboard-logout" type="submit">Log out</button>
-                    </form>
-                </div>
+return (
+  <section className="dashboard-section">
+    <div className="container">
+      <div className="dashboard-header">
+        <div>
+          {username && <h1>Hello, {username}</h1>}
+          {!username && <h1>Hello, User</h1>}
 
-                { error &&
-                    <div className="form-error">{error}</div>
-                }
+          <p>Session active — API connected</p>
+        </div>
 
+        <div className="dashboard-actions">
+          <NavLink
+            to="/vaults/create"
+            className="dashboard-create-vault"
+          >
+            Create vault
+          </NavLink>
 
-                { pinned.length > 0 && 
-                <div className="dashboard-block">
-                    <div>
-                        <h2>Pinned Backups</h2>
-                        <table className="dashboard-table">
-                            <thead>
-                                <tr>
-                                    <th>name</th>
-                                    <th>date</th>
-                                    <th>entries</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                { pinned.map(vault => (
-                                    <tr key={vault.id}>
-                                    <td>
-                                        <NavLink to={`/vaults/${backup.id}`} className="backup-name">
-                                            { vault.name }
-                                        </NavLink>
-                                    </td>
-                                    <td>{ vault.created_at_formatted }</td>
-                                    <td>{ vault.entries }</td>
-                                </tr>
-                                )) }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                    }
+          <form onSubmit={logout} method="post">
+            <button
+              id="dashboard-logout"
+              className="dashboard-logout"
+              type="submit"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
+      </div>
 
-                { no_pinned.length > 0 &&
-                <div className="dashboard-block">
-                    <div className="sort-links">
-                        <span className="sort-label">Sort by:</span>
+      {error && (
+        <div className="form-error">
+          {error}
+        </div>
+      )}
 
-                        <button
-                            type="button"
-                            className={`sort-link ${sorting === SORT_BY.CREATED_AT ? 'sort-link-active' : ''}`}
-                            onClick={() => {SetSort(SORT_BY.CREATED_AT)}}
-                        >
-                            Date
-                        </button>
+      {pinned.length > 0 && (
+        <div className="dashboard-block">
+          <div>
+            <h2>Pinned Vaults</h2>
 
-                        <button
-                            type="button"
-                            className={`sort-link ${sorting === SORT_BY.NAME ? 'sort-link-active' : ''}`}
-                            onClick={() => {SetSort(SORT_BY.NAME)}}
-                        >
-                            Name
-                        </button>
+            <table className="dashboard-table">
+              <thead>
+                <tr>
+                  <th>name</th>
+                  <th>date</th>
+                  <th>entries</th>
+                </tr>
+              </thead>
 
-                        <button
-                            type="button"
-                            className={`sort-link ${sorting === SORT_BY.ENTRIES ? 'sort-link-active' : ''}`}
-                            onClick={() => {SetSort(SORT_BY.ENTRIES)}}
-                        >
-                            Entries
-                        </button>
-                    </div>
+              <tbody>
+                {pinned.map((vault) => (
+                  <tr key={vault.id}>
+                    <td>
+                      <NavLink
+                        to={`/vaults/${vault.id}`}
+                        className="backup-name"
+                      >
+                        {vault.name}
+                      </NavLink>
+                    </td>
 
-                    <table className="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>name</th>
-                                <th>date</th>
-                                <th>entries</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            { no_pinned.map(vault =>
+                    <td>{vault.created_at_formatted}</td>
+                    <td>{vault.entries}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-                                <tr key={vault.id}>
-                                    <td>
-                                        <NavLink to={`/vaults/${vault.id}`} className="backup-name">
-                                            { vault.name }
-                                        </NavLink>
-                                    </td>
-                                    <td>{ vault.created_at_formatted }</td>
-                                    <td>{ vault.entries }</td>
-                                </tr>
-                                ) 
-                            }
-                        </tbody>
-                    </table>
-                    </div>  }
-                </div>
-        </section>
-    )
+      {no_pinned.length > 0 && (
+        <div className="dashboard-block">
+          <div className="sort-links">
+            <span className="sort-label">Sort by:</span>
+
+            <button
+              type="button"
+              className={`sort-link ${
+                sorting === SORT_BY.CREATED_AT
+                  ? "sort-link-active"
+                  : ""
+              }`}
+              onClick={() => SetSort(SORT_BY.CREATED_AT)}
+            >
+              Date
+            </button>
+
+            <button
+              type="button"
+              className={`sort-link ${
+                sorting === SORT_BY.NAME
+                  ? "sort-link-active"
+                  : ""
+              }`}
+              onClick={() => SetSort(SORT_BY.NAME)}
+            >
+              Name
+            </button>
+
+            <button
+              type="button"
+              className={`sort-link ${
+                sorting === SORT_BY.ENTRIES
+                  ? "sort-link-active"
+                  : ""
+              }`}
+              onClick={() => SetSort(SORT_BY.ENTRIES)}
+            >
+              Entries
+            </button>
+          </div>
+
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>date</th>
+                <th>entries</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {no_pinned.map((vault) => (
+                <tr key={vault.id}>
+                  <td>
+                    <NavLink
+                      to={`/vaults/${vault.id}`}
+                      className="backup-name"
+                    >
+                      {vault.name}
+                    </NavLink>
+                  </td>
+
+                  <td>{vault.created_at_formatted}</td>
+                  <td>{vault.entries}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  </section>
+);
 }
 
 
