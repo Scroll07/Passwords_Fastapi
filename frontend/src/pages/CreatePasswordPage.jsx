@@ -6,7 +6,6 @@ import './CreatePasswordPage.css'
 function CreatePasswordPage() {
     const params = useParams()
     const vault_id = Number(params.vault_id)
-    const [message, SetMessage] = useState('')
     const [error, SetError] = useState('')
     const [isLoading, SetLoading] = useState(true)
     const [service, SetService] = useState('')
@@ -15,9 +14,6 @@ function CreatePasswordPage() {
     const [note, SetNote] = useState('')
     const [generatePassword, SetGeneratePassword] = useState(false)
 
-    
-    // Проверка есть ли доступ у пользователя к vault
-    // сделать что-то типа загрузки
     useEffect(() => {
         async function check_user_access() {
             const url = `/web/vaults/${vault_id}/status`
@@ -38,27 +34,25 @@ function CreatePasswordPage() {
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
                 console.log(response_error)
-                // SetError(response_error)
                 document.location.href = '/vaults'
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
-                const nginx_document = parser.parseFromString(text, 'text/html') 
+                const nginx_document = parser.parseFromString(text, 'text/html')
                 const nginx_error = nginx_document.title.slice(4)
                 console.log(nginx_error)
-                // SetError(nginx_error)
                 document.location.href = '/vaults'
                 return
             }
         }
-        
+
         check_user_access()
     }, [])
-    
+
     async function send_request(e) {
         e.preventDefault()
-        
+
         const url = `/web/vaults/${vault_id}/passwords/add`
         const response = await fetch(
             url,
@@ -90,113 +84,116 @@ function CreatePasswordPage() {
         } else {
             const text = await response.text()
             const parser = new DOMParser()
-            const nginx_document = parser.parseFromString(text, 'text/html') 
+            const nginx_document = parser.parseFromString(text, 'text/html')
             const nginx_error = nginx_document.title.slice(4)
             SetError(nginx_error)
             return
         }
     }
-    
+
     if (isLoading) {
-        return <div>
-            <h1>Loading...</h1>
-        </div>
+        return (
+            <section className="create-password-section">
+                <div className="container">
+                    <h1>Loading...</h1>
+                </div>
+            </section>
+        )
     }
-    
+
     return (
-        <main>
+        <section className="create-password-section">
+            <div className="container">
+                <NavLink to={`/vaults/${vault_id}`} className="vault-back-link">
+                    ← Back to vault
+                </NavLink>
 
-<div className="form-messages">
-    {message && (
-        <div className="success-message">
-        {message}
-        </div>
-    )}
+                <div className="create-password-card">
+                    <h1>New Record</h1>
+                    <p>Add a new password entry to your vault.</p>
 
-    {error && (
-        <div className="form-error">
-        {error}
-        </div>
-    )}
-</div>
+                    {error &&
+                        <div className="form-error">
+                        {error}
+                        </div>
+                    }
 
-<form type="submit" onSubmit={send_request}>
-<div className="create-record-form">
-  <h2>New Record</h2>
+                    <form className="auth-form" onSubmit={send_request}>
+                        <div className="form-group">
+                            <label htmlFor="service">Service</label>
+                            <input
+                                type="text"
+                                id="service"
+                                name="service"
+                                placeholder="e.g. Google"
+                                required
+                                value={service}
+                                onChange={event => SetService(event.target.value)}
+                            />
+                        </div>
 
-  <div className="form-group">
-    <label htmlFor="service">Service</label>
-    <input
-      type="text"
-      id="service"
-      name="service"
-      placeholder="e.g. Google"
-      required
-      value={service}
-      onChange={event => SetService(event.target.value)}
-      />
-  </div>
+                        <div className="form-group">
+                            <label htmlFor="login">Login</label>
+                            <input
+                                type="text"
+                                id="login"
+                                name="login"
+                                placeholder="e.g. user@example.com"
+                                required
+                                value={login}
+                                onChange={event => SetLogin(event.target.value)}
+                            />
+                        </div>
 
-  <div className="form-group">
-    <label htmlFor="login">Login</label>
-    <input
-      type="text"
-      id="login"
-      name="login"
-      placeholder="e.g. user@example.com"
-      required
-      value={login}
-      onChange={event => SetLogin(event.target.value)}
-      />
-  </div>
+                        <div className="form-group password-group">
+                            <div className="password-left">
+                                <label htmlFor="password">Password</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Enter password"
+                                    value={password}
+                                    onChange={event => SetPasword(event.target.value)}
+                                    disabled={generatePassword}
+                                />
+                            </div>
+                            <div className="password-right">
+                                <label className="generate-password-label">
+                                    Generate
+                                </label>
+                                <input
+                                    type="checkbox"
+                                    name="generate_password"
+                                    className="generate-password-checkbox"
+                                    onChange={(e) => {
+                                        SetGeneratePassword(e.target.checked)
+                                        SetPasword('')
+                                    }}
+                                />
+                            </div>
+                        </div>
 
-    <div className="form-group">
-    <label htmlFor="password">Password</label>
-    <div className="password-input-wrapper">
-      <input
-        type="password"
-        id="password"
-        name="password"
-        placeholder="Enter password"
-        value={password}
-        onChange={event => SetPasword(event.target.value)}
-        disabled={generatePassword}
-        />
-      <label className="generate-password-label">
-        <input
-          type="checkbox"
-          name="generate_password"
-          className="generate-password-checkbox"
-          onChange={(e) => {
-              SetGeneratePassword(e.target.checked)
-              SetPasword('')
-            }}
-            />
-        Generate
-      </label>
-    </div>
-  </div>
+                        <div className="form-group">
+                            <label htmlFor="note">Note (optional)</label>
+                            <textarea
+                                id="note"
+                                name="note"
+                                rows={3}
+                                placeholder="Additional information"
+                                value={note}
+                                onChange={event => SetNote(event.target.value)}
+                            />
+                        </div>
 
-  <div className="form-group">
-    <label htmlFor="note">Note (optional)</label>
-    <textarea
-      id="note"
-      name="note"
-      rows={3}
-      placeholder="Additional information"
-      value={note}
-      onChange={event => SetNote(event.target.value)}
-      />
-  </div>
-
-  <button type="submit" className="submit-button">
-    Create Record
-  </button>
-</div>
-</form>
-</main>
+                        <button type="submit" className="auth-submit">
+                            Create Record
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
     )
-
 }
 
 export default CreatePasswordPage
