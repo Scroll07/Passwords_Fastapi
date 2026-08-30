@@ -355,10 +355,6 @@ p code, td code, li code {
   max-width: 760px;
 }
 
-body {
-  outline: 10px solid red;
-}
-
 .step {
   padding: 28px 0 34px;
   border-bottom: 1px solid var(--border-soft);
