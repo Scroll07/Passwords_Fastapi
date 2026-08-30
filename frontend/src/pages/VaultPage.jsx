@@ -325,26 +325,38 @@ function VaultPage() {
 
                             <tbody>
                             {entries.map((entry) => (
-                                <tr key={entry.id}>
+                                <tr key={entry.service}>
                                 <td>
                                     <NavLink
-                                    to={`/vaults/${vault.id}/passwords/${entry.id}`}
+                                    to={`/vaults/${vault.id}/passwords/${entry.service}`}
                                     className="entry-name"
                                     >
                                     {entry.service}
                                     </NavLink>
                                 </td>
 
-                                <td>{entry.username}</td>
+
+                                <td>{entry.username.length < 40 &&
+                                        entry.username
+                                    }
+                                    {entry.username.length >= 40 &&
+                                        `${entry.username.slice(0, 40)}...`
+                                    }</td>
 
                                 <td className="entry-password-mask">
                                     ••••••••
                                 </td>
 
                                 <td className="entry-note">
-                                    {entry.note
-                                    ? `${entry.note.slice(0, 16)}...`
-                                    : "—"}
+                                    {entry.note.length === 0 &&
+                                        "—"
+                                    }
+                                    {entry.note.length < 24 &&
+                                        entry.note
+                                    }
+                                    {entry.note.length >= 24 &&
+                                        `${entry.note.slice(0, 24)}...`
+                                    }
                                 </td>
 
                                 </tr>

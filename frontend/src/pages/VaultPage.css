@@ -42,7 +42,7 @@
 }
 
 .vault-section .container {
-  max-width: 860px;
+  max-width: 1200px;
 }
 
 
@@ -51,6 +51,7 @@
 ========================= */
 
 .vault-block {
+  width: 1200px;
   margin-bottom: 20px;
   padding: 28px 28px 20px;
   border: 1px solid var(--border);
@@ -124,13 +125,11 @@
 }
 
 
-/* =========================
-   Entries table
-========================= */
+/* TABLE SPACING FIX */
 
 .vault-table-wrapper {
   width: 100%;
-  overflow-x: auto;
+  overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface-soft);
@@ -138,79 +137,75 @@
 
 .vault-table {
   width: 100%;
-  min-width: 860px;
+  table-layout: fixed;
   border-collapse: collapse;
-  color: var(--text);
-  font-size: 14px;
 }
 
 .vault-table th,
 .vault-table td {
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--border);
+  box-sizing: border-box;
+  padding: 16px 24px !important;
   text-align: left;
-  vertical-align: middle;
 }
 
-.vault-table th {
-  background: rgba(5, 5, 5, 0.28);
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  white-space: nowrap;
+.vault-table th:first-child,
+.vault-table td:first-child {
+  padding-left: 28px !important;
 }
 
-.vault-table td {
-  color: var(--text-soft);
-  line-height: 1.4;
+.vault-table th:last-child,
+.vault-table td:last-child {
+  padding-right: 28px !important;
 }
 
-.vault-table tbody tr {
-  transition: background 0.16s ease;
+/* Ширина колонок */
+.vault-table th:nth-child(1),
+.vault-table td:nth-child(1) {
+  width: 15%;
 }
 
-.vault-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.025);
+.vault-table th:nth-child(2),
+.vault-table td:nth-child(2) {
+  width: 35%;
 }
 
-.vault-table tbody tr:last-child td {
-  border-bottom: 0;
+.vault-table th:nth-child(3),
+.vault-table td:nth-child(3) {
+  width: 20%;
 }
 
-.entry-name {
-  color: var(--text);
-  font-weight: 600;
-  transition: color 0.2s ease;
+.vault-table th:nth-child(4),
+.vault-table td:nth-child(4) {
+  width: 20%;
 }
 
-.entry-name:hover {
-  color: var(--accent-hover);
-}
 
-.entry-password-mask {
-  color: var(--text-muted);
-  font-size: 15px;
-  letter-spacing: 0.12em;
-  white-space: nowrap;
-}
+@media (max-width: 700px) {
+  .vault-table-wrapper {
+    overflow-x: auto;
+  }
 
-.entry-note {
-  max-width: 220px;
-  overflow: hidden;
-  color: var(--text-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .vault-table {
+    min-width: 620px;
+    table-layout: auto;
+  }
 
+  .vault-table th,
+  .vault-table td {
+    padding: 14px 20px !important;
+  }
+
+  .vault-table th:first-child,
+  .vault-table td:first-child {
+    padding-left: 24px !important;
+  }
+}
 
 /* =========================
    Tablet
 ========================= */
 
-@media (max-width: 850px) {
+@media (max-width: 1440px) {
   .vault-section {
     padding: 64px 0 88px;
   }
@@ -411,3 +406,7 @@
 }
 
 
+.vault-section .container {
+  width: min(100% - 48px, 1440px);
+  max-width: 1440px;
+}
