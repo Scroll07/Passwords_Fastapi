@@ -48,6 +48,8 @@ async def add__router(
         password=pas_data.password,
         note=pas_data.note
     )
+    vault_data.vault.entries += 1
+    await db.commit()
     
     return {
         "ok": True,
