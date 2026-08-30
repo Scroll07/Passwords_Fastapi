@@ -122,7 +122,7 @@ function CreatePasswordPage() {
     )}
 </div>
 
-<form type="Submit" onSubmit={send_request}>
+<form type="submit" onSubmit={send_request}>
 <div className="create-record-form">
   <h2>New Record</h2>
 
