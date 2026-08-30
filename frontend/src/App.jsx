@@ -16,6 +16,8 @@ import BackupPage from './pages/BackupPage'
 import VaultsPage from './pages/VaultsPage'
 import VaultPage from './pages/VaultPage'
 import CreateVaultPage from './pages/CreateVaultPage'
+import CreatePasswordPage from './pages/CreatePasswordPage'
+
 
 import './App.css'
 
@@ -40,6 +42,7 @@ function App() {
             <Route path='/vaults' element={<VaultsPage />} />
             <Route path='/vaults/:vault_id' element={<VaultPage />} />
             <Route path='/vaults/create' element={<CreateVaultPage />} />
+            <Route path='/vaults/:vault_id/entries/new' element={<CreatePasswordPage />} />
             
         </Route>
     </Routes>

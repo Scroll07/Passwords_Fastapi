@@ -10,6 +10,8 @@ class JWTDecodedData(BaseModel):
     exp: int
     type: SessionType
     
+class VaultDecodedData(JWTDecodedData):
+    encrypted_dek: str
 
 class EncodedToken(BaseModel):
     token: str

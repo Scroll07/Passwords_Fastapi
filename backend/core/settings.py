@@ -12,8 +12,9 @@ class Settings:
     DB_NAME: str = os.getenv("DB_NAME", default="test_db")
     DB_USER: str = os.getenv("DB_USER", default="test_user")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", default="test_pass")
-    SECRET_KEY: str = os.getenv("SECRET_TOKEN_KEY", default="DyFQ5iJYbc_vDISsJWAW_tPoU9OJibzKhqorSFAiIdQ")
-
+    SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
+    SERVER_SECRET_KEY: str = os.getenv("SERVER_SECRET_KEY", default="")
+    
     BOT_TOKEN: str = os.getenv("BOT_TOKEN", default="test_token")
     
     APP_MODE: str = os.getenv("APP_MODE", default="development")
@@ -21,5 +22,3 @@ class Settings:
     ADMIN_PASSWORD: str | None = os.getenv("ADMIN_PASSWORD")
     
 
-def get_settings() -> Settings:
-    return Settings()

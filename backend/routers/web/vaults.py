@@ -190,19 +190,21 @@ async def unlock_vault__router(
     except InvalidToken:
         raise HTTPException(401, "Wrong master password")
         
+    content = {
+        "ok": True,
+        "detail": "Vault is successfully unlocked"
+    }    
+    response = JSONResponse(content=content)
+    
     # Создать токен и добавить его в ответ
     vault_token = await create_token_and_session(
         session=db,
         jwt_service=jwt_service,
         user_id=user_id,
         token_type=SessionType.VAULT,
-        vault_id=vault.id
+        vault_id=vault.id,
+        dek=dek
     )
-    content = {
-        "ok": True,
-        "detail": "Vault is successfully unlocked"
-    }    
-    response = JSONResponse(content=content)
     add_vault_cookie(response=response, jwt_service=jwt_service, value=vault_token.token)
     
     # Сохранить сессию которую создали
@@ -246,6 +248,7 @@ async def status_vault__router(
 
         if session.vault_id != vault_id:
             raise HTTPException(401, "You have no access to this vault. Wrong vault id")
+            # Тут можно сделать RedicrectResponse to /vaults
     
         return VaultStatusResponse(
             detail="Session is active",

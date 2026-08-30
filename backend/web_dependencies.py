@@ -25,6 +25,7 @@ from backend.password_manager.core.crypto import (
     decrypt_vault_passwords,
     encrypt_vault_passwords
 )
+from backend.services.secrets import DekFernet
 
 
 logger = get_logger(__name__)
@@ -204,60 +205,58 @@ async def web_validate_change_passwords(
     )
     
     
-async def web__check_vault_exists(
-    request: Request,
-    master_password: str = Body(min_length=1),
-    token_data: JWTDecodedData = Depends(verify_web_user),
-    db: AsyncSession = Depends(get_db),
-):
-    # # Получить информацию пользователя (username  и т.д.)
-    # user_id = int(token_data.sub)
-    # dao = UserDao(session=db)
-    # user_data = await dao.get_user_data(user_id=user_id)
-    # if not user_data:
-    #     raise HTTPException(404, "Wrongg user data")
+# async def web__check_vault_exists(
+#     request: Request,
+#     token_data: JWTDecodedData = Depends(verify_web_user),
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     # # Получить информацию пользователя (username  и т.д.)
+#     # user_id = int(token_data.sub)
+#     # dao = UserDao(session=db)
+#     # user_data = await dao.get_user_data(user_id=user_id)
+#     # if not user_data:
+#     #     raise HTTPException(404, "Wrongg user data")
     
-    # Проверить существует ли `vault`
-    vault_id = request.path_params.get("vault_id")
-    if not vault_id:
-        raise HTTPException(400, detail="Wrong uri path")
-    user_id = int(token_data.sub)
-    vault_dao = VaultDao(session=db)
-    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
-    if not vault:
-        raise HTTPException(404, "Wrong vault data")
-    if vault_id != vault.id:
-        raise HTTPException(401, "Wrong vault data")
+#     # Проверить существует ли `vault`
+#     vault_id = request.path_params.get("vault_id")
+#     if not vault_id:
+#         raise HTTPException(400, detail="Wrong uri path")
+#     user_id = int(token_data.sub)
+#     vault_dao = VaultDao(session=db)
+#     vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
+#     if not vault:
+#         raise HTTPException(404, "Wrong vault data")
+#     if vault_id != vault.id:
+#         raise HTTPException(401, "Wrong vault data")
     
-    # Проверить правильный ли master_password с помощью попытки расшифровать пароли
-    try:
-        kek = derive_key(master_password=master_password, salt_b64=vault.salt)
-        dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
-        decrypted_passwords = decrypt_vault_passwords(encrypted_passwords=vault.encrypted_passwords, key=dek)
-    except InvalidToken:
-        raise HTTPException(401, "Wrong master password")
+#     # Проверить правильный ли master_password с помощью попытки расшифровать пароли
+#     try:
+#         kek = derive_key(master_password=master_password, salt_b64=vault.salt)
+#         dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
+#         decrypted_passwords = decrypt_vault_passwords(encrypted_passwords=vault.encrypted_passwords, key=dek)
+#     except InvalidToken:
+#         raise HTTPException(401, "Wrong master password")
         
-    return RequstVaultDependecie(
-        # token_data=token_data,
-        vault=vault,
-        master_password=master_password,
-        # username=user_data.username
-    )
+#     return RequstVaultDependecie(
+#         vault=vault,
+#         master_password=master_password,
+#         dek=b''
+#     )
     
     
 async def verify_vault_session(
     request: Request,
     db = Depends(get_db),
-    bearer_token_data: JWTDecodedData = Depends(verify_web_user),
-    jwt_service = Depends(get_jwt_service)    
-) -> JWTDecodedData:
+    jwt_service: JWT_Service = Depends(get_jwt_service)    
+) -> RequstVaultDependecie:
     try:
         vault_token = request.cookies.get("vault_token")
         if vault_token is None:            
             raise HTTPException(401, "No vault token")
-        token_data = jwt_service.verify_token(token=vault_token)
+        token_data = jwt_service.verify_vault_token(token=vault_token)
+        user_id = int(token_data.sub)
         user_dao = UserDao(session=db)
-        user = await user_dao.get_user_by_field(field=UserFields.ID, value=int(token_data.sub))
+        user = await user_dao.get_user_by_field(field=UserFields.ID, value=user_id)
         if user is None:
             raise HTTPException(401, "Wrong user data")
         if not user.is_active:
@@ -270,10 +269,29 @@ async def verify_vault_session(
         if not session.is_active:
             raise HTTPException(401, "Session was expired, try to use master password")
     
-        if user.id != int(token_data.sub):
+        if user.id != user_id:
             raise HTTPException(401, "Invalid session binding")
+        
+        # check vault exists
+        vault_id = request.path_params.get("vault_id")
+        if not vault_id:
+            raise HTTPException(400, detail="Wrong uri path")
+        vault_dao = VaultDao(session=db)
+        vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
+        if not vault:
+            raise HTTPException(404, "Wrong vault data")
+        if vault_id != vault.id:
+            raise HTTPException(401, "Wrong vault data")
     
-        return token_data
+        # get dek
+        encrypted_dek = token_data.encrypted_dek
+        dek_fernet = DekFernet()
+        dek = dek_fernet.decrypt_dek(encrypted_dek=encrypted_dek) 
+    
+        return RequstVaultDependecie(
+            vault=vault,
+            dek=dek
+        )
     
     except ExpiredSignatureError:
         logger.info("Vault token was expired")

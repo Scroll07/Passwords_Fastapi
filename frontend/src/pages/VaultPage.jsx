@@ -244,7 +244,7 @@ function VaultPage() {
                         </div>
 
                         <NavLink
-                        to={`/vaults/${vault.id}/entries/new`}
+                        to={`/vaults/${vault_id}/entries/new`}
                         className="vault-add-entry-button"
                         >
                         Add entry

@@ -15,31 +15,19 @@ from backend.password_manager.core.crypto import (
 
 
 class PasswordTool:
-    def __init__(self, user_id: int, vault_id: int, master_password: str, session: AsyncSession) -> None:
+    def __init__(self, user_id: int, vault_id: int, dek: bytes, session: AsyncSession) -> None:
         self.user_id = user_id
         self.vault_id = vault_id
-        self.master_password = master_password
         self.session = session
         self.dao = VaultDao(session=session)
-        self.dek: bytes | None = None  
+        self.dek: bytes = dek   
         self.vault: Vaults | None = None
         
-    async def _get_dek(self) -> None:
-        if self.dek:
-            return None
-        vault = await self.dao.get_vault_by_field(field=VaultFields.ID, value=self.vault_id, user_id=self.user_id)
-        if not vault:
-            raise ValueError("No vault")
-        kek = derive_key(master_password=self.master_password, salt_b64=vault.salt)
-        dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
-        self.dek = dek
-        self.vault = vault
         
         
         
-    async def _load_passwords(self) -> Passwords:
+    def _load_passwords(self) -> Passwords:
         try:
-            await self._get_dek()
             if self.vault and self.dek:
                 decrypted_passwords = decrypt_vault_passwords(encrypted_passwords=self.vault.encrypted_passwords, key=self.dek)
             else:
@@ -52,7 +40,7 @@ class PasswordTool:
             raise e
             
     async def _save_passwords(self, passwords: Passwords) -> None:
-        if self.vault and self.dek:
+        if self.vault:
             encrypted_passwords = encrypt_vault_passwords(passwords=passwords, key=self.dek)
             self.vault.encrypted_passwords = encrypted_passwords
             await self.session.commit()
@@ -69,7 +57,7 @@ class PasswordTool:
         if not password:
             password = secrets.token_urlsafe(24)
         
-        passwords = await self._load_passwords()
+        passwords = self._load_passwords()
         
         labels = set(p.service for p in passwords.passwords)
         candidate = service.strip()
@@ -93,7 +81,7 @@ class PasswordTool:
                     service: str,
                     get_all: bool = False
                         ):
-        passwords = await self._load_passwords()
+        passwords = self._load_passwords()
         
         
         if not passwords:
@@ -112,7 +100,7 @@ class PasswordTool:
         service: str,
         delete_all: bool = False
     ):
-        passwords = await self._load_passwords()
+        passwords = self._load_passwords()
         
         is_deleted = False
         if delete_all:
@@ -137,7 +125,7 @@ class PasswordTool:
         password: str = '',
         note: str = ''
     ):
-        passwords = await self._load_passwords()
+        passwords = self._load_passwords()
         
         #Finding password to edit
         pas_to_change = None

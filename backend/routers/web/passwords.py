@@ -7,7 +7,7 @@ from backend.dao.userDao import UserDao
 
 from backend.schemas.jwt import JWTDecodedData
 from backend.dependencies import get_db
-from backend.web_dependencies import verify_vault_session, web__check_vault_exists
+from backend.web_dependencies import verify_vault_session, verify_web_user
 from backend.core.logger import get_logger
 from backend.services.backup_service import delete_backup_by_path
 from backend.schemas.requests import RequstVaultDependecie
@@ -36,8 +36,8 @@ web_passwords = APIRouter()
 async def add__router(
     vault_id: int,
     password_data: PasswordDataRequest,
-    token_data: JWTDecodedData = Depends(verify_vault_session),
-    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
     user_id = int(token_data.sub)
@@ -45,7 +45,7 @@ async def add__router(
     password_tool = PasswordTool(
         user_id=user_id,
         vault_id=vault_id,
-        master_password=vault_data.master_password,
+        dek=vault_data.dek,
         session=db
     )
     pas_data = password_data.pas_data
@@ -69,8 +69,8 @@ async def get__router(
     vault_id: int,
     service: str = Body(default=''),
     get_all: bool = Body(default=False),
-    token_data: JWTDecodedData = Depends(verify_vault_session),
-    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
     user_id = int(token_data.sub)
@@ -78,7 +78,7 @@ async def get__router(
     password_tool = PasswordTool(
         user_id=user_id,
         vault_id=vault_id,
-        master_password=vault_data.master_password,
+        dek=vault_data.dek,
         session=db
     )
     
@@ -100,8 +100,8 @@ async def delete__router(
     vault_id: int,
     service: str = Body(min_length=1),
     delete_all: bool = Body(False),
-    token_data: JWTDecodedData = Depends(verify_vault_session),
-    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
     user_id = int(token_data.sub)
@@ -109,7 +109,7 @@ async def delete__router(
     password_tool = PasswordTool(
         user_id=user_id,
         vault_id=vault_id,
-        master_password=vault_data.master_password,
+        dek=vault_data.dek,
         session=db
     )
     
@@ -126,8 +126,8 @@ async def delete__router(
 async def update__router(
     password_data: Password,
     vault_id: int,
-    token_data: JWTDecodedData = Depends(verify_vault_session),
-    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
     user_id = int(token_data.sub)
@@ -135,7 +135,7 @@ async def update__router(
     password_tool = PasswordTool(
         user_id=user_id,
         vault_id=vault_id,
-        master_password=vault_data.master_password,
+        dek=vault_data.dek,
         session=db
     )
     
