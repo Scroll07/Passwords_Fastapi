@@ -5,7 +5,7 @@ from backend.schemas.dao_schemas import UserWithRole, UserData
 from backend.schemas.db_schema import UserFields, UserInDb, UserRoles
 from backend.models.model import Users, Roles
 from backend.schemas.db_schema import CreateUserInDb
-from backend.core.settings import get_settings
+from backend.dependencies import get_settings
 from backend.dao.role_dao import RoleDAO
 from backend.services.secrets import hash_password
 

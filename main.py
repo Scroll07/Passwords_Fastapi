@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from backend.core.database import async_engine, async_session
 from backend.dao.role_dao import RoleDAO
 from backend.dao.userDao import UserDao
-from backend.core.settings import get_settings
+from backend.dependencies import get_settings
 from backend.metrics.middleware import logging_for_metrics
 # from backend.exceptions.handlers import auth_redirect
 
