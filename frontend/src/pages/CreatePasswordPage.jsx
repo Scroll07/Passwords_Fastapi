@@ -68,7 +68,6 @@ function CreatePasswordPage() {
                     "content-type": "application/json"
                 },
                 body: JSON.stringify({
-                    "password_data": {
                         "pas_data": {
                             "service": service,
                             "username": login,
@@ -76,7 +75,6 @@ function CreatePasswordPage() {
                             "note": note
                         },
                         "gen": generatePassword
-                    },
                 })
             }
         )

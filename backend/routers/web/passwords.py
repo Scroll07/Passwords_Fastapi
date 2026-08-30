@@ -44,7 +44,7 @@ async def add__router(
     
     password_tool = PasswordTool(
         user_id=user_id,
-        vault_id=vault_id,
+        vault=vault_data.vault,
         dek=vault_data.dek,
         session=db
     )
@@ -77,7 +77,7 @@ async def get__router(
     
     password_tool = PasswordTool(
         user_id=user_id,
-        vault_id=vault_id,
+        vault=vault_data.vault,
         dek=vault_data.dek,
         session=db
     )
@@ -108,7 +108,7 @@ async def delete__router(
         
     password_tool = PasswordTool(
         user_id=user_id,
-        vault_id=vault_id,
+        vault=vault_data.vault,
         dek=vault_data.dek,
         session=db
     )
@@ -134,7 +134,7 @@ async def update__router(
         
     password_tool = PasswordTool(
         user_id=user_id,
-        vault_id=vault_id,
+        vault=vault_data.vault,
         dek=vault_data.dek,
         session=db
     )

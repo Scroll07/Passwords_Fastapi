@@ -15,13 +15,12 @@ from backend.password_manager.core.crypto import (
 
 
 class PasswordTool:
-    def __init__(self, user_id: int, vault_id: int, dek: bytes, session: AsyncSession) -> None:
+    def __init__(self, user_id: int, vault: Vaults, dek: bytes, session: AsyncSession) -> None:
         self.user_id = user_id
-        self.vault_id = vault_id
         self.session = session
         self.dao = VaultDao(session=session)
         self.dek: bytes = dek   
-        self.vault: Vaults | None = None
+        self.vault: Vaults = vault
         
         
         
