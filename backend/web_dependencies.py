@@ -221,12 +221,15 @@ async def web__check_vault_exists(
     vault_id = request.path_params.get("vault_id")
     if not vault_id:
         raise HTTPException(400, detail="Wrong uri path")
+    vault_id = int(vault_id)
     user_id = int(token_data.sub)
     vault_dao = VaultDao(session=db)
-    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
+    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=vault_id, user_id=user_id)
     if not vault:
+        logger.debug("Vault is None")
         raise HTTPException(404, "Wrong vault data")
     if vault_id != vault.id:
+        logger.debug("Wrong vault id")
         raise HTTPException(401, "Wrong vault data")
     
         
@@ -236,6 +239,7 @@ async def web__check_vault_exists(
 async def verify_vault_session(
     request: Request,
     db = Depends(get_db),
+    vault: Vaults = Depends(web__check_vault_exists),
     jwt_service: JWT_Service = Depends(get_jwt_service)    
 ) -> RequstVaultDependecie:
     try:
@@ -261,17 +265,6 @@ async def verify_vault_session(
         if user.id != user_id:
             raise HTTPException(401, "Invalid session binding")
         
-        # check vault exists
-        vault_id = request.path_params.get("vault_id")
-        if not vault_id:
-            raise HTTPException(400, detail="Wrong uri path")
-        vault_dao = VaultDao(session=db)
-        vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
-        if not vault:
-            raise HTTPException(404, "Wrong vault data")
-        if vault_id != vault.id:
-            raise HTTPException(401, "Wrong vault data")
-    
         # get dek
         encrypted_dek = token_data.encrypted_dek
         dek_fernet = DekFernet()
