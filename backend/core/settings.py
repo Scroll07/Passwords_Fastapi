@@ -22,3 +22,5 @@ class Settings:
     ADMIN_PASSWORD: str | None = os.getenv("ADMIN_PASSWORD")
     
 
+def get_settings() -> Settings:
+    return Settings()

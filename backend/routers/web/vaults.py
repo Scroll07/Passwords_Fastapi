@@ -13,10 +13,10 @@ from backend.schemas.base import CreateVaultData, SortByVaults, VaultData
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.api_responses import VaultStatusResponse
 from backend.dependencies import get_db, get_jwt_service
-from backend.web_dependencies import verify_web_user, web__check_vault_exists, verify_vault_session
+from backend.web_dependencies import verify_web_user, verify_vault_session, web__check_vault_exists
 from backend.core.logger import get_logger
 from backend.schemas.requests import RequstVaultDependecie
-from backend.dao.vaultDao import VaultDao, VaultFields
+from backend.dao.vaultDao import VaultDao, VaultFields, Vaults
 from backend.services.secrets import (
     hash_password,
     verify_password
@@ -107,8 +107,7 @@ async def create_vault__router(
 @web_vaults.delete('/vaults/{vault_id}')
 async def delete_vault__router(
     vault_id: int,
-    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
-    token_data: JWTDecodedData = Depends(verify_web_user),
+    token_data: JWTDecodedData = Depends(web__check_vault_exists),
     db: AsyncSession = Depends(get_db),
 ):
     user_id = int(token_data.sub)
@@ -127,11 +126,11 @@ async def delete_vault__router(
 async def rename_vault__router(
     vault_id: int,
     new_name: str = Body(min_length=1),
-    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
     token_data: JWTDecodedData = Depends(verify_web_user),
+    vault: Vaults = Depends(web__check_vault_exists),
     db: AsyncSession = Depends(get_db),
 ):
-    vault_data.vault.name = new_name.strip()
+    vault.name = new_name.strip()
     await db.commit()
     
     return {
@@ -278,19 +277,11 @@ async def status_vault__router(
 @web_vaults.get('/vaults/{vault_id}/info')
 async def get_vault__router(
     vault_id: int,
-    vault_data: RequstVaultDependecie = Depends(web__check_vault_exists),
+    vault: Vaults = Depends(web__check_vault_exists),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
-    
-    user_id = int(token_data.sub)
-    vault_dao = VaultDao(session=db)
-    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=vault_id, user_id=user_id)
-    if not vault:
-        raise HTTPException(401, "Wrong vault data")
-    
     vault_response_data = VaultData.model_validate(vault)
-    
     
     return {
         "ok": True,

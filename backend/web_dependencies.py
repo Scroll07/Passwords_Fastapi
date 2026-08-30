@@ -18,7 +18,7 @@ from backend.password_manager.services.password import (
     check_is_vault_exists
 )
 from backend.schemas.requests import RequstVaultDependecie
-from backend.dao.vaultDao import VaultDao, VaultFields
+from backend.dao.vaultDao import VaultDao, VaultFields, Vaults
 from backend.password_manager.core.crypto import (
     derive_key,
     decrypt_dek,
@@ -205,43 +205,32 @@ async def web_validate_change_passwords(
     )
     
     
-# async def web__check_vault_exists(
-#     request: Request,
-#     token_data: JWTDecodedData = Depends(verify_web_user),
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     # # Получить информацию пользователя (username  и т.д.)
-#     # user_id = int(token_data.sub)
-#     # dao = UserDao(session=db)
-#     # user_data = await dao.get_user_data(user_id=user_id)
-#     # if not user_data:
-#     #     raise HTTPException(404, "Wrongg user data")
+async def web__check_vault_exists(
+    request: Request,
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+) -> Vaults:
+    # # Получить информацию пользователя (username  и т.д.)
+    # user_id = int(token_data.sub)
+    # dao = UserDao(session=db)
+    # user_data = await dao.get_user_data(user_id=user_id)
+    # if not user_data:
+    #     raise HTTPException(404, "Wrongg user data")
     
-#     # Проверить существует ли `vault`
-#     vault_id = request.path_params.get("vault_id")
-#     if not vault_id:
-#         raise HTTPException(400, detail="Wrong uri path")
-#     user_id = int(token_data.sub)
-#     vault_dao = VaultDao(session=db)
-#     vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
-#     if not vault:
-#         raise HTTPException(404, "Wrong vault data")
-#     if vault_id != vault.id:
-#         raise HTTPException(401, "Wrong vault data")
+    # Проверить существует ли `vault`
+    vault_id = request.path_params.get("vault_id")
+    if not vault_id:
+        raise HTTPException(400, detail="Wrong uri path")
+    user_id = int(token_data.sub)
+    vault_dao = VaultDao(session=db)
+    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=int(vault_id), user_id=user_id)
+    if not vault:
+        raise HTTPException(404, "Wrong vault data")
+    if vault_id != vault.id:
+        raise HTTPException(401, "Wrong vault data")
     
-#     # Проверить правильный ли master_password с помощью попытки расшифровать пароли
-#     try:
-#         kek = derive_key(master_password=master_password, salt_b64=vault.salt)
-#         dek = decrypt_dek(kek=kek, encrypted_dek=vault.encrypted_dek)
-#         decrypted_passwords = decrypt_vault_passwords(encrypted_passwords=vault.encrypted_passwords, key=dek)
-#     except InvalidToken:
-#         raise HTTPException(401, "Wrong master password")
         
-#     return RequstVaultDependecie(
-#         vault=vault,
-#         master_password=master_password,
-#         dek=b''
-#     )
+    return vault
     
     
 async def verify_vault_session(

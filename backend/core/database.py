@@ -3,7 +3,7 @@ from typing import AsyncIterator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 from backend.models.model import Base
-from backend.dependencies import get_settings
+from backend.core.settings import get_settings
 
 s = get_settings()
 

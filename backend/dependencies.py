@@ -1,13 +1,12 @@
 from typing import AsyncIterator
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.settings import Settings
+from backend.core.settings import get_settings
 from backend.core.database import async_session
 from backend.services.jwt_service import JWT_Service
 
 
-def get_settings() -> Settings:
-    return Settings()
+
 
 def get_jwt_service() -> JWT_Service:
     settings = get_settings()
