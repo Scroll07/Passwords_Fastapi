@@ -1,22 +1,15 @@
-from datetime import datetime
 from fastapi import APIRouter, Body, Form, UploadFile, File, Depends, HTTPException, Query
-from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.dao.userDao import UserDao
 
+from backend.dao.userDao import UserDao
+from backend.schemas.base import VaultData
 from backend.schemas.jwt import JWTDecodedData
 from backend.dependencies import get_db
 from backend.web_dependencies import verify_vault_session, verify_web_user
 from backend.core.logger import get_logger
-from backend.services.backup_service import delete_backup_by_path
 from backend.schemas.requests import RequstVaultDependecie
 from backend.dao.vaultDao import VaultDao, VaultFields
-from backend.services.secrets import (
-    hash_password,
-    verify_password
-)
-
 from backend.password_manager.services.password import (
     create_user_vault,
     check_is_vault_exists
@@ -86,11 +79,12 @@ async def get__router(
     if len(service) < 1 and not get_all:
         raise HTTPException(401, "Request must include service name or get_all parameter")
     
-    result = await password_tool.get_command(service=service, get_all=get_all)
+    passwords = await password_tool.get_command(service=service, get_all=get_all)
+
     
     return {
         "ok": True,
-        "passwords": result, #list[Password]
+        "passwords": passwords, #list[Password]
     }
     # Добавить обработку ошибок, включительно ValueError
     # Добавить логирование

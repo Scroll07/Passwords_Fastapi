@@ -62,84 +62,85 @@ function VaultPage() {
         get_vault_status()
     }, [access])
 
-    // useEffect(() => {
-    //     async function get_vault_data() {
-    //         const url = `/web/vaults/${vault_id}/info`
-    //         const response = await fetch(
-    //             url,
-    //             {
-    //                 method: "GET",
-    //                 headers: {
-    //                     "Content-Type": "application/json"
-    //                 }
-    //             }
-    //         )
+    useEffect(() => {
+        async function get_vault_data() {
+            const url = `/web/vaults/${vault_id}/info`
+            const response = await fetch(
+                url,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
 
-    //         const contentType = response.headers.get("content-type")
+            const contentType = response.headers.get("content-type")
             
-    //         if (response.ok) {
-    //             const response_data = await response.json()
-    //             const vault = response_data['vault']
-    //             SetVault(vault)
-    //         } else if (contentType && contentType.includes('application/json')){
-    //             const response_data = await response.json()
-    //             const response_error = response_data['detail'] || "No detail from server"
-    //             SetError(response_error)
-    //             return
-    //         } else {
-    //             const text = await response.text()
-    //             const parser = new DOMParser()
-    //             const nginx_document = parser.parseFromString(text, 'text/html') 
-    //             const nginx_error = nginx_document.title.slice(4)
-    //             SetError(nginx_error)
-    //             return
-    //         }
+            if (response.ok) {
+                const response_data = await response.json()
+                const vault = response_data['vault']
+                SetVault(vault)
+            } else if (contentType && contentType.includes('application/json')){
+                const response_data = await response.json()
+                const response_error = response_data['detail'] || "No detail from server"
+                SetError(response_error)
+                return
+            } else {
+                const text = await response.text()
+                const parser = new DOMParser()
+                const nginx_document = parser.parseFromString(text, 'text/html') 
+                const nginx_error = nginx_document.title.slice(4)
+                SetError(nginx_error)
+                return
+            }
     
-    //     }
+        }
 
-    //     async function get_vault_entries() {
-    //         const url = `/web/vaults/${vault_id}/passwords/get`
-    //         const response = await fetch(
-    //             url,
-    //             {
-    //                 method: "POST",
-    //                 headers: {
-    //                     "Content-Type": "application/json"
-    //                 },
-    //                 body: JSON.stringify({
-    //                     "get_all": true,
-    //                     'service': ""
-    //                 })
-    //             }
-    //         )
+        async function get_vault_entries() {
+            const url = `/web/vaults/${vault_id}/passwords/get`
+            const response = await fetch(
+                url,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "get_all": true,
+                        'service': ""
+                    })
+                }
+            )
 
-    //         const contentType = response.headers.get("content-type")
+            const contentType = response.headers.get("content-type")
 
-    //         if (response.ok) {
-    //             const response_data = await response.json()
-    //             const entries = response_data['passwords']
-    //             SetEntries(entries)
-    //         } else if (contentType && contentType.includes('application/json')){
-    //             const response_data = await response.json()
-    //             const response_error = response_data['detail'] || "No detail from server"
-    //             SetError(response_error)
-    //             return
-    //         } else {
-    //             const text = await response.text()
-    //             const parser = new DOMParser()
-    //             const nginx_document = parser.parseFromString(text, 'text/html') 
-    //             const nginx_error = nginx_document.title.slice(4)
-    //             SetError(nginx_error)
-    //             return
-    //         }
+            if (response.ok) {
+                const response_data = await response.json()
+                const entries = response_data['passwords']
+                SetEntries(entries)
+            } else if (contentType && contentType.includes('application/json')){
+                const response_data = await response.json()
+                const response_error = response_data['detail'] || "No detail from server"
+                SetError(response_error)
+                return
+            } else {
+                const text = await response.text()
+                const parser = new DOMParser()
+                const nginx_document = parser.parseFromString(text, 'text/html') 
+                const nginx_error = nginx_document.title.slice(4)
+                SetError(nginx_error)
+                return
+            }
             
-    //     }
+        }
 
 
-
-    //     get_vault_data()
-    //     get_vault_entries()
-    // }, [])
+        if (access) {
+            get_vault_data()
+            get_vault_entries()
+        }
+    }, [access])
 
 
     async function verify_password_request(e) {
@@ -313,11 +314,9 @@ function VaultPage() {
                             <thead>
                             <tr>
                                 <th>Service</th>
-                                <th>Name</th>
                                 <th>Username</th>
                                 <th>Password</th>
                                 <th>Note</th>
-                                <th>Created</th>
                                 {
                                     // можно добавить кнопку show и при нажатии будет показывать\скрывать пароль
                                 }
@@ -336,8 +335,6 @@ function VaultPage() {
                                     </NavLink>
                                 </td>
 
-                                <td>{entry.name}</td>
-
                                 <td>{entry.username}</td>
 
                                 <td className="entry-password-mask">
@@ -350,7 +347,6 @@ function VaultPage() {
                                     : "—"}
                                 </td>
 
-                                <td>{entry.created_at_formatted}</td>
                                 </tr>
                             ))}
                             </tbody>
