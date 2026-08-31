@@ -33,7 +33,7 @@ function CreateVaultPage() {
         
         const validated_data = validate_data()
         if (validated_data['error']) {
-            SetError(validated_data['error'])
+            await show_error(validated_data['error'])
             return
         }
 
@@ -59,16 +59,25 @@ function CreateVaultPage() {
             const response_data = await response.json()
             const server_message = response_data['detail']
             SetAccess(false)
-            SetError(server_message)
+            await show_error(server_message)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            SetError(nginx_error)
+            await show_error(nginx_error)
             return  
         }
         
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => {setTimeout(resolve, ms)})
+    }
+    async function show_error(error_text) {
+        SetError(error_text)
+        await sleep(3500)
+        SetError('')
     }
     
     return (

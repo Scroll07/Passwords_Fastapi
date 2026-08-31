@@ -79,14 +79,14 @@ function CreatePasswordPage() {
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            SetError(response_error)
+            await show_error(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html')
             const nginx_error = nginx_document.title.slice(4)
-            SetError(nginx_error)
+            await show_error(nginx_error)
             return
         }
     }
@@ -100,6 +100,16 @@ function CreatePasswordPage() {
             </section>
         )
     }
+
+    function sleep(ms) {
+        return new Promise(resolve => {setTimeout(resolve, ms)})
+    }
+    async function show_error(error_text) {
+        SetError(error_text)
+        await sleep(3500)
+        SetError('')
+    }
+
 
     return (
         <section className="create-password-section">

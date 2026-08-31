@@ -8,14 +8,14 @@ function BackupPage() {
     const params = useParams()
     const backup_id = Number(params.backup_id)
     const [new_name, setNewName] = useState('')
-    const [message, setMessage] = useState('')
-    const [error, setError] = useState('')
+    const [message, SetMessage] = useState('')
+    const [error, SetError] = useState('')
     const [backup, setBackup] = useState(null)
 
     async function get_backup() {
-        setError("")
+        await show_error("")
         if (Number.isNaN(backup_id) || !Number.isInteger(backup_id)) {
-            setError('Wrong id of backup')
+            await show_error('Wrong id of backup')
             return
         }
 
@@ -35,18 +35,18 @@ function BackupPage() {
             if (response_data['backup']) {
                 return response_data['backup']
             } else {
-                setError('No backup data')
+                await show_error('No backup data')
             }
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 
@@ -64,8 +64,8 @@ function BackupPage() {
     async function change_pin(e) {
         e.preventDefault()
         
-        setError("")
-        setMessage("")
+        await show_error("")
+        await show_message("")
 
         const url = `/web/backups/${backup_id}/change-pin`
         const response = await fetch(
@@ -81,18 +81,18 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            setMessage(response_data['detail'])
+            await show_message(response_data['detail'])
             load_backup()
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 
@@ -113,12 +113,12 @@ function BackupPage() {
     async function change_name(e) {
         e.preventDefault()
 
-        setError("")
-        setMessage("")
+        await show_error("")
+        await show_message("")
 
         const validate_data = validate_name()
         if (validate_data['error']) {
-            setError(validate_data['error'])
+            await show_error(validate_data['error'])
             return
         }
 
@@ -137,18 +137,18 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            setMessage(response_data['detail'])
+            await show_message(response_data['detail'])
             load_backup()
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 
@@ -156,8 +156,8 @@ function BackupPage() {
     async function delete_backup(e) {
         e.preventDefault()
 
-        setError("")
-        setMessage("")
+        await show_error("")
+        await show_message("")
 
         const confirmed = window.confirm('Delete this backup? This action cannot be undone.')
         if (! confirmed) {return}
@@ -176,21 +176,34 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            setMessage(response_data['detail'])
+            await show_message(response_data['detail'])
             document.location.href = '/dashboard'
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 
+    function sleep(ms) {
+        return new Promise(resolve => {setTimeout(resolve, ms)})
+    }
+    async function show_error(error_text) {
+        await show_error(error_text)
+        await sleep(3500)
+        await show_error('')
+    }
+    async function show_message(message_text) {
+        SetMessage(message_text)
+        await sleep(3500)
+        SetMessage('')
+    }
 
     return (
 <section className="dashboard-section user-backup-page">

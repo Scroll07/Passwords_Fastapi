@@ -7,7 +7,7 @@ function ForgotPasswordPage() {
     const [password, setPassword] = useState('')
     const [new_password, setNewPassword] = useState('')
     
-    const [error, setError] = useState('')
+    const [error, SetError] = useState('')
 
     function validate_data() {
         const clear_username = username.trim()
@@ -53,7 +53,7 @@ function ForgotPasswordPage() {
 
         const data = validate_data()
         if (data["error"]) {
-            setError(data['error'])
+            await show_error(data['error'])
             return
         } 
 
@@ -81,7 +81,7 @@ function ForgotPasswordPage() {
         } else if (response.headers.get('content-type').includes("application/json")) {
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            setError(response_error)
+            await show_error(response_error)
             console.log(`RESPONSE: ${response_error}`)
             return 
         } else {
@@ -89,13 +89,20 @@ function ForgotPasswordPage() {
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html')
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error)
+            await show_error(nginx_error)
             return 
         }
-
-
-
     }
+
+    function sleep(ms) {
+        return new Promise(resolve => {setTimeout(resolve, ms)})
+    }
+    async function show_error(error_text) {
+        SetError(error_text)
+        await sleep(3500)
+        SetError('')
+    }
+
     
 
 

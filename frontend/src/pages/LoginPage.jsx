@@ -41,7 +41,7 @@ function LoginPage() {
         const data = check_creds()
 
         if (data["error"]) {
-            setError(data["error"])
+            await show_error(data["error"])
             return
         }
 
@@ -67,17 +67,25 @@ function LoginPage() {
         if (response.headers.get("content-type").includes("application/json")) {
             const response_data = await response.json()
             const response_error = response_data["detail"] || "No detail of error from server"
-            setError(response_error)
+            await show_error(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title 
-            setError(nginx_error.slice(4))
+            await show_error(nginx_error.slice(4))
             return
         }
+    }
 
+    function sleep(ms) {
+        return new Promise(resolve => {setTimeout(resolve, ms)})
+    }
+    async function show_error(error_text) {
+        SetError(error_text)
+        await sleep(3500)
+        SetError('')
     }
     
     
