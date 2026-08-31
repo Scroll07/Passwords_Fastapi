@@ -12,6 +12,7 @@ function VaultPage() {
     const [error, SetError] = useState('')
     const [access, SetAccess] = useState(false)
     const [vault, SetVault] = useState({})    
+    // const [enabledPasswords, setEnablePasswords] = useState(false)
     
 
     // ================================================================================================
@@ -362,11 +363,11 @@ function VaultPage() {
                                     {entry.note.length === 0 &&
                                         "—"
                                     }
-                                    {entry.note.length < 24 &&
+                                    {entry.note.length < 32 &&
                                         entry.note
                                     }
-                                    {entry.note.length >= 24 &&
-                                        `${entry.note.slice(0, 24)}...`
+                                    {entry.note.length >= 32 &&
+                                        `${entry.note.slice(0, 32)}...`
                                     }
                                 </td>
 
