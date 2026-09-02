@@ -6,7 +6,6 @@ import './CreateVaultPage.css'
 function CreateVaultPage() {
     const [vaultName, setVaultName] = useState('') 
     const [vaultPassword, setVaultPassword] = useState('') 
-    const [error, SetError] = useState('')
 
     const [
         error,
@@ -40,7 +39,7 @@ function CreateVaultPage() {
         
         const validated_data = validate_data()
         if (validated_data['error']) {
-            await show_error(validated_data['error'])
+            showError(validated_data['error'])
             return
         }
 
@@ -65,14 +64,14 @@ function CreateVaultPage() {
         } else if (contentType && contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_message = response_data['detail']
-            SetAccess(false)
-            await show_error(server_message)
+            showError(server_message)
+            console.log(server_message)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(nginx_error)
+            showError(nginx_error)
             return  
         }
         

@@ -50,7 +50,7 @@ function LoginPage() {
         const data = check_creds()
 
         if (data["error"]) {
-            await show_error(data["error"])
+            showError(data["error"])
             return
         }
 
@@ -76,14 +76,14 @@ function LoginPage() {
         if (response.headers.get("content-type").includes("application/json")) {
             const response_data = await response.json()
             const response_error = response_data["detail"] || "No detail of error from server"
-            await show_error(response_error)
+            showError(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title 
-            await show_error(nginx_error.slice(4))
+            showError(nginx_error.slice(4))
             return
         }
     }

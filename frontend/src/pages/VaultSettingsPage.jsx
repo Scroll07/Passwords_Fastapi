@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
-
+import { useNotification } from '../hooks/useNotification.js'
+import './VaultSettingsPage.css'
 
 function VaultSettingsPage() {
     const params = useParams()
@@ -69,18 +70,18 @@ function VaultSettingsPage() {
                 const vault = response_data['vault']
                 SetVault(vault)
                 SetPinned(vault['pinned'])
-                await show_message( response_data['detail'])
+                showMessage( response_data['detail'])
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(response_error)
+                showError(response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(nginx_error)
+                showError(nginx_error)
                 return
             }
         }
@@ -113,18 +114,18 @@ function VaultSettingsPage() {
         if (response.ok) {
             const response_data = await response.json()
             await get_vault_data()
-            await show_message( response_data['detail'])
+            showMessage( response_data['detail'])
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(response_error)
+            showError(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(nginx_error)
+            showError(nginx_error)
             return
         }
         
@@ -151,14 +152,14 @@ function VaultSettingsPage() {
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(response_error)
+            showError(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(nginx_error)
+            showError(nginx_error)
             return
         }
         
@@ -166,7 +167,7 @@ function VaultSettingsPage() {
 
 
     return (
-
+        <h1>hi</h1>
 
 
     )

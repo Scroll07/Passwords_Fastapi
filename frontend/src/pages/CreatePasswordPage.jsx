@@ -85,14 +85,14 @@ function CreatePasswordPage() {
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(response_error)
+            await showError(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html')
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(nginx_error)
+            showError(nginx_error)
             return
         }
     }

@@ -142,7 +142,6 @@ async def rename_vault__router(
     
 @web_vaults.get('/vaults')
 async def get_user_vaults__router(
-    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
     sort_by: SortByVaults = Query(SortByVaults.CREATED_AT)
@@ -173,7 +172,6 @@ async def get_user_vaults__router(
 async def unlock_vault__router(
     vault_id: int,
     vault_master_password: str = Body(...),
-    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
     jwt_service: JWT_Service = Depends(get_jwt_service),
