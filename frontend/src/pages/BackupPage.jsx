@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { NavLink, useParams } from 'react-router-dom'
+import { show_error, show_message } from '../utils/notifications.js'
 import './BackupPage.css'
-
 
 
 function BackupPage() {
@@ -13,7 +13,6 @@ function BackupPage() {
     const [backup, setBackup] = useState(null)
 
     async function get_backup() {
-        await show_error("")
         if (Number.isNaN(backup_id) || !Number.isInteger(backup_id)) {
             await show_error('Wrong id of backup')
             return
@@ -63,9 +62,6 @@ function BackupPage() {
 
     async function change_pin(e) {
         e.preventDefault()
-        
-        await show_error("")
-        await show_message("")
 
         const url = `/web/backups/${backup_id}/change-pin`
         const response = await fetch(
@@ -113,9 +109,6 @@ function BackupPage() {
     async function change_name(e) {
         e.preventDefault()
 
-        await show_error("")
-        await show_message("")
-
         const validate_data = validate_name()
         if (validate_data['error']) {
             await show_error(validate_data['error'])
@@ -156,9 +149,6 @@ function BackupPage() {
     async function delete_backup(e) {
         e.preventDefault()
 
-        await show_error("")
-        await show_message("")
-
         const confirmed = window.confirm('Delete this backup? This action cannot be undone.')
         if (! confirmed) {return}
 
@@ -191,19 +181,6 @@ function BackupPage() {
         }
     }
 
-    function sleep(ms) {
-        return new Promise(resolve => {setTimeout(resolve, ms)})
-    }
-    async function show_error(error_text) {
-        await show_error(error_text)
-        await sleep(3500)
-        await show_error('')
-    }
-    async function show_message(message_text) {
-        SetMessage(message_text)
-        await sleep(3500)
-        SetMessage('')
-    }
 
     return (
 <section className="dashboard-section user-backup-page">

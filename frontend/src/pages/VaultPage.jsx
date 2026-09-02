@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, NavLink } from 'react-router-dom'
+import { show_error, show_message } from '../utils/notifications.js'
 import './VaultPage.css'
 
 
@@ -181,19 +182,6 @@ function VaultPage() {
         }
     }
 
-    function sleep(ms) {
-        return new Promise(resolve => {setTimeout(resolve, ms)})
-    }
-    async function show_error(error_text) {
-        SetError(error_text)
-        await sleep(3500)
-        SetError('')
-    }
-    async function show_message(message_text) {
-        SetMessage(message_text)
-        await sleep(3500)
-        SetMessage('')
-    }
 
 
     return (

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
+import { show_error } from '../utils/notifications.js'
 import './DashboardPage.css'
+
 
 function VaultsPage() {
     const SORT_BY = Object.freeze({
@@ -136,14 +138,6 @@ function VaultsPage() {
 
 
 
-    function sleep(ms) {
-        return new Promise(resolve => {setTimeout(resolve, ms)})
-    }
-    async function show_error(error_text) {
-        SetError(error_text)
-        await sleep(3500)
-        SetError('')
-    }
 
 
 return (

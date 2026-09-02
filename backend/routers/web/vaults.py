@@ -108,6 +108,7 @@ async def create_vault__router(
 async def delete_vault__router(
     vault_id: int,
     token_data: JWTDecodedData = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     db: AsyncSession = Depends(get_db),
 ):
     user_id = int(token_data.sub)
@@ -126,7 +127,7 @@ async def delete_vault__router(
 async def rename_vault__router(
     vault_id: int,
     new_name: str = Body(min_length=1),
-    token_data: JWTDecodedData = Depends(verify_web_user),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     vault: Vaults = Depends(web__check_vault_exists),
     db: AsyncSession = Depends(get_db),
 ):
@@ -141,6 +142,7 @@ async def rename_vault__router(
     
 @web_vaults.get('/vaults')
 async def get_user_vaults__router(
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
     sort_by: SortByVaults = Query(SortByVaults.CREATED_AT)
@@ -171,9 +173,11 @@ async def get_user_vaults__router(
 async def unlock_vault__router(
     vault_id: int,
     vault_master_password: str = Body(...),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
-    jwt_service: JWT_Service = Depends(get_jwt_service)
+    jwt_service: JWT_Service = Depends(get_jwt_service),
+    
 ):
     user_id = int(token_data.sub)
     vault_dao = VaultDao(session=db)
@@ -216,6 +220,7 @@ async def unlock_vault__router(
 async def status_vault__router(
     vault_id: int,
     request: Request,
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
     jwt_service: JWT_Service = Depends(get_jwt_service)
@@ -278,6 +283,7 @@ async def status_vault__router(
 async def get_vault__router(
     vault_id: int,
     vault: Vaults = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -287,3 +293,36 @@ async def get_vault__router(
         "ok": True,
         "vault": vault_response_data
     }
+    
+    
+@web_vaults.post('/vaults/{vault_id}/change-pin')
+async def change_pin__router(
+    vault_id: int,
+    vault: Vaults = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+):
+
+    vault.pinned = not vault.pinned
+    await db.commit()
+    
+    action = "pinned" if vault.pinned else "unpinned" 
+
+    return {
+        "ok": True,
+        "detail": f"Your vault was successfully {action}" 
+    }
+    
+    
+@web_vaults.post('/vaults/{vault_id}/download')
+async def download_vault__router(
+    vault_id: int,
+    vault: Vaults = Depends(web__check_vault_exists),
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    db: AsyncSession = Depends(get_db),
+):
+
+    # Написать download router когда переделаю CLI, потому что непонятно какую структуру файла собирать
+    ...
