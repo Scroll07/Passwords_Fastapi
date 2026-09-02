@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { NavLink, useParams } from 'react-router-dom'
-import { show_error, show_message } from '../utils/notifications.js'
+import { useNotification } from '../hooks/useNotification.js'
 import './BackupPage.css'
 
 
@@ -8,13 +8,17 @@ function BackupPage() {
     const params = useParams()
     const backup_id = Number(params.backup_id)
     const [new_name, setNewName] = useState('')
-    const [message, SetMessage] = useState('')
-    const [error, SetError] = useState('')
     const [backup, setBackup] = useState(null)
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
 
     async function get_backup() {
         if (Number.isNaN(backup_id) || !Number.isInteger(backup_id)) {
-            await show_error(SetError, 'Wrong id of backup')
+            await show_error('Wrong id of backup')
             return
         }
 
@@ -34,18 +38,18 @@ function BackupPage() {
             if (response_data['backup']) {
                 return response_data['backup']
             } else {
-                await show_error(SetError, 'No backup data')
+                await show_error('No backup data')
             }
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            await show_error(SetError, server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 
@@ -77,18 +81,18 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            await show_message(SetMessage,  response_data['detail'])
+            await show_message(response_data['detail'])
             load_backup()
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            await show_error(SetError, server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 
@@ -111,7 +115,7 @@ function BackupPage() {
 
         const validate_data = validate_name()
         if (validate_data['error']) {
-            await show_error(SetError, validate_data['error'])
+            await show_error(validate_data['error'])
             return
         }
 
@@ -130,18 +134,18 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            await show_message(SetMessage,  response_data['detail'])
+            await show_message(response_data['detail'])
             load_backup()
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            await show_error(SetError, server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 
@@ -166,18 +170,18 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            await show_message(SetMessage,  response_data['detail'])
+            await show_message( response_data['detail'])
             document.location.href = '/dashboard'
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            await show_error(SetError, server_error)
+            await show_error(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error) 
+            await show_error(nginx_error) 
         }
     }
 

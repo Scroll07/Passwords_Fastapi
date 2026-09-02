@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { show_error } from '../utils/notifications.js'
+import { useNotification } from '../hooks/useNotification.js'
+
 import './DashboardPage.css'
 
 
@@ -70,14 +71,14 @@ function VaultsPage() {
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(SetError, response_error)
+            await show_error(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error)
+            await show_error(nginx_error)
             return
         }
     }
@@ -106,7 +107,7 @@ function VaultsPage() {
             } else if (contentType && contentType.includes('application/json')) {
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(SetError, response_error)
+                await show_error(response_error)
                 if (response.status === 401) {
                     document.location.href = '/login'
                 }
@@ -118,7 +119,7 @@ function VaultsPage() {
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(SetError, nginx_error)
+                await show_error(nginx_error)
                 return
             }
         }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, NavLink } from 'react-router-dom'
-import { show_error, show_message } from '../utils/notifications.js'
+import { useNotification } from '../hooks/useNotification.js'
 import './VaultPage.css'
 
 
@@ -9,10 +9,14 @@ function VaultPage() {
     const vault_id = Number(params.vault_id)
     const [master_password, SetMasterPassword] = useState('')
     const [entries, SetEntries] = useState([])
-    const [message, SetMessage] = useState('')
-    const [error, SetError] = useState('')
     const [access, SetAccess] = useState(false)
     const [vault, SetVault] = useState({})    
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
     // const [enabledPasswords, setEnablePasswords] = useState(false)
     
 
@@ -42,21 +46,21 @@ function VaultPage() {
                 const response_data = await response.json()
                 let access = response_data['access']
                 if (access) {
-                    await show_message(SetMessage,  response_data['detail'])
+                    await show_message( response_data['detail'])
                 SetAccess(access)
                 }
                     
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(SetError, response_error)
+                await show_error(response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(SetError, nginx_error)
+                await show_error(nginx_error)
                 return
             }
         }
@@ -86,14 +90,14 @@ function VaultPage() {
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(SetError, response_error)
+                await show_error(response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(SetError, nginx_error)
+                await show_error(nginx_error)
                 return
             }
     
@@ -124,14 +128,14 @@ function VaultPage() {
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(SetError, response_error)
+                await show_error(response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(SetError, nginx_error)
+                await show_error(nginx_error)
                 return
             }
             
@@ -166,18 +170,18 @@ function VaultPage() {
             const response_data = await response.json()
             const server_message = response_data['detail']
             SetAccess(true) 
-            show_message(SetMessage,  server_message)
+            show_message( server_message)
         } else if (contentType && contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_message = response_data['detail']
             SetAccess(false)
-            show_error(SetError, server_message)
+            show_error(server_message)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            show_error(SetError, nginx_error)
+            show_error(nginx_error)
             return  
         }
     }

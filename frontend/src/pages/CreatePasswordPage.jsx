@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react"
 import { NavLink, useParams } from "react-router-dom"
-import { show_error } from '../utils/notifications.js'
+import { useNotification } from '../hooks/useNotification.js'
 import './CreatePasswordPage.css'
 
 function CreatePasswordPage() {
     const params = useParams()
     const vault_id = Number(params.vault_id)
-    const [error, SetError] = useState('')
     const [isLoading, SetLoading] = useState(true)
     const [service, SetService] = useState('')
     const [login, SetLogin] = useState('')
     const [password, SetPasword] = useState('')
     const [note, SetNote] = useState('')
     const [generatePassword, SetGeneratePassword] = useState(false)
+
+    const [
+            error,
+            message,
+            showError,
+            showMessage
+        ] = useNotification()
 
     useEffect(() => {
         async function check_user_access() {
@@ -79,14 +85,14 @@ function CreatePasswordPage() {
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(SetError, response_error)
+            await show_error(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html')
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error)
+            await show_error(nginx_error)
             return
         }
     }

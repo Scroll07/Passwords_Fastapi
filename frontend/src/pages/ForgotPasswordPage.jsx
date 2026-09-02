@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { show_error } from '../utils/notifications.js'
+import { useNotification } from '../hooks/useNotification.js'
+
 import './ForgotPasswordPage.css'
 
 
@@ -10,7 +11,12 @@ function ForgotPasswordPage() {
     const [password, setPassword] = useState('')
     const [new_password, setNewPassword] = useState('')
     
-    const [error, SetError] = useState('')
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
 
     function validate_data() {
         const clear_username = username.trim()
@@ -56,7 +62,7 @@ function ForgotPasswordPage() {
 
         const data = validate_data()
         if (data["error"]) {
-            await show_error(SetError, data['error'])
+            await show_error(data['error'])
             return
         } 
 
@@ -84,7 +90,7 @@ function ForgotPasswordPage() {
         } else if (response.headers.get('content-type').includes("application/json")) {
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(SetError, response_error)
+            await show_error(response_error)
             console.log(`RESPONSE: ${response_error}`)
             return 
         } else {
@@ -92,7 +98,7 @@ function ForgotPasswordPage() {
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html')
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error)
+            await show_error(nginx_error)
             return 
         }
     }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { show_error } from '../utils/notifications.js'
+import { useNotification } from '../hooks/useNotification.js'
 import './DashboardPage.css'
 
 
@@ -14,6 +14,14 @@ function DashboardPage() {
     const [sorting, SetSort] = useState(SORT_BY.CREATED_AT)
     const [error, SetError] = useState('')
     const [username, SetUsername] = useState('')
+    
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
+
     let user_data = {}
     let pinned = []
     let no_pinned = []
@@ -69,14 +77,14 @@ function DashboardPage() {
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(SetError, response_error)
+            await show_error(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(SetError, nginx_error)
+            await show_error(nginx_error)
             return
         }
 
@@ -105,7 +113,7 @@ function DashboardPage() {
             } else if (contentType && contentType.includes('application/json')) {
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(SetError, response_error)
+                await show_error(response_error)
                 if (response.status === 401) {
                     document.location.href = '/login'
                 }
@@ -117,7 +125,7 @@ function DashboardPage() {
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(SetError, nginx_error)
+                await show_error(nginx_error)
                 return
             }
         }
