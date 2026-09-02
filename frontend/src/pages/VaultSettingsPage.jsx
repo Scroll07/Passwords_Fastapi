@@ -67,18 +67,18 @@ function VaultSettingsPage() {
                 const vault = response_data['vault']
                 SetVault(vault)
                 SetPinned(vault['pinned'])
-                await show_message(response_data['detail'])
+                await show_message(SetMessage,  response_data['detail'])
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(response_error)
+                await show_error(SetError, response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(nginx_error)
+                await show_error(SetError, nginx_error)
                 return
             }
         }
@@ -99,7 +99,7 @@ function VaultSettingsPage() {
         const response = await fetch(
                 url,
                 {
-                    method: "GET",
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
@@ -111,18 +111,52 @@ function VaultSettingsPage() {
         if (response.ok) {
             const response_data = await response.json()
             await get_vault_data()
-            await show_message(response_data['detail'])
+            await show_message(SetMessage,  response_data['detail'])
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(response_error)
+            await show_error(SetError, response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(nginx_error)
+            await show_error(SetError, nginx_error)
+            return
+        }
+        
+    }
+
+
+    async function delete_backup(e) {
+        e.preventDefault()
+
+        const url = `/web/vaults/${vault_id}`
+        const response = await fetch(
+                url,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
+        const contentType = response.headers.get("content-type")
+
+        if (response.ok) {
+            document.location.href = '/vaults'                        
+        } else if (contentType && contentType.includes('application/json')){
+            const response_data = await response.json()
+            const response_error = response_data['detail'] || "No detail from server"
+            await show_error(SetError, response_error)
+            return
+        } else {
+            const text = await response.text()
+            const parser = new DOMParser()
+            const nginx_document = parser.parseFromString(text, 'text/html') 
+            const nginx_error = nginx_document.title.slice(4)
+            await show_error(SetError, nginx_error)
             return
         }
         

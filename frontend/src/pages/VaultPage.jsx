@@ -42,21 +42,21 @@ function VaultPage() {
                 const response_data = await response.json()
                 let access = response_data['access']
                 if (access) {
-                    await show_message(response_data['detail'])
+                    await show_message(SetMessage,  response_data['detail'])
                 SetAccess(access)
                 }
                     
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(response_error)
+                await show_error(SetError, response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(nginx_error)
+                await show_error(SetError, nginx_error)
                 return
             }
         }
@@ -86,14 +86,14 @@ function VaultPage() {
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(response_error)
+                await show_error(SetError, response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(nginx_error)
+                await show_error(SetError, nginx_error)
                 return
             }
     
@@ -124,14 +124,14 @@ function VaultPage() {
             } else if (contentType && contentType.includes('application/json')){
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                await show_error(response_error)
+                await show_error(SetError, response_error)
                 return
             } else {
                 const text = await response.text()
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                await show_error(nginx_error)
+                await show_error(SetError, nginx_error)
                 return
             }
             
@@ -166,18 +166,18 @@ function VaultPage() {
             const response_data = await response.json()
             const server_message = response_data['detail']
             SetAccess(true) 
-            show_message(server_message)
+            show_message(SetMessage,  server_message)
         } else if (contentType && contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_message = response_data['detail']
             SetAccess(false)
-            show_error(server_message)
+            show_error(SetError, server_message)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            show_error(nginx_error)
+            show_error(SetError, nginx_error)
             return  
         }
     }

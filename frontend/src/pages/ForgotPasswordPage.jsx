@@ -56,7 +56,7 @@ function ForgotPasswordPage() {
 
         const data = validate_data()
         if (data["error"]) {
-            await show_error(data['error'])
+            await show_error(SetError, data['error'])
             return
         } 
 
@@ -84,7 +84,7 @@ function ForgotPasswordPage() {
         } else if (response.headers.get('content-type').includes("application/json")) {
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            await show_error(response_error)
+            await show_error(SetError, response_error)
             console.log(`RESPONSE: ${response_error}`)
             return 
         } else {
@@ -92,7 +92,7 @@ function ForgotPasswordPage() {
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html')
             const nginx_error = nginx_document.title.slice(4)
-            await show_error(nginx_error)
+            await show_error(SetError, nginx_error)
             return 
         }
     }
