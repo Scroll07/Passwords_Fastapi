@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { NavLink, useParams } from "react-router-dom"
 import { useNotification } from '../../hooks/useNotification.js'
+import './PasswordPage.css'
+
 
 function PasswordPage() {
     const params = useParams()
@@ -218,19 +220,6 @@ return (
                         className="password-page-form"
                         onSubmit={update_password}
                     >
-                        {/* <div className="form-group">
-                            <label htmlFor="service">
-                                Service
-                            </label>
-
-                            <input
-                                type="text"
-                                id="service"
-                                name="service"
-                                value={service || ""}
-                                readOnly
-                            />
-                        </div> */}
 
                         <div className="form-group">
                             <label htmlFor="username">
