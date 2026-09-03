@@ -226,7 +226,9 @@ function VaultSettingsPage() {
                 </div>
 
                 <div className="vault-settings-card">
-                    <h2>General</h2>
+                    {pinned ? 
+                    <h2>Unpin vault</h2> : <h2>Pin vault</h2>
+                }
                     <p className="vault-settings-card-desc">
                         {pinned
                             ? 'This vault is pinned for quick access.'
@@ -257,7 +259,7 @@ function VaultSettingsPage() {
                 </div>
 
                 <div className="vault-settings-card vault-settings-card--danger">
-                    <h2>Danger zone</h2>
+                    <h2>Delete vault</h2>
                     <p className="vault-settings-card-desc">
                         Deleting a vault permanently removes its entries and cannot be undone.
                     </p>
