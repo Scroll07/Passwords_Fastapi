@@ -1,0 +1,333 @@
+/* ================================================================
+   VaultSettingsPage
+=============================================================== */
+
+.vault-settings-section {
+  padding: 56px 0 88px;
+}
+
+.vault-settings-section .container {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* =========================
+   Topbar
+========================= */
+
+.vault-settings-topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  box-sizing: border-box;
+}
+
+.vault-settings-back-link {
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.vault-settings-back-link:hover {
+  color: var(--accent-hover);
+  text-decoration: none;
+  transform: translateX(-2px);
+}
+
+.vault-settings-back-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.vault-settings-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.vault-settings-badge--pinned {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: #34d399;
+}
+
+.vault-settings-badge--unpinned {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* =========================
+   Heading
+========================= */
+
+.vault-settings-heading {
+  width: 100%;
+  margin-bottom: 28px;
+  box-sizing: border-box;
+}
+
+.vault-settings-heading h1 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.vault-settings-heading p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.vault-settings-vault-name {
+  margin-top: 6px !important;
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+/* =========================
+   Card
+========================= */
+
+.vault-settings-card {
+  width: 100%;
+  padding: 26px 28px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-sizing: border-box;
+}
+
+.vault-settings-card h2 {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.vault-settings-card-desc {
+  margin: 0 0 18px;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.vault-settings-card--danger {
+  border-color: rgba(239, 68, 68, 0.22);
+}
+
+/* =========================
+   Form
+========================= */
+
+.vault-settings-form {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.vault-settings-form .form-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.vault-settings-form .form-group input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  background: var(--surface-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-sizing: border-box;
+}
+
+.vault-settings-form .form-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.vault-settings-form .form-group input:hover {
+  border-color: #30343a;
+}
+
+.vault-settings-form .form-group input:focus {
+  border-color: var(--accent);
+  background: #12161a;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+}
+
+.vault-settings-form .form-group input:focus-visible {
+  outline: none;
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.vault-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.vault-settings-btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+
+.vault-settings-btn--secondary {
+  background: var(--surface-soft);
+  color: var(--text-soft);
+}
+
+.vault-settings-btn--secondary:hover {
+  background: #16181c;
+  border-color: #2a2d33;
+  color: var(--text);
+}
+
+.vault-settings-btn--secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.vault-settings-btn--accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #052e1b;
+}
+
+.vault-settings-btn--accent:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.18);
+  transform: translateY(-1px);
+}
+
+.vault-settings-btn--accent:active {
+  transform: translateY(0);
+}
+
+.vault-settings-btn--danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.vault-settings-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.15);
+  transform: translateY(-1px);
+}
+
+.vault-settings-btn--danger:active {
+  transform: translateY(0);
+}
+
+/* =========================
+   Tablet — breakpoint ~720px
+========================= */
+
+@media (max-width: 720px) {
+  .vault-settings-section {
+    padding: 36px 0 64px;
+  }
+
+  .vault-settings-card {
+    padding: 20px 18px;
+  }
+
+  .vault-settings-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vault-settings-form .form-group input {
+    min-height: 46px;
+  }
+
+  .vault-settings-form .vault-settings-btn {
+    width: 100%;
+  }
+
+  .vault-settings-btn {
+    width: 100%;
+  }
+}
+
+/* =========================
+   Mobile — breakpoint ~480px
+========================= */
+
+@media (max-width: 480px) {
+  .vault-settings-section {
+    padding: 24px 0 48px;
+  }
+
+  .vault-settings-topbar {
+    margin-bottom: 24px;
+  }
+
+  .vault-settings-card {
+    padding: 18px 16px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+  }
+
+  .vault-settings-card h2 {
+    font-size: 15px;
+  }
+
+  .vault-settings-heading {
+    margin-bottom: 20px;
+  }
+
+  .vault-settings-heading h1 {
+    font-size: 26px;
+  }
+}
