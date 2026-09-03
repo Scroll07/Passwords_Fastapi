@@ -167,8 +167,23 @@ function VaultSettingsPage() {
 
 
     return (
-        <h1>hi</h1>
+        <main>
 
+        <div className="form-messages">
+            {message && (
+                <div className="success-message">
+                {message}
+                </div>
+            )}
+
+            {error && (
+                <div className="form-error">
+                {error}
+                </div>
+            )}
+        </div>
+
+        </main>
 
     )
 
