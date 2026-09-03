@@ -107,7 +107,8 @@ async def create_vault__router(
 @web_vaults.delete('/vaults/{vault_id}')
 async def delete_vault__router(
     vault_id: int,
-    token_data: JWTDecodedData = Depends(web__check_vault_exists),
+    token_data: JWTDecodedData = Depends(verify_web_user),
+    vault: Vaults = Depends(web__check_vault_exists),
     vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     db: AsyncSession = Depends(get_db),
 ):
