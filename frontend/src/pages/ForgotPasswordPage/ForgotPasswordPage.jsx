@@ -1,17 +1,16 @@
-import { useState, useEffect } from "react"
-import { NavLink } from "react-router-dom"
-import { useNotification } from '../hooks/useNotification.js'
+import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
+import { useNotification } from '../../hooks/useNotification.js'
 
-import './RegisterPage.css'
+import './ForgotPasswordPage.css'
 
 
 
-function RegisterPage() {
-    const url = '/api/register'
+function ForgotPasswordPage() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [confirm_password, setConfirmPassword] = useState('')
-    const [loading, setLoading] = useState(false)
+    const [new_password, setNewPassword] = useState('')
+    
     const [
         error,
         message,
@@ -19,11 +18,10 @@ function RegisterPage() {
         showMessage
     ] = useNotification()
 
-
-    function check_creds() {
+    function validate_data() {
         const clear_username = username.trim()
         const clear_password = password.trim()
-        const clear_confirm_password = confirm_password.trim()
+        const clear_new_password = new_password.trim()
 
         let error_in_creds = ''
         
@@ -34,8 +32,8 @@ function RegisterPage() {
         else if (clear_password.includes(' ')) {
             error_in_creds = "Password must not contain spaces"
         }
-        else if (clear_confirm_password.includes(' ')) {
-            error_in_creds = "Confirm password must not contain spaces"
+        else if (clear_new_password.includes(' ')) {
+            error_in_creds = "New password must not contain spaces"
         }
         else if (clear_username.length < 4 || clear_username.length > 32) {
             error_in_creds = "Wrong length of username"
@@ -43,30 +41,32 @@ function RegisterPage() {
         else if (clear_password.length < 4 || clear_password.length > 32) {
             error_in_creds = "Wrong length of password"
         }
-        else if (clear_confirm_password.length < 4 || clear_confirm_password.length > 32) {
-            error_in_creds = "Wrong length of confirm password"
-        }
-        else if (clear_password != clear_confirm_password) {
-            error_in_creds = "Passwords should be the same"
+        else if (clear_new_password.length < 4 || clear_new_password.length > 32) {
+            error_in_creds = "Wrong length of new password"
+        } 
+        else if (clear_password === clear_new_password) {
+            error_in_creds = "Old password can't be the same as new password"
         }
 
         return {
             "username": clear_username,
             "password": clear_password,
+            "new_password": clear_new_password,
             "error": error_in_creds
         }
-        
     }
-    
-    async function send_request(e) {
+
+
+    async function change_password_request(e) {
         e.preventDefault()
-        
-        const data = check_creds()
-        
+
+        const data = validate_data()
         if (data["error"]) {
-            setError(data["error"])
+            showError(data['error'])
             return
-        }
+        } 
+
+        const url = "/web/change-password" 
 
         const response = await fetch(
             url,
@@ -76,48 +76,48 @@ function RegisterPage() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "username": data["username"],
-                    "password": data["password"]
+                    "username": data['username'],
+                    "current_password": data['password'],
+                    "new_password": data['new_password']
                 })
             }
         )
 
-        if (response.ok) {
-            window.location.href = "/login"
-            return
-        }
         
-        if (response.headers.get("content-type").includes("application/json")) {
-            const response_data = await response.json()
-            const response_error = response_data["detail"] || "No detail of error from server"
-            showError(response_error)
+        if (response.ok) {
+            document.location.href = '/login'
             return
+        } else if (response.headers.get('content-type').includes("application/json")) {
+            const response_data = await response.json()
+            const response_error = response_data['detail'] || "No detail from server"
+            showError(response_error)
+            console.log(`RESPONSE: ${response_error}`)
+            return 
         } else {
             const text = await response.text()
             const parser = new DOMParser()
-            const nginx_document = parser.parseFromString(text, "text/html")
-            const nginx_error = nginx_document.title 
-            showError(nginx_error.slice(4))
-            return
+            const nginx_document = parser.parseFromString(text, 'text/html')
+            const nginx_error = nginx_document.title.slice(4)
+            showError(nginx_error)
+            return 
         }
     }
+    
 
 
-        
+
 
 
     return (
-        <section className="auth-section">
+    <section className="auth-section">
         <div className="auth-container">
             <div className="auth-card">
-                
-                { error &&
-                    <div className="form-error">{error}</div>
-                }
-                
-                <h1>Create account</h1>
+                <h1>Change password</h1>
 
-                <form className="auth-form" id="auth-form" method="post" onSubmit={send_request}>
+                { error && 
+                <div className='form-error'>{error}</div>}
+
+                <form className="auth-form" id="auth-form" method="post" onSubmit={change_password_request}>
                     <div className="form-group">
                         <label htmlFor="username">username</label>
                         <input
@@ -125,52 +125,46 @@ function RegisterPage() {
                             id="username"
                             name="username"
                             placeholder="username"
+                            onChange={event => {setUsername(event.target.value)}}
                             required
-                            value={username}
-                            onChange={event => setUsername(event.target.value)}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">password</label>
+                        <label htmlFor="current_password">current password</label>
                         <input
                             type="password"
-                            id="password"
-                            name="password"
+                            id="current_password"
+                            name="current_password"
                             placeholder="••••••••"
+                            onChange={event => {setPassword(event.target.value)}}
                             required
-                            value={password}
-                            onChange={event => setPassword(event.target.value)}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="confirm_password">confirm password</label>
+                        <label htmlFor="new_password">new password</label>
                         <input
                             type="password"
-                            id="confirm_password"
-                            name="confirm_password"
+                            id="new_password"
+                            name="new_password"
                             placeholder="••••••••"
+                            onChange={event => {setNewPassword(event.target.value)}}
                             required
-                            value={confirm_password}
-                            onChange={event => setConfirmPassword(event.target.value)}
                         />
                     </div>
 
-                    <button type="submit" className="auth-submit">Create account</button>
+                    <button type="submit" className="auth-submit">Update password</button>
                 </form>
 
                 <div className="auth-links auth-links-center">
-                    <p>Already have an account? <NavLink to="/login">Log In</NavLink></p>
+                    <p>Remembered? <NavLink to="/login">Log in</NavLink></p>
                 </div>
             </div>
         </div>
-        </section>
-
-
-
-    )
+    </section>
+    ) 
 }
 
 
-export default RegisterPage
+export default ForgotPasswordPage

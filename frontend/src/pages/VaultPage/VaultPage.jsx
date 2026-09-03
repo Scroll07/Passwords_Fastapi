@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, NavLink } from 'react-router-dom'
-import { useNotification } from '../hooks/useNotification.js'
+import { useNotification } from '../../hooks/useNotification.js'
 import './VaultPage.css'
 
 
