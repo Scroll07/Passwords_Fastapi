@@ -124,14 +124,31 @@ function PasswordPage() {
                 headers: {
                     'content-type': "application/json"
                 },
-                body: {
+                body: JSON.stringify({
                     "service": service,
                     "username": validated_data['username'],
                     "password": validated_data['password'],
                     "note": validated_data['note']
-                }
+                })
             }
         )
+        const contentType = response.headers.get("content-type")
+        if (response.ok) {
+            const response_data = await response.json()
+            showMessage(response_data['detail'])
+        } else if (contentType && contentType.includes('application/json')){
+            const response_data = await response.json()
+            const response_error = response_data['detail'] || "No detail from server"
+            showError(response_error)
+            return
+        } else {
+            const text = await response.text()
+            const parser = new DOMParser()
+            const nginx_document = parser.parseFromString(text, 'text/html')
+            const nginx_error = nginx_document.title.slice(4)
+            showError(nginx_error)
+            return
+        }
     }
 
     function validate_update_data() {
