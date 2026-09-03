@@ -332,7 +332,7 @@ function VaultPage() {
                                 <tr key={entry.service}>
                                 <td>
                                     <NavLink
-                                    to={`/vaults/${vault.id}/passwords/${entry.service}`}
+                                    to={`/vaults/${vault.id}/entries/${entry.service}`}
                                     className="entry-name"
                                     >
                                     {entry.service}

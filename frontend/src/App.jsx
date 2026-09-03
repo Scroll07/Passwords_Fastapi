@@ -18,6 +18,8 @@ import VaultPage from './pages/VaultPage/VaultPage'
 import CreateVaultPage from './pages/CreateVaultPage/CreateVaultPage'
 import CreatePasswordPage from './pages/CreatePasswordPage/CreatePasswordPage'
 import VaultSettingsPage from './pages/VaultSettingsPage/VaultSettingsPage'
+import PasswordPage from './pages/PasswordPage/PasswordPage'
+
 
 import './App.css'
 
@@ -44,6 +46,7 @@ function App() {
             <Route path='/vaults/create' element={<CreateVaultPage />} />
             <Route path='/vaults/:vault_id/settings' element={<VaultSettingsPage />} />
             <Route path='/vaults/:vault_id/entries/new' element={<CreatePasswordPage />} />
+            <Route path='/vaults/:vault_id/entries/:service' element={<PasswordPage />} />
             
         </Route>
     </Routes>

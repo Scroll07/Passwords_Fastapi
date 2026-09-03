@@ -78,7 +78,8 @@ class PasswordTool:
     async def get_command(
                     self,
                     service: str,
-                    get_all: bool = False
+                    get_all: bool = False,
+                    strict: bool = False
                         ):
         passwords = self._load_passwords()
         
@@ -88,6 +89,11 @@ class PasswordTool:
 
         if get_all:
             passwords = sorted([p for p in passwords.passwords], key=lambda x: x.service)
+        elif strict:
+            for p in passwords.passwords:
+                if p.service.lower() == service.lower():
+                    passwords = [p]
+                    break
         else:
             passwords = sorted([p for p in passwords.passwords if p.service.lower().startswith(service.lower())],
                             key=lambda p: p.service)

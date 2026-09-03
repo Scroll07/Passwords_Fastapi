@@ -64,6 +64,7 @@ async def get__router(
     vault_id: int,
     service: str = Body(default=''),
     get_all: bool = Body(default=False),
+    strict: bool = Body(default=False),
     vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
@@ -81,7 +82,7 @@ async def get__router(
     if len(service) < 1 and not get_all:
         raise HTTPException(401, "Request must include service name or get_all parameter")
     
-    passwords = await password_tool.get_command(service=service, get_all=get_all)
+    passwords = await password_tool.get_command(service=service, get_all=get_all, strict=strict)
 
     
     return {
