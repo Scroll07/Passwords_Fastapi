@@ -33,20 +33,6 @@ class RegisterRequestData(LoginRequest):
         if not (6 < len(str(value)) < 16):
             raise ValueError("Wrong telegram id")
         return value
-#=============================
-#=============================
-#=============================
-
-class DownloadRequest(BaseModel):
-    backup_id: int
-    
-class DeleteRequest(BaseModel):
-    backup_id: int
-
-class UploadRequest(BaseModel):
-    name: str = Field(max_length=24)
-    rows_count: int
-
 
 class CreateVaultData(BaseModel):
     name: str
@@ -67,6 +53,19 @@ class CreateVaultData(BaseModel):
         if ' ' in value:
            raise ValueError("Master password must not contain spaces") 
         return value
+
+class DownloadRequest(BaseModel):
+    backup_id: int
+    
+class DeleteRequest(BaseModel):
+    backup_id: int
+
+class UploadRequest(BaseModel):
+    name: str = Field(max_length=24)
+    rows_count: int
+#=============================
+#=============================
+#=============================
 
 class VaultData(BaseModel):
     id: int

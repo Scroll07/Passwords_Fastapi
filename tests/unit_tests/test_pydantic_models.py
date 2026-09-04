@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from backend.schemas.base import RegisterRequestData, LoginRequest
+from backend.schemas.base import RegisterRequestData, LoginRequest, CreateVaultData
 
 
 def test_LoginRequest__ok():
@@ -57,7 +57,51 @@ def test_RegisterRequestData__telegram_id_too_long__raises():
             password="password",
             telegram_id=10000000000000000000000000000000
         )
-        
 
+def test_CreateVaultData__ok():
+    data = CreateVaultData(
+        name="Usual name",
+        master_password="usual_password"
+    )
+    assert data.name == "Usual name"
+    assert data.master_password == "usual_password"
+
+
+def test_CreateVaultData__no_name__raises():
+    with pytest.raises(ValidationError):
+        data = CreateVaultData(
+            name="",
+            master_password="usual_password"
+        )
+
+def test_CreateVaultData__long_name__raises():
+    with pytest.raises(ValidationError):
+        data = CreateVaultData(
+            name="Looooooooooooooooooooooooooong Name",
+            master_password="usual_password"
+        )
+
+def test_CreateVaultData__long_password__raises():
+    with pytest.raises(ValidationError):
+        data = CreateVaultData(
+            name="Name",
+            master_password="Looooooooooooooooooooooooooong_password"
+        )
+
+def test_CreateVaultData__password_with_space__raises():
+    with pytest.raises(ValidationError):
+        data = CreateVaultData(
+            name="Name",
+            master_password="Master password"
+        )
         
+def test_CreateVaultData__startwith_spaces__ok():
+    data = CreateVaultData(
+        name="   Name  ",
+        master_password="  password  "
+    )
+    assert data.name == "Name"
+    assert data.master_password == "password"
+    
+    
 
