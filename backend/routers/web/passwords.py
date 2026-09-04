@@ -87,7 +87,7 @@ async def get__router(
     
     return {
         "ok": True,
-        "passwords": passwords, #list[Password]
+        "passwords": passwords, #list[Password] | Password (if strict=True)
     }
     # Добавить обработку ошибок, включительно ValueError
     # Добавить логирование

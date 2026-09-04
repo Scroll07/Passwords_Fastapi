@@ -80,22 +80,22 @@ class PasswordTool:
                     service: str,
                     get_all: bool = False,
                     strict: bool = False
-                        ):
-        passwords = self._load_passwords()
+                        ) -> Password | list[Password]:
+        data = self._load_passwords()
         
         
-        if not passwords:
+        if not data:
             raise ValueError("No entries were found")
 
         if get_all:
-            passwords = sorted([p for p in passwords.passwords], key=lambda x: x.service)
+            passwords = sorted([p for p in data.passwords], key=lambda x: x.service)
         elif strict:
-            for p in passwords.passwords:
+            for p in data.passwords:
                 if p.service.lower() == service.lower():
-                    passwords = [p]
-                    break
+                    return p
+            raise ValueError("No password was found")
         else:
-            passwords = sorted([p for p in passwords.passwords if p.service.lower().startswith(service.lower())],
+            passwords = sorted([p for p in data.passwords if p.service.lower().startswith(service.lower())],
                             key=lambda p: p.service)
             
         return passwords

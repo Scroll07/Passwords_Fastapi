@@ -3,6 +3,7 @@ from typing import AsyncIterator
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy import text
 
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.db_schema import SessionType
@@ -26,7 +27,16 @@ async def db_session() -> AsyncIterator[AsyncSession]:
     test_engine = create_async_engine(url=TEST_ENGINE_URL)
     test_session = async_sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
     async with test_session() as session:
+        await session.execute(text("DELETE FROM users CASCADE"))
+        await session.execute(text("DELETE FROM roles CASCADE"))
+        await session.execute(text("DELETE FROM sessions CASCADE"))
+        await session.execute(text("DELETE FROM backups CASCADE"))
+        await session.execute(text("DELETE FROM vaults CASCADE"))
+        await session.commit()
+        
         yield session
+        
+    await test_engine.dispose()
 
 
 @pytest.fixture
