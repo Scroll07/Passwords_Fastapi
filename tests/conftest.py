@@ -4,12 +4,22 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.jwt import JWTDecodedData
+from backend.schemas.db_schema import SessionType
 from backend.dependencies import get_jwt_service
 from backend.services.jwt_service import JWT_Service
+from backend.core.settings import Settings
 
 
 TEST_ENGINE_URL = "postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
+
+
+TEST_SECRET_KEY = "wjeQv9BfnQYKPSB-gjvmfujfh3jri3j0"
+
+@pytest.fixture(autouse=True)
+def mock_secret_key(monkeypatch):
+    monkeypatch.setattr(Settings, "SECRET_KEY", TEST_SECRET_KEY)
+
 
 @pytest_asyncio.fixture
 async def db_session() -> AsyncIterator[AsyncSession]:
@@ -31,7 +41,7 @@ def access_token(jwt_service: JWT_Service) -> str:
         sub="user_id",
         sid=0,
         exp=int(expires.timestamp()),
-        type=TokenType.BEARER
+        type=SessionType.BEARER
     )
-    token = jwt_service.create_access_token(data=data)
+    token = jwt_service.create_token(data=data)
     return token.token

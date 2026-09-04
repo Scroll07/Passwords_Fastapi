@@ -6,14 +6,14 @@ from httpx import AsyncClient, ASGITransport
 
 from main import app
 from tests.conftest import TEST_ENGINE_URL
-from backend.schemas.jwt import JWTDecodedData, TokenType
-from backend.schemas.db_schema import UserRoles
+from backend.schemas.jwt import JWTDecodedData
+from backend.schemas.db_schema import UserRoles, SessionType
 from backend.dao.role_dao import RoleDAO
 from backend.models.model import Base, Users
-from backend.dependencies import get_db, verify_user, verify_refresh_token
 import backend.dao.backupDao as dao_file
 from backend.schemas.base import RegisterRequestData
-
+from backend.dependencies import get_db
+from backend.api_dependencies import verify_user, verify_refresh_token
 
 @pytest_asyncio.fixture
 async def create_one_backup(test_user, tmp_path, monkeypatch, client):
@@ -105,7 +105,7 @@ def jwt_bearer_mock(test_user):
             sub=str(test_user.id),
             sid=123,
             exp=123,
-            type=TokenType.BEARER
+            type=SessionType.BEARER
         )
     def mock_verify_user():
         return token_data
@@ -122,7 +122,7 @@ def jwt_refresh_mock(test_user):
             sub=str(test_user.id),
             sid=123,
             exp=123,
-            type=TokenType.REFRESH
+            type=SessionType.REFRESH
         )
     def mock_verify_user():
         return token_data
