@@ -11,8 +11,8 @@ from backend.services.jwt_service import JWT_Service
 from backend.core.settings import Settings
 
 
-TEST_ENGINE_URL = "postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
 
+TEST_ENGINE_URL = "postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
 
 TEST_SECRET_KEY = "wjeQv9BfnQYKPSB-gjvmfujfh3jri3j0"
 
