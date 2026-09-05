@@ -93,7 +93,7 @@ class PasswordTool:
             for p in data.passwords:
                 if p.service.lower() == service.lower():
                     return p
-            raise ValueError("No password was found")
+            return []
         else:
             passwords = sorted([p for p in data.passwords if p.service.lower().startswith(service.lower())],
                             key=lambda p: p.service)
@@ -126,9 +126,9 @@ class PasswordTool:
     async def edit_command(
         self,
         serivce: str,
-        username: str = '',
-        password: str = '',
-        note: str = ''
+        username: str | None = None,
+        password: str | None = None,
+        note: str | None = None
     ):
         passwords = self._load_passwords()
         
@@ -142,9 +142,9 @@ class PasswordTool:
         if not pas_to_change:
             raise ValueError("Wrong service label to edit")
         
-        pas_to_change.username = (username if username else pas_to_change.username)
-        pas_to_change.password = (password if password else pas_to_change.password)
-        pas_to_change.note = (note if note else pas_to_change.note)
+        pas_to_change.username = (username if username is not None else pas_to_change.username)
+        pas_to_change.password = (password if password is not None else pas_to_change.password)
+        pas_to_change.note = (note if note is not None else pas_to_change.note)
         
         await self._save_passwords(passwords=passwords)
         
