@@ -4,10 +4,8 @@ from typing import Literal
 
 from backend.password_manager.core.crypto import(
     create_random_salt,
-    decrypt_vault_passwords,
     derive_key,
     create_dek,
-    decrypt_dek,
     encrypt_vault_passwords
     
 )
@@ -17,14 +15,11 @@ from backend.password_manager.core.config import (
 )
 from backend.password_manager.schemas.passwords import (
     EncryptedData,
-    Password,
-    EncryptedUserVault,
     Passwords
 )
 # from backend.password_manager.services.file_utils import (
 #     load_encrypted_vault, is_vault_files_exists, get_vault_usernames
 # )
-from backend.password_manager.schemas.users import UserData
 
 
 # new_vault = VAULTS / username / f"{vault_name}.json"

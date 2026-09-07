@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Form, Request, UploadFile, File, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Request, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +9,7 @@ from backend.dao.session_dao import SessionDao
 from backend.services.jwt_service import JWT_Service
 from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData
-from backend.schemas.base import CreateVaultData, SortByVaults, VaultData
+from backend.schemas.base import SortByVaults, VaultData
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.api_responses import VaultStatusResponse
 from backend.dependencies import get_db, get_jwt_service
@@ -17,20 +17,14 @@ from backend.web_dependencies import verify_web_user, verify_vault_session, web_
 from backend.core.logger import get_logger
 from backend.schemas.requests import RequstVaultDependecie
 from backend.dao.vaultDao import VaultDao, VaultFields, Vaults
-from backend.services.secrets import (
-    hash_password,
-    verify_password
-)
 from backend.services.jwt_service import create_token_and_session
 from backend.password_manager.services.password import (
-    create_user_vault,
-    check_is_vault_exists
+    create_user_vault
 )
 from backend.password_manager.core.crypto import (
     derive_key,
     decrypt_dek,
-    decrypt_vault_passwords,
-    encrypt_vault_passwords
+    decrypt_vault_passwords
 )
 from backend.services.cookies import add_vault_cookie
 

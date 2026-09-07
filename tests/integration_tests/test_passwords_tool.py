@@ -1,12 +1,8 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 import pytest
 
 from backend.password_manager.core.password_tool import PasswordTool
 from backend.password_manager.core.crypto import (
-    derive_key,
-    decrypt_dek,
-    decrypt_vault_passwords,
-    encrypt_vault_passwords
+    decrypt_vault_passwords
 )
 from backend.dao.vaultDao import Vaults
 from backend.password_manager.schemas.passwords import Password

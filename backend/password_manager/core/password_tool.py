@@ -2,12 +2,10 @@ import secrets
 from sqlalchemy.ext.asyncio import AsyncSession
 from cryptography.fernet import InvalidToken
 
-from backend.dao.vaultDao import VaultDao, VaultFields
+from backend.dao.vaultDao import VaultDao
 from backend.models.model import Vaults
 from backend.password_manager.schemas.passwords import Password, Passwords
 from backend.password_manager.core.crypto import (
-    derive_key,
-    decrypt_dek,
     decrypt_vault_passwords,
     encrypt_vault_passwords
 )

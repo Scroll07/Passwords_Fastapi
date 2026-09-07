@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import DateTime, ForeignKey, LargeBinary
-from enum import StrEnum
 
 from backend.schemas.db_schema import (
     UserRoles,

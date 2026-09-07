@@ -2,7 +2,6 @@ from fastapi import Body, HTTPException, Depends, Request
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
-from cryptography.fernet import InvalidToken
 
 from backend.api_dependencies import get_db, get_jwt_service
 from backend.services.cookies import add_bearer_cookie, add_refresh_cookie
@@ -13,18 +12,8 @@ from backend.schemas.jwt import JWTDecodedData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.base import WebChangePasswordSchema
 from backend.core.logger import get_logger
-from backend.password_manager.services.password import (
-    create_user_vault,
-    check_is_vault_exists
-)
 from backend.schemas.requests import RequstVaultDependecie
 from backend.dao.vaultDao import VaultDao, VaultFields, Vaults
-from backend.password_manager.core.crypto import (
-    derive_key,
-    decrypt_dek,
-    decrypt_vault_passwords,
-    encrypt_vault_passwords
-)
 from backend.services.secrets import DekFernet
 
 

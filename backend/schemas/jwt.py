@@ -1,4 +1,3 @@
-from enum import StrEnum
 from pydantic import BaseModel
 
 from backend.schemas.db_schema import SessionType
