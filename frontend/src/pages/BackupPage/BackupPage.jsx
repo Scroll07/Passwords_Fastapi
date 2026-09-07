@@ -1,21 +1,24 @@
 import { useState, useEffect } from "react"
 import { NavLink, useParams } from 'react-router-dom'
+import { useNotification } from '../../hooks/useNotification.js'
 import './BackupPage.css'
-
 
 
 function BackupPage() {
     const params = useParams()
     const backup_id = Number(params.backup_id)
     const [new_name, setNewName] = useState('')
-    const [message, setMessage] = useState('')
-    const [error, setError] = useState('')
     const [backup, setBackup] = useState(null)
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
 
     async function get_backup() {
-        setError("")
         if (Number.isNaN(backup_id) || !Number.isInteger(backup_id)) {
-            setError('Wrong id of backup')
+            showError('Wrong id of backup')
             return
         }
 
@@ -35,18 +38,18 @@ function BackupPage() {
             if (response_data['backup']) {
                 return response_data['backup']
             } else {
-                setError('No backup data')
+                showError('No backup data')
             }
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            showError(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            showError(nginx_error) 
         }
     }
 
@@ -63,9 +66,6 @@ function BackupPage() {
 
     async function change_pin(e) {
         e.preventDefault()
-        
-        setError("")
-        setMessage("")
 
         const url = `/web/backups/${backup_id}/change-pin`
         const response = await fetch(
@@ -81,18 +81,18 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            setMessage(response_data['detail'])
+            showMessage(response_data['detail'])
             load_backup()
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            showError(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            showError(nginx_error) 
         }
     }
 
@@ -113,12 +113,9 @@ function BackupPage() {
     async function change_name(e) {
         e.preventDefault()
 
-        setError("")
-        setMessage("")
-
         const validate_data = validate_name()
         if (validate_data['error']) {
-            setError(validate_data['error'])
+            showError(validate_data['error'])
             return
         }
 
@@ -137,64 +134,24 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            setMessage(response_data['detail'])
+            showMessage(response_data['detail'])
             load_backup()
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            showError(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            showError(nginx_error) 
         }
     }
 
-    // async function download_backup(e) {
-    //     e.preventDefault()
-
-    //     setError("")
-    //     setMessage("")
-
-    //     const url = `/web/backups/${backup_id}`
-    //     const response = await fetch(
-    //         url,
-    //         {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json"
-    //             },
-    //             body: JSON.stringify({
-    //                 "backup_id": backup_id
-    //             })
-    //         }
-    //     )
-
-    //     const contentType = response.headers.get('content-type')
-    //     if (response.ok) {
-    //         const response_data = await response.blob()
-    //         setMessage("Your backup was successfully downloaded")
-    //         document.location.href = '/dashboard'
-    //     } else  if (contentType.includes("application/json")) {
-    //         const response_data = await response.json()
-    //         const server_error = response_data['detail']
-    //         setError(server_error)
-    //     } else {
-    //         const text = await response.text()
-    //         const parser = new DOMParser()
-    //         const nginx_document = parser.parseFromString(text, "text/html")
-    //         const nginx_error = nginx_document.title.slice(4)
-    //         setError(nginx_error) 
-    //     }
-    // }
 
     async function delete_backup(e) {
         e.preventDefault()
-
-        setError("")
-        setMessage("")
 
         const confirmed = window.confirm('Delete this backup? This action cannot be undone.')
         if (! confirmed) {return}
@@ -213,18 +170,18 @@ function BackupPage() {
         const contentType = response.headers.get('content-type')
         if (response.ok) {
             const response_data = await response.json()
-            setMessage(response_data['detail'])
+            showMessage( response_data['detail'])
             document.location.href = '/dashboard'
         } else  if (contentType.includes("application/json")) {
             const response_data = await response.json()
             const server_error = response_data['detail']
-            setError(server_error)
+            showError(server_error)
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title.slice(4)
-            setError(nginx_error) 
+            showError(nginx_error) 
         }
     }
 

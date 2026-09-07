@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 
-from backend.dependincies import get_settings
+from backend.dependencies import get_settings
 
 settings = get_settings()
 bot = Bot(token=settings.BOT_TOKEN)

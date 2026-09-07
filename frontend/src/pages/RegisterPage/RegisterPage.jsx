@@ -1,15 +1,25 @@
 import { useState, useEffect } from "react"
 import { NavLink } from "react-router-dom"
+import { useNotification } from '../../hooks/useNotification.js'
+
 import './RegisterPage.css'
+
+
 
 function RegisterPage() {
     const url = '/api/register'
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [confirm_password, setConfirmPassword] = useState('')
-    const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
-    
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
+
+
     function check_creds() {
         const clear_username = username.trim()
         const clear_password = password.trim()
@@ -80,21 +90,20 @@ function RegisterPage() {
         if (response.headers.get("content-type").includes("application/json")) {
             const response_data = await response.json()
             const response_error = response_data["detail"] || "No detail of error from server"
-            setError(response_error)
+            showError(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title 
-            setError(nginx_error.slice(4))
+            showError(nginx_error.slice(4))
             return
         }
-        
-
-
-        
     }
+
+
+        
 
 
     return (

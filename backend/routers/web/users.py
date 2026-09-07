@@ -4,16 +4,17 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.dao.session_dao import SessionDao
-from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.jwt import JWTDecodedData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.api_responses import MessageResponse
-from backend.dependincies import get_db, get_jwt_service, verify_web_user, verify_web_refresh_token, web_validate_change_passwords
+from backend.dependencies import get_db, get_jwt_service
 from backend.schemas.base import RegisterRequestData, WebChangePasswordSchema
-from backend.schemas.db_schema import UserFields
+from backend.schemas.db_schema import UserFields, SessionType
 from backend.dao.userDao import UserDao
 from backend.services.secrets import hash_password, verify_password
 from backend.core.logger import get_logger
 from backend.services.cookies import add_bearer_cookie, add_refresh_cookie
+from backend.web_dependencies import verify_web_refresh_token, verify_web_user, web_validate_change_passwords
 
 logger = get_logger(__name__)
 
@@ -42,13 +43,13 @@ async def web_login_post(
             session=db,
             jwt_service=jwt_service,
             user_id=user.id,
-            token_type=TokenType.BEARER
+            token_type=SessionType.BEARER
         )
         refresh_token = await create_token_and_session(
             session=db,
             jwt_service=jwt_service,
             user_id=user.id,
-            token_type=TokenType.REFRESH
+            token_type=SessionType.REFRESH
         )
         
         content = MessageResponse(
@@ -58,8 +59,8 @@ async def web_login_post(
         response = JSONResponse(
             content=content.model_dump(),
         )
-        add_bearer_cookie(response=response, value=bearer_token.token)
-        add_refresh_cookie(response=response, value=refresh_token.token)
+        add_bearer_cookie(response=response, jwt_service=jwt_service, value=bearer_token.token)
+        add_refresh_cookie(response=response, jwt_service=jwt_service, value=refresh_token.token)
         
         await db.commit()
             
@@ -76,17 +77,26 @@ async def web_logout(
     db: AsyncSession = Depends(get_db),
     data: JWTDecodedData = Depends(verify_web_user)
 ):    
+    user_id = int(data.sub)
     session_dao = SessionDao(session=db)
-
-    await session_dao.make_unactive_session(user_id=int(data.sub))
+    await session_dao.make_unactive_session(user_id=user_id)
+    active_vault_sessions = await session_dao.get_active_user_sessions(
+        user_id=user_id,
+        session_type=SessionType.VAULT
+    )
+    for session in active_vault_sessions:
+        session.is_active = False
+    
+    await db.commit()
+    
     response = RedirectResponse(
         url="/login",
         status_code=303
         )
     response.delete_cookie(key="bearer_token", httponly=True, samesite="lax")
     response.delete_cookie(key="refresh_token", httponly=True, samesite="lax")
-    
-    await db.commit()
+    response.delete_cookie(key="vault_token", httponly=True, samesite="lax")
+
     return response
 
 @web_users.get("/refresh")
@@ -100,13 +110,13 @@ async def web_refresh_get(
             session=db,
             jwt_service=jwt_service,
             user_id=int(token_data.sub),
-            token_type=TokenType.BEARER
+            token_type=SessionType.BEARER
         )
         refresh_token = await create_token_and_session(
             session=db,
             jwt_service=jwt_service,
             user_id=int(token_data.sub),
-            token_type=TokenType.REFRESH
+            token_type=SessionType.REFRESH
         )
         
         content = {
@@ -117,8 +127,8 @@ async def web_refresh_get(
         response = JSONResponse(
             content=content
         )
-        add_bearer_cookie(response=response, value=bearer_token.token)
-        add_refresh_cookie(response=response, value=refresh_token.token)
+        add_bearer_cookie(response=response, jwt_service=jwt_service, value=bearer_token.token)
+        add_refresh_cookie(response=response, jwt_service=jwt_service, value=refresh_token.token)
         
         await db.commit()
         return response

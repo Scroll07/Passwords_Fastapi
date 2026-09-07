@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 import jwt
 
 from backend.services.jwt_service import JWT_Service
-from backend.schemas.jwt import JWTDecodedData, TokenType
+from backend.schemas.jwt import JWTDecodedData
+from backend.schemas.db_schema import SessionType
 
 
 
@@ -17,15 +18,15 @@ def test_create_access_token__payload_has_sub_sid_exp_type(jwt_service: JWT_Serv
         sub="user_id",
         sid=0,
         exp=int(expires.timestamp()),
-        type=TokenType.BEARER
+        type=SessionType.BEARER
     )
-    token = jwt_service.create_access_token(data=data)
+    token = jwt_service.create_token(data=data)
     decoded = jwt.decode(token.token, options={"verify_signature": False})
     
     assert decoded.get("sub") == "user_id"
     assert decoded.get("sid") == 0
     assert decoded.get("exp") == int(expires.timestamp())
-    assert decoded.get("type") == TokenType.BEARER
+    assert decoded.get("type") == SessionType.BEARER
     
 def test_verify_token__valid_token__returns_data(jwt_service: JWT_Service):
     expires = datetime.now() + timedelta(minutes=15)
@@ -33,9 +34,9 @@ def test_verify_token__valid_token__returns_data(jwt_service: JWT_Service):
         sub="user_id",
         sid=0,
         exp=int(expires.timestamp()),
-        type=TokenType.BEARER
+        type=SessionType.BEARER
     )
-    token = jwt_service.create_access_token(data=data)
+    token = jwt_service.create_token(data=data)
     decoded = jwt_service.verify_token(token=token.token)
     assert data == decoded
 

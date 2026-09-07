@@ -43,3 +43,8 @@ class BackupStatsResponse(BaseModel):
     ok: bool
     stats: BackupStats
     type: TypeResponses = TypeResponses.STATS
+    
+    
+class VaultStatusResponse(BaseModel):
+    detail: str
+    access: bool

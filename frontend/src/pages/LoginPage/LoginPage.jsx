@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react"
 import { NavLink } from "react-router-dom"
+import { useNotification } from '../../hooks/useNotification.js'
+
 import './LoginPage.css'
+
+
 
 function LoginPage() {
     const url = '/web/login'
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
     
     function check_creds() {
         const clear_username = username.trim()
@@ -41,7 +50,7 @@ function LoginPage() {
         const data = check_creds()
 
         if (data["error"]) {
-            setError(data["error"])
+            showError(data["error"])
             return
         }
 
@@ -60,24 +69,23 @@ function LoginPage() {
         )
 
         if (response.ok) {
-            window.location.href = "/dashboard"
+            window.location.href = "/vaults"
             return
         }
         
         if (response.headers.get("content-type").includes("application/json")) {
             const response_data = await response.json()
             const response_error = response_data["detail"] || "No detail of error from server"
-            setError(response_error)
+            showError(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, "text/html")
             const nginx_error = nginx_document.title 
-            setError(nginx_error.slice(4))
+            showError(nginx_error.slice(4))
             return
         }
-
     }
     
     

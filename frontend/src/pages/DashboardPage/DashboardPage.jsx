@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useNotification } from '../../hooks/useNotification.js'
 import './DashboardPage.css'
-
 
 
 function DashboardPage() {
@@ -10,10 +10,17 @@ function DashboardPage() {
         ROWS: "rows",
         CREATED_AT: "created_at"
     })
-    let [backups, SetBackups] = useState([])
+    const [backups, SetBackups] = useState([])
     const [sorting, SetSort] = useState(SORT_BY.CREATED_AT)
-    const [error, SetError] = useState('')
     const [username, SetUsername] = useState('')
+    
+    const [
+        error,
+        message,
+        showError,
+        showMessage
+    ] = useNotification()
+
     let user_data = {}
     let pinned = []
     let no_pinned = []
@@ -69,14 +76,14 @@ function DashboardPage() {
         } else if (contentType && contentType.includes('application/json')){
             const response_data = await response.json()
             const response_error = response_data['detail'] || "No detail from server"
-            SetError(response_error)
+            showError(response_error)
             return
         } else {
             const text = await response.text()
             const parser = new DOMParser()
             const nginx_document = parser.parseFromString(text, 'text/html') 
             const nginx_error = nginx_document.title.slice(4)
-            SetError(nginx_error)
+            showError(nginx_error)
             return
         }
 
@@ -105,7 +112,7 @@ function DashboardPage() {
             } else if (contentType && contentType.includes('application/json')) {
                 const response_data = await response.json()
                 const response_error = response_data['detail'] || "No detail from server"
-                SetError(response_error)
+                showError(response_error)
                 if (response.status === 401) {
                     document.location.href = '/login'
                 }
@@ -117,7 +124,7 @@ function DashboardPage() {
                 const parser = new DOMParser()
                 const nginx_document = parser.parseFromString(text, 'text/html') 
                 const nginx_error = nginx_document.title.slice(4)
-                SetError(nginx_error)
+                showError(nginx_error)
                 return
             }
         }
@@ -128,8 +135,8 @@ function DashboardPage() {
         }
         loadBackups(sorting)
     }, [sorting])
-    
-    
+
+
     if (backups) {
         pinned = backups.filter(b => b.pinned)
         no_pinned = backups.filter(b => !b.pinned)

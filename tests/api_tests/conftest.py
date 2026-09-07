@@ -6,48 +6,55 @@ from httpx import AsyncClient, ASGITransport
 
 from main import app
 from tests.conftest import TEST_ENGINE_URL
-from backend.schemas.jwt import JWTDecodedData, TokenType
-from backend.schemas.db_schema import UserRoles
+from backend.schemas.jwt import JWTDecodedData
+from backend.schemas.db_schema import UserRoles, SessionType, CreateUserInDb
 from backend.dao.role_dao import RoleDAO
 from backend.models.model import Base, Users
-from backend.dependincies import get_db, verify_user, verify_refresh_token
 import backend.dao.backupDao as dao_file
 from backend.schemas.base import RegisterRequestData
-
+from backend.dependencies import get_db
+from backend.api_dependencies import verify_user, verify_refresh_token
+from backend.dao.userDao import UserDao
+from backend.dao.backupDao import BackupDao
+import backend.dao.backupDao as BackupDaoDir
 
 @pytest_asyncio.fixture
-async def create_one_backup(test_user, tmp_path, monkeypatch, client):
+async def create_one_backup(test_user, tmp_path, monkeypatch, db_session):
     async def _inner():
-        file_path = tmp_path / "test_backup.json"
-        backup_data = b"My backup data"
-        file_path.write_bytes(backup_data)
-
-        monkeypatch.setattr(dao_file, "BACKUPS", tmp_path)
-
-        with open(file_path, "rb") as f:
-            response = await client.post(
-                url="/api/backups/upload",
-                files={"file": (file_path.name, f)},
-                data={"name": "backup_name", "rows": 4}
-            )
-        assert response.status_code == 201
+        monkeypatch.setattr(BackupDaoDir, "BACKUPS", tmp_path)
+        dao = BackupDao(db_session)
+        async with dao.create_backup(
+            user_id=test_user.id,
+            filename="Backup.json",
+            rows=4,
+            name="Backup name",
+            pinned=False
+        ) as backup:
+            with open(backup.path, "wb") as f:
+                f.write(b"My backup data") 
+            return backup
     return _inner
     
 @pytest_asyncio.fixture
-async def test_backup(test_user, tmp_path, monkeypatch, client):
-    file_path = tmp_path / "test_backup.json"
-    backup_data = b"My backup data"
-    file_path.write_bytes(backup_data)
-
-    monkeypatch.setattr(dao_file, "BACKUPS", tmp_path)
-
-    with open(file_path, "rb") as f:
-        response = await client.post(
-            url="/api/backups/upload",
-            files={"file": (file_path.name, f)},
-            data={"name": "backup_name", "rows": 4}
-        )
-    assert response.status_code == 201
+async def test_backup(test_user, db_session: AsyncSession, 
+    tmp_path, 
+    monkeypatch
+):
+    monkeypatch.setattr(BackupDaoDir, "BACKUPS", tmp_path)
+    
+    dao = BackupDao(db_session)
+    async with dao.create_backup(
+        user_id=test_user.id,
+        filename="Backup.json",
+        rows=4,
+        name="Backup name",
+        pinned=False
+    ) as backup:
+        with open(backup.path, "wb") as f:
+            f.write(b"My backup data") 
+        
+        yield backup
+    
     
 @pytest_asyncio.fixture
 async def register_test_user(client):
@@ -61,15 +68,9 @@ async def register_test_user(client):
     return data
 
 @pytest_asyncio.fixture
-async def override_db():
-    test_engine = create_async_engine(url=TEST_ENGINE_URL)
-    test_session = async_sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
+async def override_db(db_session):
     async def overrides_get_db():
-        async with test_session() as session:
-                yield session
+        return db_session
 
     
     app.dependency_overrides[get_db] = overrides_get_db 
@@ -78,8 +79,6 @@ async def override_db():
 
     app.dependency_overrides.clear()
 
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
 
 @pytest_asyncio.fixture
 async def init_db(db_session: AsyncSession):
@@ -105,7 +104,7 @@ def jwt_bearer_mock(test_user):
             sub=str(test_user.id),
             sid=123,
             exp=123,
-            type=TokenType.BEARER
+            type=SessionType.BEARER
         )
     def mock_verify_user():
         return token_data
@@ -122,7 +121,7 @@ def jwt_refresh_mock(test_user):
             sub=str(test_user.id),
             sid=123,
             exp=123,
-            type=TokenType.REFRESH
+            type=SessionType.REFRESH
         )
     def mock_verify_user():
         return token_data
@@ -139,13 +138,14 @@ async def test_user(init_db, db_session: AsyncSession) -> Users:
     role_dao = RoleDAO(session=db_session)
     user_role = await role_dao.get_role(role_name=UserRoles.USER)
     assert user_role is not None
-    user = Users(
-        username="test_username",
-        password_hash="hashed_password",
-        telegram_id=1910592094,
+    dao = UserDao(db_session)
+    user_data = CreateUserInDb(
+        username="test",
+        password_hash="password_hash",
+        telegram_id=987654321
+    )
+    new_user = await dao.create_user(
+        user_data=user_data,
         role_id=user_role.id
     )
-    db_session.add(user)
-    await db_session.flush()
-    await db_session.commit()
-    return user
+    return new_user

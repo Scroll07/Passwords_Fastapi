@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.services.jwt_service import create_token_and_session
-from backend.schemas.jwt import TokenType
+from backend.schemas.db_schema import SessionType
 
 
 @pytest.mark.asyncio
@@ -12,7 +12,7 @@ async def test_refresh_token__ok(client: AsyncClient, db_session: AsyncSession, 
         session=db_session,
         jwt_service=jwt_service,
         user_id=test_user.id,
-        token_type=TokenType.REFRESH
+        token_type=SessionType.REFRESH
     )
     await db_session.commit()
 

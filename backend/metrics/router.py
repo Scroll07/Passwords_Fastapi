@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from backend.core.logger import get_logger
 from backend.metrics.storage import metrics as storage
-from backend.dependincies import check_admin
+from backend.api_dependencies import check_admin
 
 
 logger = get_logger(__name__)

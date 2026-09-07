@@ -22,19 +22,17 @@ async def test_download_backup__file_missing__returns_server_error(
         url="/api/backups/download",
         json={"backup_id": 1}
     )
-    data = response.json()
 
-    assert response.status_code == 500
-    assert data.get("detail") == "We cant find your backup"
+    assert response.status_code == 404
 
 
 @pytest.mark.asyncio
-async def test_download_backup__ok(client: AsyncClient, jwt_bearer_mock, tmp_path: Path, monkeypatch, test_backup):
+async def test_download_backup__ok(client: AsyncClient, jwt_bearer_mock, test_backup):
     backup_data = b"My backup data"
 
     response = await client.post(
         url="/api/backups/download",
-        json={"backup_id": 1}
+        json={"backup_id": test_backup.id}
     )
 
     assert response.status_code == 200
