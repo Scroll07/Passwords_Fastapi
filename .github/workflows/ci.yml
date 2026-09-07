@@ -35,6 +35,9 @@ jobs:
       - name: Run Docker Compose
         run: docker compose -f test-docker-compose.yml --env-file .test.env up db -d
 
+      - name: Alembic revision
+        run: ./.venv/bin/alembic upgrade head
+
       - name: Run tests
         run: uv run pytest tests/ -vs
 
