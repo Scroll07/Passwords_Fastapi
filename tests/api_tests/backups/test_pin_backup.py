@@ -10,18 +10,13 @@ from backend.dao.backupDao import BackupDao
 async def test_pin_change__double_pin__toggles_state(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
     user_id = test_user.id
     dao = BackupDao(session=db_session)
-    backups = await dao.get_user_backups(user_id=user_id)
-    assert backups
-    backup = backups[0]
-    backup_id = backup.id
-    print(f"BACKUP PINNED BEFORE AFTER CREATED BACKUP: {backup.pinned}")
+    backup_id = test_backup.id
     
     #first change pin
     url = f"/api/backups/{backup_id}/change-pin"
     response = await client.patch(
         url=url,
     )
-    print(f'RESPONSE DATA: {response.json()}')
     assert response.status_code == 200
     backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)
     await db_session.refresh(backup)
@@ -32,7 +27,6 @@ async def test_pin_change__double_pin__toggles_state(client: AsyncClient, jwt_be
     response = await client.patch(
         url=url,
     )
-    print(f'RESPONSE DATA: {response.json()}')
     assert response.status_code == 200
     backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)
     await db_session.refresh(backup)

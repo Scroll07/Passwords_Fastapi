@@ -12,12 +12,10 @@ import backend.dao.backupDao as dao_file
 @pytest.mark.asyncio
 async def test_rename_backup__ok(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
     user_id = test_user.id
-    dao = BackupDao(session=db_session)
-    backups = await dao.get_user_backups(user_id=user_id)
-    assert backups
-    backup = backups[0]
+    backup_id = test_backup.id
+    dao = BackupDao(db_session)
     
-    url = f"/api/backups/{backup.id}"
+    url = f"/api/backups/{backup_id}"
     new_name = "new_name"
     response = await client.patch(
         url=url,
@@ -26,22 +24,17 @@ async def test_rename_backup__ok(client: AsyncClient, jwt_bearer_mock, test_user
     
     assert response.status_code == 200
     
-    backup = await dao.get_backup_by_id(backup_id=backup.id, user_id=user_id)
-    await db_session.refresh(backup)
+    backup = await dao.get_backup_by_id(backup_id=backup_id, user_id=user_id)
     
-    assert backup
+    assert backup is not None
     assert backup.name == new_name
     
 
 @pytest.mark.asyncio
 async def test_rename_backup__empty_name__returns_unprocessable_entity(client: AsyncClient, jwt_bearer_mock, test_user, db_session: AsyncSession, test_backup):
-    user_id = test_user.id
-    dao = BackupDao(session=db_session)
-    backups = await dao.get_user_backups(user_id=user_id)
-    assert backups
-    backup = backups[0]
+    backup_id = test_backup.id
     
-    url = f"/api/backups/{backup.id}"
+    url = f"/api/backups/{backup_id}"
     new_name = ""
     response = await client.patch(
         url=url,
