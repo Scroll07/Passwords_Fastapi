@@ -11,7 +11,7 @@ from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.base import SortByVaults, VaultData
 from backend.schemas.db_schema import SessionType, UserFields
-from backend.schemas.api_responses import VaultStatusResponse
+from backend.schemas.api_responses import MessageResponse
 from backend.dependencies import get_db, get_jwt_service
 from backend.web_dependencies import verify_web_user, verify_vault_session, web__check_vault_exists
 from backend.core.logger import get_logger
@@ -45,8 +45,8 @@ web_vaults = APIRouter()
 
 @web_vaults.post('/vaults/create')
 async def create_vault__router(
-    vault_name: str = Body(..., max_length=32),
-    vault_master_password: str = Body(..., max_length=32),
+    vault_name: str = Body(..., max_length=32, min_length=1),
+    vault_master_password: str = Body(..., max_length=32, min_length=4),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -206,7 +206,7 @@ async def get_user_vaults__router(
 @web_vaults.post('/vaults/{vault_id}/unlock')
 async def unlock_vault__router(
     vault_id: int,
-    vault_master_password: str = Body(...),
+    vault_master_password: str = Body(..., min_length=4),
     token_data: JWTDecodedData = Depends(verify_web_user),
     db: AsyncSession = Depends(get_db),
     jwt_service: JWT_Service = Depends(get_jwt_service),
@@ -302,23 +302,17 @@ async def status_vault__router(
             raise HTTPException(401, "You have no access to this vault. Wrong vault id")
 
         logger.info("Vault status active; vault_id=%s", vault_id)
-        return VaultStatusResponse(
+        return MessageResponse(
+            ok=True,
             detail="Session is active",
-            access=True
         )
 
     except ExpiredSignatureError:
         logger.info("Vault token expired; vault_id=%s", vault_id)
-        return VaultStatusResponse(
-            detail="Vault token was expired",
-            access=False
-        )
+        raise HTTPException(status_code=400, detail="Vault token was expired")
     except InvalidTokenError:
         logger.warning("Wrong vault token in status check; vault_id=%s", vault_id)
-        return VaultStatusResponse(
-            detail="Wrong vault token",
-            access=False
-        )
+        raise HTTPException(400, detail="Wrong vault token")
     except HTTPException:
         raise
     except Exception:

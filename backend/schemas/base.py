@@ -80,6 +80,14 @@ class VaultData(BaseModel):
         return self.created_at.strftime("%Y-%m-%d %H:%M:%S")
         
     model_config = ConfigDict(from_attributes=True)
+    
+class EncryptedUserVault(BaseModel):
+    username: str
+    salt: str
+    encrypted_dek: str
+    encrypted_passwords: str
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class UserData(BaseModel):
     username: str

@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Sequence
 
-from backend.models.model import Vaults
+from backend.models.model import Vaults, Users
+from backend.schemas.base import EncryptedUserVault
 
 
 class VaultFields(StrEnum):
@@ -58,5 +59,15 @@ class VaultDao:
         vaults = result.scalars().all()
         return vaults
     
-            
+    async def get_encrypted_vault_data(self, user_id: int, vault_id: int) -> EncryptedUserVault | None:
+        query = (
+            select(Users.username, Vaults.salt, Vaults.encrypted_dek, Vaults.encrypted_passwords)
+                .join(Users, Vaults.user_id == Users.id)
+                .where(Vaults.user_id == user_id and Vaults.id == vault_id)
+            )
+        result = await self.session.execute(query)
+        data = result.scalar_one_or_none()
+        if data is not None:
+            return EncryptedUserVault.model_validate(data)
+        return None
         

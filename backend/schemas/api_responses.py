@@ -45,6 +45,7 @@ class BackupStatsResponse(BaseModel):
     type: TypeResponses = TypeResponses.STATS
     
     
-class VaultStatusResponse(BaseModel):
+class UnlockVault(BaseModel):
+    ok: bool
+    vault_token: EncodedToken
     detail: str
-    access: bool
