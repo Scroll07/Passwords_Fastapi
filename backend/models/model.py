@@ -66,6 +66,7 @@ class Vaults(Base): #PLEASE DONT FORGET TO DO ALEMBIC REVISION +1
     encrypted_passwords: Mapped[str] = mapped_column(nullable=False)
     salt: Mapped[str] = mapped_column(nullable=False)
     encrypted_dek: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    # version: decimal 1.00 (+ 0.01 - new version)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 

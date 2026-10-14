@@ -99,3 +99,11 @@ class UserDao:
             role=role_name
         ) 
         return user_data
+    
+    async def delete_user(self, user_id: int) -> Users | None:
+        user = await self.get_user_by_field(field=UserFields.ID, value=user_id)
+        if not user:
+            return None
+        await self.session.delete(user)
+        await self.session.commit()
+        return user

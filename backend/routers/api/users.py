@@ -171,8 +171,8 @@ async def refresh_get(
 @api_users.patch("/change-password")
 async def api_change_password(
     data: ChangePasswordSchema = Depends(validate_change_passwords), 
-    user_data = Depends(verify_user),
-    db=Depends(get_db),
+    user_data: JWTDecodedData = Depends(verify_user),
+    db: AsyncSession = Depends(get_db),
 ):
     try:
         dao = UserDao(session=db)
@@ -201,3 +201,62 @@ async def api_change_password(
         raise HTTPException(500, "Internal server error")
     
 
+@api_users.post("/users/me/deactivate")
+async def api_unactive_user(
+    user_data: JWTDecodedData = Depends(verify_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        dao = UserDao(session=db)
+        user = await dao.get_user_by_field(field=UserFields.ID, value=int(user_data.sub))
+        if user is None:
+            logger.exception(f"User with this user_id={user_data.sub} does not exist")
+            raise HTTPException(404, "User with this user_id does not exist")
+        
+        if not user.is_active:
+            logger.exception(f"User with this user_id={user_data.sub} already deactivated")
+            raise HTTPException(404, "User with this user_id already deactivated")
+                    
+        user.is_active = False
+        await db.commit()
+        
+        response = MessageResponse(
+            ok=True,
+            detail="Your account was successuflly deactivated",
+        )
+        return response
+    
+    except HTTPException as e:
+        logger.exception(e)        
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")
+    
+
+@api_users.delete("/users/me")
+async def api_delete_user(
+    user_data: JWTDecodedData = Depends(verify_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        user_id = int(user_data.sub)
+        dao = UserDao(session=db)
+        user = await dao.delete_user(user_id=user_id)
+        if user is None:
+            raise HTTPException(404, detail="No user with such id")
+
+        await db.commit()
+        
+        response = MessageResponse(
+            ok=True,
+            detail="Your account was successuflly deleted",
+        )
+        return response
+    
+    except HTTPException as e:
+        logger.exception(e)        
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, "Internal server error")
