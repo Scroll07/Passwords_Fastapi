@@ -61,7 +61,6 @@ async def create_vault__router(
     vault_master_password: str = Body(..., max_length=32, min_length=4),
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
-    vault_data: RequstVaultDependecie = Depends(verify_vault_session)
 ):
     user_id = int(token_data.sub)
     logger.info("Create vault attempt; user_id=%s", user_id)
