@@ -260,3 +260,18 @@ async def api_delete_user(
     except Exception as e:
         logger.exception(e)
         raise HTTPException(500, "Internal server error")
+    
+@api_users.get("/me")
+async def web_me(
+    data: JWTDecodedData = Depends(verify_user), 
+    db=Depends(get_db),
+):
+    user_id = int(data.sub)
+    dao = UserDao(session=db)
+    user_data = await dao.get_user_data(user_id=user_id)
+    if not user_data:
+        raise HTTPException(404, detail="Wrong user data")
+    return {
+        "ok": True,
+        "data": user_data.model_dump()
+    }

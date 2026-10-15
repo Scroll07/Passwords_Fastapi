@@ -180,9 +180,10 @@ async def web_me(
     dao = UserDao(session=db)
     user_data = await dao.get_user_data(user_id=user_id)
     if not user_data:
-        return {"ok": False, "detail": "There is no data of this user id"}
+        raise HTTPException(404, detail="Wrong user data")
     return {
         "ok": True,
         "data": user_data.model_dump()
     }
+    
     
