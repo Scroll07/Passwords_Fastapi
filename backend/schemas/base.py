@@ -72,7 +72,10 @@ class VaultData(BaseModel):
     name: str
     entries: int
     pinned: bool
-    created_at: datetime 
+    version: int
+    
+    created_at: datetime
+    updated_at: datetime
 
     @computed_field
     @property

@@ -125,7 +125,9 @@ async def get_user_vaults__router(
                 name=v.name,
                 entries=v.entries,
                 pinned=v.pinned,
+                version=v.version,
                 created_at=v.created_at,
+                updated_at=v.updated_at
             )
             for v in vaults
         ]
@@ -220,6 +222,7 @@ async def rename_vault__router(
 
     try:
         vault.name = new_name.strip()
+        vault.version += 1
         await db.commit()
 
         logger.info("Vault renamed; vault_id=%s", vault_id)
@@ -251,6 +254,7 @@ async def change_pin__router(
 
     try:
         vault.pinned = not vault.pinned
+        vault.version += 1
         await db.commit()
 
         action = "pinned" if vault.pinned else "unpinned"
