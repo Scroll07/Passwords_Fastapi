@@ -55,18 +55,19 @@ class Backups(Base):
 
     user: Mapped["Users"] = relationship(back_populates="backups")
         
-class Vaults(Base): #PLEASE DONT FORGET TO DO ALEMBIC REVISION +1
+class Vaults(Base):
     __tablename__ = "vaults"
     
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)       
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     pinned: Mapped[bool] = mapped_column(default=False)
-    entries: Mapped[int] = mapped_column(default=0) # убрать default когда будет импорт vault и добавить в dao этот параметр при создании vault
     name: Mapped[str] = mapped_column(nullable=False)
+    entries: Mapped[int] = mapped_column(default=0)
     encrypted_passwords: Mapped[str] = mapped_column(nullable=False)
     salt: Mapped[str] = mapped_column(nullable=False)
     encrypted_dek: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    # version: decimal 1.00 (+ 0.01 - new version)
+    version: Mapped[int] = mapped_column(nullable=False, default=1)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
