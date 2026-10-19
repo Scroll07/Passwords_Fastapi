@@ -5,7 +5,7 @@ from sqlalchemy import select
 from typing import Sequence
 
 from backend.models.model import Vaults, Users
-from backend.schemas.base import EncryptedUserVault
+from backend.schemas.vaults import EncryptedUserVault
 
 
 class VaultFields(StrEnum):

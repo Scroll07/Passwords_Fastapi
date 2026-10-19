@@ -5,17 +5,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from cryptography.fernet import InvalidToken
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
+from backend.api_dependencies import RequstVaultDependecie
 from backend.dao.session_dao import SessionDao
+from backend.schemas.vaults import VaultData
 from backend.services.jwt_service import JWT_Service
 from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData
-from backend.schemas.base import SortByVaults, VaultData
 from backend.schemas.db_schema import SessionType, UserFields
-from backend.schemas.api_responses import MessageResponse
+from backend.schemas.api import MessageResponse, SortByVaults
 from backend.dependencies import get_db, get_jwt_service
 from backend.web_dependencies import verify_web_user, verify_vault_session, web__check_vault_exists
 from backend.core.logger import get_logger
-from backend.schemas.requests import RequstVaultDependecie
 from backend.dao.vaultDao import VaultDao, VaultFields, Vaults
 from backend.services.jwt_service import create_token_and_session
 from backend.password_manager.services.password import (
@@ -180,7 +180,9 @@ async def get_user_vaults__router(
                 name=v.name,
                 entries=v.entries,
                 pinned=v.pinned,
+                version=v.version,
                 created_at=v.created_at,
+                updated_at=v.updated_at
             )
             for v in vaults
         ]

@@ -3,7 +3,7 @@ import json
 
 from fastapi import APIRouter, Body, Request, Depends, HTTPException, Query, Response
 from fastapi.responses import FileResponse, JSONResponse
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from cryptography.fernet import InvalidToken
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
@@ -20,23 +20,26 @@ from backend.dependencies import get_jwt_service
 from backend.models.model import Vaults
 from backend.password_manager.core.config import TEMPORARY_FILES
 from backend.password_manager.services.password import create_user_vault
-from backend.schemas.api_responses import MessageResponse, UnlockVault
-from backend.schemas.base import EncryptedUserVault, SortByVaults, VaultData, VaultPushDataRequest
+from backend.schemas.api import MessageResponse, SortByVaults, UnlockVault
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.jwt import EncodedToken, JWTDecodedData
 from backend.dao.userDao import UserDao
 from backend.dao.vaultDao import VaultDao, VaultFields
-from backend.schemas.requests import RequstVaultDependecie
 from backend.password_manager.core.crypto import (
     derive_key,
     decrypt_dek,
     decrypt_vault_passwords
 )
+from backend.schemas.vaults import VaultData, VaultPushDataRequest
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 
 
 
-
+class RequstVaultDependecie(BaseModel):
+    vault: Vaults
+    dek: bytes
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 

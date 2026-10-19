@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.dao.session_dao import SessionDao
 from backend.schemas.jwt import JWTDecodedData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
-from backend.schemas.api_responses import MessageResponse
+from backend.schemas.api import MessageResponse, RegisterRequestData
 from backend.dependencies import get_db, get_jwt_service
-from backend.schemas.base import RegisterRequestData, WebChangePasswordSchema
+from backend.schemas.base import WebChangePasswordSchema
 from backend.schemas.db_schema import UserFields, SessionType
 from backend.dao.userDao import UserDao
 from backend.services.secrets import hash_password, verify_password

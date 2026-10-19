@@ -1,5 +1,6 @@
 from fastapi import Body, HTTPException, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
@@ -10,7 +11,6 @@ from backend.models.model import Vaults
 from backend.schemas.db_schema import UserFields, UserRoles, SessionType
 from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData
-from backend.schemas.requests import RequstVaultDependecie
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.base import ChangePasswordSchema
 from backend.core.logger import get_logger
@@ -21,7 +21,11 @@ logger = get_logger(__name__)
 
 security = HTTPBearer()
 
-
+class RequstVaultDependecie(BaseModel):
+    vault: Vaults
+    dek: bytes
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 async def _api_try_refresh_token(

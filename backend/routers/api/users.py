@@ -8,9 +8,9 @@ from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.dao.role_dao import RoleDAO
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.db_schema import UserFields, UserRoles, CreateUserInDb, SessionType
-from backend.schemas.api_responses import LoginResponse, MessageResponse, RefreshResponse
+from backend.schemas.api import LoginRequest, LoginResponse, MessageResponse, RefreshResponse, RegisterRequestData
 from backend.dependencies import get_db, get_jwt_service
-from backend.schemas.base import ChangePasswordSchema, RegisterRequestData, LoginRequest
+from backend.schemas.base import ChangePasswordSchema
 from backend.dao.userDao import UserDao
 from backend.services.secrets import hash_password, verify_password
 from backend.core.logger import get_logger

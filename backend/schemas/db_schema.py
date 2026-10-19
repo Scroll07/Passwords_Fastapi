@@ -44,3 +44,10 @@ class BackupStats(BaseModel):
     avg_rows: int
     backups_for_week: int
     
+class UserData(BaseModel):
+    id: int
+    username: str
+    telegram_id: int | None
+    role: str
+    is_active: bool
+    created_at: datetime
