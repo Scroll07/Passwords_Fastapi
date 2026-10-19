@@ -21,7 +21,7 @@ from backend.models.model import Vaults
 from backend.password_manager.core.config import TEMPORARY_FILES
 from backend.password_manager.services.password import create_user_vault
 from backend.schemas.api_responses import MessageResponse, UnlockVault
-from backend.schemas.base import EncryptedUserVault, SortByVaults, VaultData
+from backend.schemas.base import EncryptedUserVault, SortByVaults, VaultData, VaultPushDataRequest
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.jwt import EncodedToken, JWTDecodedData
 from backend.dao.userDao import UserDao
@@ -292,11 +292,11 @@ async def download_vault__router(
         vault_dao = VaultDao(session=db)
         encrypted_vault_data = await vault_dao.get_encrypted_vault_data(user_id=user_id, vault_id=vault.id)
         if encrypted_vault_data is None:
-            raise HTTPException(404, detail="later")
+            raise HTTPException(404, detail="You have no vault with such id")
         
         content = encrypted_vault_data.model_dump_json(indent=4)
         date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") 
-        filename = f"{encrypted_vault_data.username}_{date}.json"
+        filename = f"{encrypted_vault_data.name}_{date}.json"
             
         return Response(
             content=content,
@@ -438,3 +438,63 @@ async def unlock_vault__router(
         raise HTTPException(500, 'Internal server error')
 
 
+
+@api_vaults.post('/vaults/{vault_id}/push')
+async def push_vault(
+    vault_id: int,
+    payload: VaultPushDataRequest,
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_user),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(token_data.sub)
+    vault_dao = VaultDao(session=db)
+    vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=vault_id, user_id=user_id)
+    if vault is None:
+        raise HTTPException(404, detail="You have no vault with such id")
+    
+    vault.name = payload.name
+    vault.encrypted_passwords = payload.encrypted_passwords
+    vault.version = payload.version
+    vault.entries = payload.entries
+
+    await db.commit()
+    
+    return MessageResponse(
+        ok=True,
+        detail="Vault data was succusfully pushed and saved"
+    )
+
+
+
+
+# @api_vaults.post('/vaults/{vault_id}/sync')
+# async def sync_vault(
+    # Данные которые которые должны получить от клиента:
+    #   - base_version: int - версия от которой он делает изменения
+    #   - current_version: int - текущая версия до которой он дошел
+    #   - 
+    
+    
+    
+    
+    
+    
+# ):
+    # 3 Варианта, сначала сравнниваем версии vaults: одну от пользователя, вторую - из бд:
+        # - Клиентская версия ниже чем в бд: в таком случае данные encrypted_vault в ответе на клиент (на клиенте обновляем vault данными из ответа)
+        # - Клиентска и в бд версии совпадают: возвращаем MessageResponse типа все хорошо
+        # - Клиенская версия выше чем в бд: это и так ручка /vaults/vaullt_id/sync тут надо либо еще одну ручку создавать либо
+        #   делать необязательные параметры encrypted_vault  
+        
+        
+        
+        
+        
+
+    
+    
+    
+    
+    
+    

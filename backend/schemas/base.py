@@ -85,12 +85,19 @@ class VaultData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
 class EncryptedUserVault(BaseModel):
-    username: str
+    name: str
     salt: str
     encrypted_dek: str
     encrypted_passwords: str
+    version: int
     
     model_config = ConfigDict(from_attributes=True)
+
+class VaultPushDataRequest(BaseModel):
+    name: str
+    encrypted_passwords: str
+    entries: int
+    version: int
 
 class UserData(BaseModel):
     username: str

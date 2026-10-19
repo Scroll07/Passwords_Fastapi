@@ -61,8 +61,7 @@ class VaultDao:
     
     async def get_encrypted_vault_data(self, user_id: int, vault_id: int) -> EncryptedUserVault | None:
         query = (
-            select(Users.username, Vaults.salt, Vaults.encrypted_dek, Vaults.encrypted_passwords)
-                .join(Users, Vaults.user_id == Users.id)
+            select(Vaults.name, Vaults.salt, Vaults.encrypted_dek, Vaults.encrypted_passwords, Vaults.version)
                 .where(Vaults.user_id == user_id and Vaults.id == vault_id)
             )
         result = await self.session.execute(query)
