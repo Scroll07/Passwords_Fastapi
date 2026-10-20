@@ -111,7 +111,8 @@ class CreateVaultDataRequest(BaseModel):
 
 class PullRequestData(BaseModel):
     vault_id: int
-    version: int
+    version: int | None
+    force: bool
 
 class VaultPushDataRequest(BaseModel):
     id: int | None

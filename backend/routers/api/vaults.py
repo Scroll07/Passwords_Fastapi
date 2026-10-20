@@ -115,12 +115,12 @@ async def get_user_vaults__router(
     vault_id: int | None = Query(None),
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
-    sort_by: SortByVaults = Query(SortByVaults.CREATED_AT)
+    sort_by: SortByVaults = Query(SortByVaults.CREATED_AT),
 ):
     user_id = int(token_data.sub)
+    dao = VaultDao(session=db)
 
     try:
-        dao = VaultDao(session=db)
         vaults = await dao.get_user_vaults(user_id=user_id)
 
         vaults_data = [
@@ -517,6 +517,7 @@ async def pull_vault(
     vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
+    
 ):
     user_id = int(token_data.sub)
     vault_id = payload.vault_id
@@ -529,20 +530,25 @@ async def pull_vault(
             detail="Vault not found",
             status=PullStatuses.NOT_FOUND
         )
+    
+    if payload.version is None:
+        payload.force = True
 
-    if payload.version == vault.version:
-        return PullResponse(
-            ok=True,
-            detail="Vault already up to date",
-            status=PullStatuses.UP_TO_DATE
-        )
-    elif payload.version > vault.version:
-        response.status_code = status.HTTP_409_CONFLICT
-        return PullResponse(
-            ok=False,
-            detail="Server has lower vault version, push firstly",
-            status=PullStatuses.LOCAL_AHEAD
-        )
+    if not payload.force:
+        assert type(payload.version) == int
+        if payload.version == vault.version:
+            return PullResponse(
+                ok=True,
+                detail="Vault already up to date",
+                status=PullStatuses.UP_TO_DATE
+            )
+        elif payload.version > vault.version:
+            response.status_code = status.HTTP_409_CONFLICT
+            return PullResponse(
+                ok=False,
+                detail="Server has lower vault version, push firstly",
+                status=PullStatuses.LOCAL_AHEAD
+            )
     
     content = EncryptedUserVault.model_validate(vault, strict=False)
     
