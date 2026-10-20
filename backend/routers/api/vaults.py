@@ -1,7 +1,8 @@
+import base64
 import datetime
 import json
 
-from fastapi import APIRouter, Body, Request, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Body, Request, Depends, HTTPException, Query, Response, status
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +21,7 @@ from backend.dependencies import get_jwt_service
 from backend.models.model import Vaults
 from backend.password_manager.core.config import TEMPORARY_FILES
 from backend.password_manager.services.password import create_user_vault
-from backend.schemas.api import MessageResponse, SortByVaults, UnlockVault
+from backend.schemas.api import MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, SortByVaults, UnlockVault, VaultPushDataRequest
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.jwt import EncodedToken, JWTDecodedData
 from backend.dao.userDao import UserDao
@@ -30,7 +31,7 @@ from backend.password_manager.core.crypto import (
     decrypt_dek,
     decrypt_vault_passwords
 )
-from backend.schemas.vaults import VaultData, VaultPushDataRequest
+from backend.schemas.vaults import EncryptedUserVault, VaultData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 
 
@@ -81,7 +82,7 @@ async def create_vault__router(
         if vault:
             raise HTTPException(409, "Vault with such name alredy exists")
 
-        encrypted_data = create_user_vault(master_password=vault_master_password)
+        encrypted_data = create_user_vault(master_password=vault_master_password) # УБрать это к чертям, мы создаем всё на клиенте, на сервер просто отправляем encrypted_dek
 
         await vault_dao.create_vault(
             user_id=user_id,
@@ -442,33 +443,115 @@ async def unlock_vault__router(
 
 
 
-@api_vaults.post('/vaults/{vault_id}/push')
+@api_vaults.post('/vaults/push', response_model=PushResponse)
 async def push_vault(
-    vault_id: int,
     payload: VaultPushDataRequest,
+    response: Response,
     vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
 ):
     user_id = int(token_data.sub)
+    vault_id = payload.id
+    
+    vault_dao = VaultDao(session=db)
+    if vault_id is None:
+        # Значит пушим в первый раз значит надо создать новый vault
+        # Но перед этим проверим что у пользователя нет vault с этим именем
+        vault_name = payload.name
+        vault = await vault_dao.get_vault_by_field(field=VaultFields.NAME, value=vault_name, user_id=user_id)
+        if vault is not None:
+            raise HTTPException(409, "Pushing this vault first time, but you have existing vault with such name")
+        
+        encrypted_dek_bytes = base64.b64decode(payload.encrypted_dek) 
+        await vault_dao.create_vault(
+            user_id=user_id,
+            name=vault_name,
+            encrypted_passwords=payload.encrypted_passwords,
+            salt=payload.salt,
+            encrypted_dek=encrypted_dek_bytes
+        )
+        
+    else:
+        vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=vault_id, user_id=user_id)
+        if vault is None:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return PushResponse(
+                ok=False,
+                detail="Vault not found",
+                status=PushStatuses.NOT_FOUND
+            )
+
+        if not payload.force:
+            if payload.version == vault.version:
+                return PushResponse(
+                    ok=True,
+                    detail="Vault already up to date",
+                    status=PushStatuses.UP_TO_DATE
+                )
+            elif payload.version < vault.version:
+                response.status_code = status.HTTP_409_CONFLICT
+                return PushResponse(
+                    ok=False,
+                    detail="Server has higher vault version, use force=True to push",
+                    status=PushStatuses.OUTDATED
+                )
+                
+        vault.name = payload.name
+        vault.encrypted_passwords = payload.encrypted_passwords
+        vault.version = payload.version
+        vault.entries = payload.entries
+
+        await db.commit()
+    
+    return PushResponse(
+        ok=True,
+        status=PushStatuses.PUSHED,
+        detail="Vault data was succusfully pushed"
+    )
+
+@api_vaults.post('/vaults/pull', response_model=PullResponse)
+async def pull_vault(
+    payload: PullRequestData,
+    response: Response,
+    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
+    token_data: JWTDecodedData = Depends(verify_user),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = int(token_data.sub)
+    vault_id = payload.vault_id
     vault_dao = VaultDao(session=db)
     vault = await vault_dao.get_vault_by_field(field=VaultFields.ID, value=vault_id, user_id=user_id)
     if vault is None:
-        raise HTTPException(404, detail="You have no vault with such id")
-    
-    vault.name = payload.name
-    vault.encrypted_passwords = payload.encrypted_passwords
-    vault.version = payload.version
-    vault.entries = payload.entries
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return PullResponse(
+            ok=False,
+            detail="Vault not found",
+            status=PullStatuses.NOT_FOUND
+        )
 
-    await db.commit()
+    if payload.version == vault.version:
+        return PullResponse(
+            ok=True,
+            detail="Vault already up to date",
+            status=PullStatuses.UP_TO_DATE
+        )
+    elif payload.version > vault.version:
+        response.status_code = status.HTTP_409_CONFLICT
+        return PullResponse(
+            ok=False,
+            detail="Server has lower vault version, push firstly",
+            status=PullStatuses.LOCAL_AHEAD
+        )
     
-    return MessageResponse(
+    content = EncryptedUserVault.model_validate(vault, strict=False)
+    
+    return PullResponse(
         ok=True,
-        detail="Vault data was succusfully pushed and saved"
+        detail="Successful pull request",
+        vault_data=content,
+        status=PullStatuses.PULLED
     )
-
-
 
 
 # @api_vaults.post('/vaults/{vault_id}/sync')

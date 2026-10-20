@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from backend.models.model import Vaults
 from backend.schemas.jwt import EncodedToken
 from backend.schemas.db_schema import BackupStats
+from backend.schemas.vaults import EncryptedUserVault
 
 # ===================================
 #               Types
@@ -29,6 +30,19 @@ class SortByVaults(StrEnum):
     NAME = "name"
     ENTRIES = "entries"
     CREATED_AT = "created_at"
+    
+class PushStatuses(StrEnum):
+    PUSHED = 'pushed'
+    UP_TO_DATE = 'up_to_date'
+    OUTDATED = 'outdated'
+    OVERWRITTEN = 'overwritten'
+    NOT_FOUND = 'not_found'
+    
+class PullStatuses(StrEnum):
+    PULLED = 'pulled'
+    UP_TO_DATE = 'up_to_date'
+    LOCAL_AHEAD = 'local_ahead'
+    NOT_FOUND = 'not_found'
 
 class UserData(BaseModel):
     username: str
@@ -95,19 +109,25 @@ class CreateVaultDataRequest(BaseModel):
            raise ValueError("Master password must not contain spaces") 
         return value
 
-class RequstVaultDependecie(BaseModel):
-    vault: Vaults
-    dek: bytes
-    
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class PullRequestData(BaseModel):
+    vault_id: int
+    version: int
 
+class VaultPushDataRequest(BaseModel):
+    id: int | None
+    name: str
+    salt: str
+    entries: int
+    encrypted_dek: str
+    encrypted_passwords: str
+    version: int
+    force: bool
 # ===================================
 #               Responses
 # ===================================
 class MessageResponse(BaseModel):
     ok: bool
     detail: str
-    type: TypeResponses = TypeResponses.MESSAGE
 
 class LoginResponse(MessageResponse):
     bearer_token: EncodedToken
@@ -128,3 +148,10 @@ class UnlockVault(BaseModel):
     ok: bool
     vault_token: EncodedToken
     detail: str
+
+class PushResponse(MessageResponse):
+    status: PushStatuses
+
+class PullResponse(MessageResponse):
+    vault_data: EncryptedUserVault | None = None
+    status: PullStatuses
