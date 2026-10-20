@@ -3,7 +3,7 @@ from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
-from backend.api_dependencies import get_db, get_jwt_service
+from backend.api_dependencies import RequstVaultDependecie, get_db, get_jwt_service
 from backend.services.cookies import add_bearer_cookie, add_refresh_cookie
 from backend.dao.session_dao import SessionDao
 from backend.schemas.db_schema import UserFields, SessionType
@@ -12,7 +12,6 @@ from backend.schemas.jwt import JWTDecodedData
 from backend.services.jwt_service import JWT_Service, create_token_and_session
 from backend.schemas.base import WebChangePasswordSchema
 from backend.core.logger import get_logger
-from backend.schemas.requests import RequstVaultDependecie
 from backend.dao.vaultDao import VaultDao, VaultFields, Vaults
 from backend.services.secrets import DekFernet
 

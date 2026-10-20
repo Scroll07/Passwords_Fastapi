@@ -14,7 +14,6 @@ from backend.routers.api.users import api_users
 from backend.routers.api.statistic import api_statistic
 from backend.routers.api.vaults import api_vaults
 from backend.metrics.router import metrics
-from backend.routers.web.backups import web_backups
 from backend.routers.web.users import web_users
 from backend.routers.web.vaults import web_vaults
 from backend.routers.web.passwords import web_passwords
@@ -62,7 +61,6 @@ app.include_router(api_vaults, tags=["API", "VAULTS"], prefix="/api")
 
 app.include_router(metrics, tags=["METRICS"])
 
-app.include_router(web_backups, tags=["BACKUPS", "WEB"], prefix="/web")
 app.include_router(web_users, tags=["USERS", "WEB"], prefix="/web")
 app.include_router(web_vaults, tags=["VAULTS", "WEB"], prefix="/web")
 app.include_router(web_passwords, tags=["PASSWORDS", "WEB"], prefix="/web")

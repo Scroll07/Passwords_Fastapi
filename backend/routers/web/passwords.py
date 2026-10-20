@@ -2,11 +2,11 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+from backend.api_dependencies import RequstVaultDependecie
 from backend.schemas.jwt import JWTDecodedData
 from backend.dependencies import get_db
 from backend.web_dependencies import verify_vault_session, verify_web_user
 from backend.core.logger import get_logger
-from backend.schemas.requests import RequstVaultDependecie
 from backend.password_manager.schemas.passwords import PasswordDataRequest
 from backend.password_manager.core.password_tool import PasswordTool
 from backend.password_manager.schemas.passwords import Password
