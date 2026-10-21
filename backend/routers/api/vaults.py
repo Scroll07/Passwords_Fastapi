@@ -21,7 +21,7 @@ from backend.dependencies import get_jwt_service
 from backend.models.model import Vaults
 from backend.password_manager.core.config import TEMPORARY_FILES
 from backend.password_manager.services.password import create_user_vault
-from backend.schemas.api import CreateVaultDataRequest, CreateVaultResponse, MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, SortByVaults, UnlockVault, VaultPushDataRequest
+from backend.schemas.api import CreateVaultDataRequest, CreateVaultResponse, DeleteVaultResponse, MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, SortByVaults, UnlockVault, VaultPushDataRequest
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.jwt import EncodedToken, JWTDecodedData
 from backend.dao.userDao import UserDao
@@ -192,10 +192,13 @@ async def delete_vault__router(
             raise HTTPException(401, "Wrong vault data")
 
         logger.info("Vault deleted; user_id=%s vault_id=%s", user_id, vault_id)
-        return {
-            "ok": True,
-            "detail": "Vault was successfully deleted"
-        }
+        
+        return DeleteVaultResponse(
+            ok=True,
+            detail="Vault was successfully deleted",
+            vault_id=vault.id,
+            vault_name=vault.name
+        )
 
     except HTTPException:
         raise
@@ -415,12 +418,11 @@ async def unlock_vault__router(
             dek=dek
         )
 
-        content = UnlockVault(
+        response = UnlockVault(
             ok=True,
-            vault_token=EncodedToken(token=vault_token.token),
+            vault_token=vault_token.token,
             detail="Vault is successfully unlocked"
         )
-        response = JSONResponse(content=content)
         await db.commit()
 
         return response

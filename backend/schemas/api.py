@@ -142,7 +142,7 @@ class BackupStatsResponse(BaseModel):
     
 class UnlockVault(BaseModel):
     ok: bool
-    vault_token: EncodedToken
+    vault_token: str
     detail: str
 
 class PushResponse(MessageResponse):
@@ -151,3 +151,7 @@ class PushResponse(MessageResponse):
 class PullResponse(MessageResponse):
     vault_data: EncryptedUserVault | None = None
     status: PullStatuses
+    
+class DeleteVaultResponse(MessageResponse):
+    vault_id: int
+    vault_name: str
