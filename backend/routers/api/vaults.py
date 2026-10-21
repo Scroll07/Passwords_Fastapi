@@ -21,7 +21,7 @@ from backend.dependencies import get_jwt_service
 from backend.models.model import Vaults
 from backend.password_manager.core.config import TEMPORARY_FILES
 from backend.password_manager.services.password import create_user_vault
-from backend.schemas.api import MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, SortByVaults, UnlockVault, VaultPushDataRequest
+from backend.schemas.api import CreateVaultDataRequest, CreateVaultResponse, MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, SortByVaults, UnlockVault, VaultPushDataRequest
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.jwt import EncodedToken, JWTDecodedData
 from backend.dao.userDao import UserDao
@@ -59,43 +59,37 @@ api_vaults = APIRouter()
 
 # Добавить роутер для скачивания vault file (Но сначала переделай cli)
 
-@api_vaults.post('/vaults/create')
+@api_vaults.post('/vaults/create', status_code=201)
 async def create_vault__router(
-    vault_name: str = Body(..., max_length=32, min_length=1),
-    vault_master_password: str = Body(..., max_length=32, min_length=4),
+    payload: CreateVaultDataRequest,
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
 ):
+
     user_id = int(token_data.sub)
+    vault_name = payload.name
+    
     logger.info("Create vault attempt; user_id=%s", user_id)
-
     try:
-        dao = UserDao(session=db)
-        user_data = await dao.get_user_data(user_id=user_id)
-        if not user_data:
-            logger.warning("Wrong user data; user_id=%s", user_id)
-            raise HTTPException(404, "Wrong user data")
-
-        vault_name = vault_name.strip()
         vault_dao = VaultDao(session=db)
         vault = await vault_dao.get_vault_by_field(field=VaultFields.NAME, value=vault_name, user_id=user_id)
-        if vault:
-            raise HTTPException(409, "Vault with such name alredy exists")
-
-        encrypted_data = create_user_vault(master_password=vault_master_password) # УБрать это к чертям, мы создаем всё на клиенте, на сервер просто отправляем encrypted_dek
-
-        await vault_dao.create_vault(
+        if vault is not None:
+            raise HTTPException(409, "Vault with this name already exists")
+        
+        encrypted_dek_bytes = base64.b64decode(payload.encrypted_dek) 
+        new_vault = await vault_dao.create_vault(
             user_id=user_id,
             name=vault_name,
-            encrypted_passwords=encrypted_data.encrypted_passwords,
-            salt=encrypted_data.salt,
-            encrypted_dek=encrypted_data.encrypted_dek
+            encrypted_passwords='',
+            salt=payload.salt,
+            encrypted_dek=encrypted_dek_bytes
         )
 
-        return {
-            "ok": True,
-            "detail": "New vault was successfully created"
-        }
+        return CreateVaultResponse(
+            ok=True,
+            detail="New vault was successfully created",
+            vault_id=new_vault.id
+        )
 
     except ValidationError as e:
         logger.warning("Vault creation validation error; user_id=%s", user_id)

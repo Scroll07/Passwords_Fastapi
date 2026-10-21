@@ -91,7 +91,8 @@ class RegisterRequestData(LoginRequest):
 
 class CreateVaultDataRequest(BaseModel):
     name: str
-    master_password: str
+    salt: str
+    encrypted_dek: str
 
     @field_validator('name')
     def validate_name(cls, value: str) -> str:
@@ -100,15 +101,6 @@ class CreateVaultDataRequest(BaseModel):
             raise ValueError("Wrong length of vault name")
         return value
     
-    @field_validator('master_password')
-    def validate_master_password(cls, value: str) -> str:
-        value = value.strip()
-        if not (4 < len(value) < 32):
-            raise ValueError("Wrong length of vault master password")
-        if ' ' in value:
-           raise ValueError("Master password must not contain spaces") 
-        return value
-
 class PullRequestData(BaseModel):
     vault_id: int
     version: int | None
@@ -129,6 +121,9 @@ class VaultPushDataRequest(BaseModel):
 class MessageResponse(BaseModel):
     ok: bool
     detail: str
+
+class CreateVaultResponse(MessageResponse):
+    vault_id: int
 
 class LoginResponse(MessageResponse):
     bearer_token: EncodedToken
