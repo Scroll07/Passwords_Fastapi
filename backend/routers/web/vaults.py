@@ -12,7 +12,7 @@ from backend.services.jwt_service import JWT_Service
 from backend.dao.userDao import UserDao
 from backend.schemas.jwt import JWTDecodedData
 from backend.schemas.db_schema import SessionType, UserFields
-from backend.schemas.api import MessageResponse, SortByVaults
+from backend.schemas.api import MessageResponse, RenameVaultResponse, SortByVaults
 from backend.dependencies import get_db, get_jwt_service
 from backend.web_dependencies import verify_web_user, verify_vault_session, web__check_vault_exists
 from backend.core.logger import get_logger
@@ -142,15 +142,20 @@ async def rename_vault__router(
     logger.info("Rename vault attempt; vault_id=%s", vault_id)
 
     try:
+        old_name = vault.name
         vault.name = new_name.strip()
         await db.commit()
 
         logger.info("Vault renamed; vault_id=%s", vault_id)
-        return {
-            "ok": True,
-            "detail": "Vault was successfully renamed"
-        }
-
+        
+        return RenameVaultResponse(
+            ok=True,
+            detail="Vault was successfully renamed",
+            vault_id=vault.id,
+            old_vault_name=old_name,
+            new_vault_name=new_name
+        )
+        
     except HTTPException:
         raise
     except Exception:
@@ -372,6 +377,7 @@ async def change_pin__router(
 
         action = "pinned" if vault.pinned else "unpinned"
         logger.info("Vault pin changed; user_id=%s vault_id=%s pinned=%s", user_id, vault_id, vault.pinned)
+        
         return {
             "ok": True,
             "detail": f"Your vault was successfully {action}"

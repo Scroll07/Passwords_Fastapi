@@ -155,3 +155,8 @@ class PullResponse(MessageResponse):
 class DeleteVaultResponse(MessageResponse):
     vault_id: int
     vault_name: str
+    
+class RenameVaultResponse(MessageResponse):
+    vault_id: int
+    old_vault_name: str
+    new_vault_name: str
