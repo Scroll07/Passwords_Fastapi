@@ -36,6 +36,7 @@ class PushStatuses(StrEnum):
     UP_TO_DATE = 'up_to_date'
     OUTDATED = 'outdated'
     OVERWRITTEN = 'overwritten'
+    CREATED = 'created'
     NOT_FOUND = 'not_found'
     
 class PullStatuses(StrEnum):
@@ -146,6 +147,7 @@ class UnlockVault(BaseModel):
     detail: str
 
 class PushResponse(MessageResponse):
+    vault_id: int
     status: PushStatuses
 
 class PullResponse(MessageResponse):

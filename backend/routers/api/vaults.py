@@ -478,12 +478,19 @@ async def push_vault(
             raise HTTPException(409, "Pushing this vault first time, but you have existing vault with such name")
         
         encrypted_dek_bytes = base64.b64decode(payload.encrypted_dek) 
-        await vault_dao.create_vault(
+        new_vault = await vault_dao.create_vault(
             user_id=user_id,
             name=vault_name,
             encrypted_passwords=payload.encrypted_passwords,
             salt=payload.salt,
             encrypted_dek=encrypted_dek_bytes
+        )
+        
+        return PushResponse(
+            ok=True,
+            detail="Vault was successfully created and pushed",
+            vault_id=new_vault.id,
+            status=PushStatuses.CREATED
         )
         
     else:
@@ -493,6 +500,7 @@ async def push_vault(
             return PushResponse(
                 ok=False,
                 detail="Vault not found",
+                vault_id=vault_id,
                 status=PushStatuses.NOT_FOUND
             )
 
@@ -501,6 +509,7 @@ async def push_vault(
                 return PushResponse(
                     ok=True,
                     detail="Vault already up to date",
+                    vault_id=vault_id,
                     status=PushStatuses.UP_TO_DATE
                 )
             elif payload.version < vault.version:
@@ -508,6 +517,7 @@ async def push_vault(
                 return PushResponse(
                     ok=False,
                     detail="Server has higher vault version, use force=True to push",
+                    vault_id=vault_id,
                     status=PushStatuses.OUTDATED
                 )
                 
@@ -521,6 +531,7 @@ async def push_vault(
     return PushResponse(
         ok=True,
         status=PushStatuses.PUSHED,
+        vault_id=vault_id,
         detail="Vault data was succusfully pushed"
     )
 
