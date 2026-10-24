@@ -21,7 +21,21 @@ from backend.dependencies import get_jwt_service
 from backend.models.model import Vaults
 from backend.password_manager.core.config import TEMPORARY_FILES
 from backend.password_manager.services.password import create_user_vault
-from backend.schemas.api import CreateVaultDataRequest, CreateVaultResponse, DeleteVaultResponse, MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, RenameVaultResponse, SortByVaults, UnlockVault, VaultPushDataRequest
+from backend.schemas.api import (
+    CreateVaultDataRequest, 
+    CreateVaultResponse, 
+    DeleteVaultResponse, 
+    MessageResponse, 
+    PullRequestData, 
+    PullResponse, 
+    PullStatuses, 
+    PushResponse, 
+    PushStatuses, 
+    RenameVaultResponse, 
+    SortByVaults, 
+    UnlockVault, 
+    PushRequestData
+)
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.jwt import EncodedToken, JWTDecodedData
 from backend.dao.userDao import UserDao
@@ -446,9 +460,8 @@ async def unlock_vault__router(
 
 @api_vaults.post('/vaults/push', response_model=PushResponse)
 async def push_vault(
-    payload: VaultPushDataRequest,
+    payload: PushRequestData,
     response: Response,
-    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -515,7 +528,6 @@ async def push_vault(
 async def pull_vault(
     payload: PullRequestData,
     response: Response,
-    vault_data: RequstVaultDependecie = Depends(verify_vault_session),
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
     

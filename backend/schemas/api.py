@@ -106,7 +106,7 @@ class PullRequestData(BaseModel):
     version: int | None
     force: bool
 
-class VaultPushDataRequest(BaseModel):
+class PushRequestData(BaseModel):
     id: int | None
     name: str
     salt: str
