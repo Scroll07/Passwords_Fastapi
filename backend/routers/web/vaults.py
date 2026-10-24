@@ -142,19 +142,15 @@ async def rename_vault__router(
     logger.info("Rename vault attempt; vault_id=%s", vault_id)
 
     try:
-        old_name = vault.name
         vault.name = new_name.strip()
         await db.commit()
 
         logger.info("Vault renamed; vault_id=%s", vault_id)
         
-        return RenameVaultResponse(
-            ok=True,
-            detail="Vault was successfully renamed",
-            vault_id=vault.id,
-            old_vault_name=old_name,
-            new_vault_name=new_name
-        )
+        return {
+            "ok": True,
+            "detail": "Vault was successfully renamed"
+        }
         
     except HTTPException:
         raise

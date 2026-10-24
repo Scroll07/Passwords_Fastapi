@@ -21,7 +21,7 @@ from backend.dependencies import get_jwt_service
 from backend.models.model import Vaults
 from backend.password_manager.core.config import TEMPORARY_FILES
 from backend.password_manager.services.password import create_user_vault
-from backend.schemas.api import CreateVaultDataRequest, CreateVaultResponse, DeleteVaultResponse, MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, SortByVaults, UnlockVault, VaultPushDataRequest
+from backend.schemas.api import CreateVaultDataRequest, CreateVaultResponse, DeleteVaultResponse, MessageResponse, PullRequestData, PullResponse, PullStatuses, PushResponse, PushStatuses, RenameVaultResponse, SortByVaults, UnlockVault, VaultPushDataRequest
 from backend.schemas.db_schema import SessionType, UserFields
 from backend.schemas.jwt import EncodedToken, JWTDecodedData
 from backend.dao.userDao import UserDao
@@ -222,15 +222,20 @@ async def rename_vault__router(
     logger.info("Rename vault attempt; vault_id=%s", vault_id)
 
     try:
+        old_name = vault.name
         vault.name = new_name.strip()
         vault.version += 1
         await db.commit()
 
         logger.info("Vault renamed; vault_id=%s", vault_id)
-        return {
-            "ok": True,
-            "detail": "Vault was successfully renamed"
-        }
+        
+        return RenameVaultResponse(
+            ok=True,
+            detail="Vault was successfully renamed",
+            vault_id=vault.id,
+            old_vault_name=old_name,
+            new_vault_name=new_name
+        )
 
     except HTTPException:
         raise
