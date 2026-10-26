@@ -274,7 +274,6 @@ async def change_pin__router(
 
     try:
         vault.pinned = not vault.pinned
-        vault.version += 1
         await db.commit()
 
         action = "pinned" if vault.pinned else "unpinned"
