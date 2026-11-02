@@ -120,7 +120,6 @@ async def create_vault__router(
 
 @api_vaults.get('/vaults')
 async def get_user_vaults__router(
-    vault_id: int | None = Query(None),
     token_data: JWTDecodedData = Depends(verify_user),
     db: AsyncSession = Depends(get_db),
     sort_by: SortByVaults = Query(SortByVaults.CREATED_AT),
@@ -151,8 +150,8 @@ async def get_user_vaults__router(
             "vaults": vaults_data
         }
 
-    except HTTPException:
-        raise
+    except HTTPException as e:
+        raise e
     except Exception:
         logger.exception(
             "Unexpected error while fetching user vaults; user_id=%s",
